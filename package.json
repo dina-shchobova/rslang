@@ -7,7 +7,7 @@
     "build": "webpack",
     "dev": "webpack serve --env development",
     "lint": "eslint src",
-    "prepare": "husky install"
+    "postinstall": "husky install"
   },
   "author": "",
   "devDependencies": {
