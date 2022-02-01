@@ -11,6 +11,8 @@
   },
   "author": "",
   "devDependencies": {
+    "@commitlint/cli": "^16.1.0",
+    "@commitlint/config-conventional": "^16.0.0",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.22.0",
     "clean-webpack-plugin": "^4.0.0-alpha.0",
