@@ -7,6 +7,7 @@ const ESLintPlugin = require('eslint-webpack-plugin');
 
 const devServer = (isDev) => !isDev ? {} : {
   devServer: {
+    watchFiles: ["./src/*"],
     open: true,
     port: 8080,
     static: path.join(__dirname, 'public'),

@@ -1,43 +1,45 @@
-import { LevelsAudiocall } from './Levels';
+import { Levels } from './Levels';
+import { Quiz } from './Quiz';
+import { Results } from './Results';
+import { SubPages, IGameCallComponent } from '../scripts/audiocallTypes';
 
 const htmlCodeAudiocall = `
 
-    <div class="controls">
-      <div class="btn-back"></div>
-      <div>
-        <div class="btn-sound"></div>
-        <div class="btn-fullscreen"></div>
-      </div>
-    </div>
-    <div class="content">
+<!--    <div class="controls">-->
+<!--      <div class="btn-back"></div>-->
+<!--      <div>-->
+<!--        <div class="btn-sound"></div>-->
+<!--        <div class="btn-fullscreen"></div>-->
+<!--      </div>-->
+<!--    </div>-->
+    <div class="game-call__content">
 
     </div>
 `;
 
-interface IComponent {
-  rootElement?: HTMLElement;
-}
-
-class Audiocall implements IComponent {
+class Audiocall implements IGameCallComponent {
   rootElement?: HTMLElement;
 
   contentContainer?: HTMLElement;
 
-  pages;
+  subPage: string;
+
+  subPages: SubPages;
 
   constructor() {
+    this.subPage = 'levels';
     this.rootElement = undefined;
     this.contentContainer = undefined;
-    this.pages = {
-    // levels: Levels,
-    // quiz: Quiz,
-    // result: Result,
+    this.subPages = {
+      levels: Levels,
+      quiz: Quiz,
+      result: Results,
     };
   }
 
   createRootElement(): HTMLElement {
     const rootElement = document.createElement('div');
-    rootElement.id = 'audiocall';
+    rootElement.id = 'game-call';
     rootElement.innerHTML = htmlCodeAudiocall;
     this.rootElement = rootElement;
     return rootElement;
@@ -49,20 +51,41 @@ class Audiocall implements IComponent {
   }
 
   mounted(): void {
-    this.mountChildElement();
+    this.mountSubPage();
   }
 
-  mountChildElement(): IComponent {
-    const levels = new LevelsAudiocall();
-    levels.mount(this.getContentContainer());
-    return this;
+  mountSubPage(): void {
+    const childPage = new this.subPages[this.subPage](this);
+    childPage.mount(this.getContentContainer());
   }
 
   getContentContainer(): HTMLElement {
     if (!this.contentContainer) {
-      this.contentContainer = (this.rootElement as HTMLElement).querySelector('.content') as HTMLElement;
+      this.contentContainer = (this.rootElement as HTMLElement).querySelector('.game-call__content') as HTMLElement;
     }
     return this.contentContainer;
+  }
+
+  startGame(): void {
+    this.clearChildrenContainer();
+    this.subPage = 'quiz';
+    this.mountSubPage();
+  }
+
+  showResults(): void {
+    this.clearChildrenContainer();
+    this.subPage = 'result';
+    this.mountSubPage();
+  }
+
+  chooseLevel(): void {
+    this.clearChildrenContainer();
+    this.subPage = 'levels';
+    this.mountSubPage();
+  }
+
+  clearChildrenContainer(): void {
+    this.getContentContainer().innerHTML = '';
   }
 }
 
