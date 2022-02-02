@@ -1,0 +1,64 @@
+#audiocall {
+  width: 80%;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.controls {
+  width: 100%;
+  height: 10vh;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid black;
+}
+
+.content {
+  width: 100%;
+  height: 70vh;
+  border: 1px solid black;
+}
+
+.btn-back {
+  background-image: url("../assets/back.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 3rem;
+  height: 3rem;
+}
+
+#levels {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.levels-buttons {
+  width: 40%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.level-button {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid white;
+  border-radius: 50%;
+  & .active {
+    background-color: red;
+  }
+}
+
+.audiocall-start {
+  width: 8rem;
+  height: 2.5rem;
+  margin: 1.5rem;
+}
+
