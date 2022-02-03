@@ -70,47 +70,25 @@
 
 
   &__quiz-answer {
-    width: 60%;
-    height: 30%;
+    height: 100%;
     margin: 0 auto;
     display: flex;
     justify-content: space-around;
+    visibility: hidden;
   }
 
   &__question {
     width: 10rem;
     height: 10rem;
-    margin: 0 auto;
-    border-radius: 50%;
-    border: 1px solid black;
-    background-image: url("../assets/volume.svg");
-    background-position: center;
-    background-size: 50%;
-    background-repeat: no-repeat;
-  }
-
-  &__img {
-    width: 40%;
-    height: 100%;
-    border: 1px solid black;
-  }
-
-  &__word {
-    width: 40%;
-    height: 100%;
-    border: 1px solid black;
-    display: flex;
-    justify-content: space-around;
     align-items: center;
-  }
-
-  &__pronounce {
-    width: 2rem;
-    height: 2rem;
-    background-image: url("../assets/volume.svg");
-    background-position: center;
-    background-size: 100%;
-    background-repeat: no-repeat;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: lightgrey;
+    opacity: 1;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
   }
 
   &__answer-buttons {
@@ -129,7 +107,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 1px solid black;
+    border: 3px solid black;
 
     &.game-call__answer-button_active {
       border-color: red;
@@ -153,8 +131,87 @@
     }
   }
 
-  // result
 }
+
+.question-answer-container {
+  height: 20rem;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.volume-container {
+  width: 3rem;
+  height: 3rem;
+}
+
+.volume-icon {
+  width: 50%;
+  height: 100%;
+  margin: 0 auto;
+  background-color: white;
+  -webkit-mask-image: url("../assets/volume.svg");
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  cursor: pointer;
+  &:hover {
+    background-color: grey;
+  }
+}
+
+.quiz-answer {
+  &__img {
+    width: 20rem;
+    height: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    border: 3px solid black;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
+  &__description {
+    width: 20rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    border: 3px solid black;
+  }
+
+  &__word-pronounce,
+  &__example-pronounce {
+    width: 2rem;
+    height: 2rem;
+    margin-right: 0.5rem;
+    background-image: url("../assets/volume.svg");
+    background-position: center;
+    background-size: 100%;
+    background-repeat: no-repeat;
+  }
+
+  &__word {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &__example {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+
+// result
 
 #game-call__results {
   width: 100%;

@@ -3,7 +3,7 @@ import { IGameCallComponent, ICallLevelsComponent } from '../scripts/audiocallTy
 
 const htmlCodeLevels = `
     <h2>Аудиовызов</h2>
-      <p>Выбрать правильный перевод слова озвученного слова</p>
+      <p>Выбрать правильный перевод озвученного слова</p>
       <h3>Выберите уровень</h3>
       <div class="game-call__levels-buttons">
         <div class="game-call__level-button" data-level="0">A1</div>
