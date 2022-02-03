@@ -1,0 +1,76 @@
+.authorization-wrap {
+  width: 350px;
+  height: 500px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 25px;
+
+  .header-authorization {
+    display: flex;
+    font-size: 22px;
+    color: black;
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    .title {
+      width: calc(100% / 2);
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .title-active {
+      background: indianred;
+    }
+  }
+
+  .form-field {
+    display: none;
+    flex-direction: column;
+    margin: 10px 0;
+
+    .input-wrap {
+      position: relative;
+
+      .input {
+        margin: 25px 0;
+        width: 96%;
+        height: 40px;
+        padding: 5px;
+        font-size: 20px;
+      }
+
+      .error {
+        position: absolute;
+        margin: 0;
+        color: red;
+        text-transform: none;
+        top: 82px;
+        display: none;
+      }
+
+      .error-active {
+        display: block;
+      }
+    }
+  }
+
+  .form-active {
+    display: block;
+  }
+
+  .create-account, .button-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    width: 100%;
+    height: 50px;
+    font-size: 18px;
+    margin-top: 20px;
+    background: olivedrab;
+  }
+}
