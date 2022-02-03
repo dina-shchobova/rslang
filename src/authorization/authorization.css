@@ -1,0 +1,67 @@
+.authorization-wrap {
+  width: 350px;
+  height: 500px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 25px;
+}
+.authorization-wrap .header-authorization {
+  display: flex;
+  font-size: 22px;
+  color: black;
+}
+.authorization-wrap .header-authorization:hover {
+  cursor: pointer;
+}
+.authorization-wrap .header-authorization .title {
+  width: 50%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+}
+.authorization-wrap .header-authorization .title-active {
+  background: indianred;
+}
+.authorization-wrap .form-field {
+  display: none;
+  flex-direction: column;
+  margin: 10px 0;
+}
+.authorization-wrap .form-field .input-wrap {
+  position: relative;
+}
+.authorization-wrap .form-field .input-wrap .input {
+  margin: 25px 0;
+  width: 96%;
+  height: 40px;
+  padding: 5px;
+  font-size: 20px;
+}
+.authorization-wrap .form-field .input-wrap .error {
+  position: absolute;
+  margin: 0;
+  color: red;
+  text-transform: none;
+  top: 82px;
+  display: none;
+}
+.authorization-wrap .form-field .input-wrap .error-active {
+  display: block;
+}
+.authorization-wrap .form-active {
+  display: block;
+}
+.authorization-wrap .create-account, .authorization-wrap .button-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: 100%;
+  height: 50px;
+  font-size: 18px;
+  margin-top: 20px;
+  background: olivedrab;
+}
+
+/*# sourceMappingURL=authorization.css.map */
