@@ -1,6 +1,6 @@
 .authorization-wrap {
   width: 350px;
-  height: 500px;
+  height: 450px;
   background: rgba(255, 255, 255, 0.8);
   padding: 25px;
 }
@@ -37,6 +37,7 @@
   height: 40px;
   padding: 5px;
   font-size: 20px;
+  outline: none;
 }
 .authorization-wrap .form-field .input-wrap .error {
   position: absolute;
@@ -46,7 +47,7 @@
   top: 82px;
   display: none;
 }
-.authorization-wrap .form-field .input-wrap .error-active {
+.authorization-wrap .form-field .input-wrap input:invalid:not(:placeholder-shown) + .error {
   display: block;
 }
 .authorization-wrap .form-active {
@@ -62,6 +63,27 @@
   font-size: 18px;
   margin-top: 20px;
   background: olivedrab;
+}
+
+input:invalid:not(:placeholder-shown) {
+  border-color: red;
+}
+
+input:valid:not(:placeholder-shown) {
+  border-color: green;
+}
+
+@media (max-width: 500px) {
+  .authorization-wrap {
+    width: 280px;
+    height: 380px;
+  }
+  .authorization-wrap .header-authorization {
+    font-size: 18px;
+  }
+  .authorization-wrap .form-field .input-wrap .input {
+    margin: 15px 0;
+  }
 }
 
 /*# sourceMappingURL=authorization.css.map */
