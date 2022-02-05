@@ -40,6 +40,7 @@ const htmlCodeQuiz = `
         <div class="game-call__answer-button" data-number="4">...</div>
       </div>
       <div class="game-call__quiz-control">Дальше</div>
+      <div class="counter-words"></div>
 `;
 
 const BACKEND_URL = 'https://rs-learnwords.herokuapp.com/';
@@ -287,10 +288,12 @@ class Quiz {
   }
 
   onControlButtonClick(): void {
-    if (this.currentWordNumber === 20) {
+    this.currentWordNumber += 1;
+    if (this.currentWordNumber === this.wordsForTour.length) {
       this.game.showResults();
     } else {
-      this.currentWordNumber += 1;
+      const counterBox = this.getElementBySelector('.counter-words');
+      counterBox.innerHTML = (this.currentWordNumber).toString();
       this.updateAnswersOnPage();
       this.updateAnswerView();
     }
