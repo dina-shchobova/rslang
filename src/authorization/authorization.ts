@@ -1,60 +1,64 @@
 import './authorization.scss';
 import { signin } from './services';
+import { htmlCodeAuthorization } from './createFieldAuthorization';
 
 const path = {
   user: 'https://rs-learnwords.herokuapp.com/users',
   signin: 'https://rs-learnwords.herokuapp.com/signin',
 };
 
-function createInput(inputType: string, placeholder: string, textError: string, pattern: string, id: string) {
-  return `
-    <div class="input-wrap">
-      <input id=${id} name=${inputType} class="${inputType} input" type=${inputType} placeholder=${placeholder}
-             pattern=${pattern} required>
-      <span class="error">${textError}</span>
-    </div>
-  `;
-}
-
-export const htmlCodeAuthorization = `
-  <div class="header-authorization">
-      <div class="title title-authorization title-active">Регистрация</div>
-      <div class="title title-login">Вход</div>
-  </div>
-  <div class="form-field authorization form-active">
-    ${createInput('name', 'Имя', 'Имя должно содержать минимум 4 символа',
-    '^[A-Za-zА-Яа-яЁё0-9\\s]{4,}', 'name')}
-    ${createInput('email', 'E-mail', 'Некоректный адрес электронной почты',
-    '^[\\w-]{1,}@[a-z]{1,}\\.[a-z]{2,}', 'email')}
-    ${createInput('password', 'Пароль', 'Пароль должен содержать не менее 8 символов',
-    '.{8,}', 'password')}
-    <button class="create-account">Создать аккаунт</button>
-  </div>
-  <div class="form-field login">
-    ${createInput('email', 'E-mail', 'Некоректный адрес электронной почты',
-    '^[\\w-]{1,}@[a-z]{1,}\\.[a-z]{2,}', 'signin-email')}
-    ${createInput('password', 'Пароль', 'Пароль должен содержать не менее 8 символов',
-    '.{8,}', 'signin-password')}
-    <button class="button-login">Войти</button>
-  </div>
-`;
+let userAuthorized = localStorage.getItem('userAuthorized') || false;
 
 export class Authorization {
   createFieldAuthorization(): void {
-    const body = document.querySelector('body') as HTMLElement;
+    const main = document.querySelector('main') as HTMLElement;
     const authorizationElement = document.createElement('div');
+    const overlay = document.createElement('div');
+    overlay.classList.add('overlay');
     authorizationElement.classList.add('authorization-wrap');
     authorizationElement.innerHTML = htmlCodeAuthorization;
 
-    body.appendChild(authorizationElement);
+    main.append(overlay, authorizationElement);
+    this.checkIfUserIsLoggedIn();
+    this.showOrHideFieldAuthorization();
     this.switchForm();
     this.createUser();
     this.loginUser();
+    this.logOut();
   }
+
+  checkIfUserIsLoggedIn(): void {
+    const name = localStorage.getItem('user name') as string;
+    if (JSON.parse(<string>localStorage.getItem('userAuthorized'))) {
+      this.showUserName(name);
+    }
+  }
+
+  showOrHideFieldAuthorization(): void {
+    const loginIcon = document.querySelector('.login') as HTMLElement;
+    const overlay = document.querySelector('.overlay') as HTMLElement;
+    const authorization = document.querySelector('.authorization-wrap') as HTMLElement;
+
+    loginIcon.addEventListener('click', () => {
+      overlay.classList.add('active-signin');
+      authorization.classList.add('active-signin');
+    });
+    overlay.addEventListener('click', () => {
+      this.hideAuthorization();
+    });
+  }
+
+  hideAuthorization = (): void => {
+    const overlay = document.querySelector('.overlay') as HTMLElement;
+    const authorization = document.querySelector('.authorization-wrap') as HTMLElement;
+
+    authorization.classList.remove('active-signin');
+    overlay.classList.remove('active-signin');
+  };
 
   switchForm = (): void => {
     const authorization = document.querySelector('.authorization') as HTMLElement;
-    const login = document.querySelector('.login') as HTMLElement;
+    const login = document.querySelector('.signin') as HTMLElement;
     const titleAuthorization = document.querySelector('.title-authorization') as HTMLElement;
     const titleLogin = document.querySelector('.title-login') as HTMLElement;
 
@@ -89,6 +93,7 @@ export class Authorization {
       const userEmail = email.value;
       const userPassword = password.value;
 
+      if (!userName || !userEmail || !userPassword) return;
       await signin({ name: userName, email: userEmail, password: userPassword }, path.user);
       await this.logIn(userEmail, userPassword);
       name.value = ''; email.value = ''; password.value = '';
@@ -109,7 +114,40 @@ export class Authorization {
   }
 
   logIn = async (userEmail: string, userPassword: string): Promise<void> => {
+    if (!userEmail || !userPassword) return;
     const user = await signin({ email: userEmail, password: userPassword }, path.signin);
-    localStorage.setItem(`${user.name}`, JSON.stringify({ name: user.name, id: user.userId, token: user.token }));
+    this.showUserName(`${user.name}`);
+    this.hideAuthorization();
+    userAuthorized = true;
+    localStorage.setItem('userAuthorized', JSON.stringify(userAuthorized));
+    localStorage.setItem('user', JSON.stringify(user));
+  };
+
+  logOut(): void {
+    if (!userAuthorized) return;
+    const logout = document.querySelector('.button-logout') as HTMLElement;
+    logout.addEventListener('click', () => {
+      const lastUser = document.querySelector('.user-name') as HTMLElement;
+      lastUser.remove();
+      ['user', 'user name', 'userAuthorized'].forEach((item) => localStorage.removeItem(item));
+      userAuthorized = false;
+      this.hideAuthorization();
+    });
+  }
+
+  showUserName = (name: string): void => {
+    const lastUser = document.querySelector('.user-name');
+    if (lastUser) {
+      lastUser.remove();
+    }
+
+    const navigation = document.querySelector('.navigation') as HTMLElement;
+    const login = document.querySelector('.login') as HTMLElement;
+    const userName = document.createElement('div');
+
+    userName.classList.add('user-name');
+    userName.innerHTML = name;
+    localStorage.setItem('user name', name);
+    navigation.insertBefore(userName, login);
   };
 }

@@ -1,8 +1,26 @@
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 10;
+}
+
 .authorization-wrap {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 350px;
   height: 450px;
   background: rgba(255, 255, 255, 0.8);
   padding: 25px;
+  border-radius: 25px;
+  z-index: 20;
 }
 .authorization-wrap .header-authorization {
   display: flex;
@@ -19,9 +37,11 @@
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.4);
+  font-size: 22px;
+  margin: 0;
 }
 .authorization-wrap .header-authorization .title-active {
-  background: indianred;
+  background: #2a7799;
 }
 .authorization-wrap .form-field {
   display: none;
@@ -32,9 +52,9 @@
   position: relative;
 }
 .authorization-wrap .form-field .input-wrap .input {
-  margin: 25px 0;
-  width: 96%;
-  height: 40px;
+  margin: 20px 0;
+  width: 100%;
+  height: 50px;
   padding: 5px;
   font-size: 20px;
   outline: none;
@@ -44,7 +64,7 @@
   margin: 0;
   color: red;
   text-transform: none;
-  top: 82px;
+  top: 70px;
   display: none;
 }
 .authorization-wrap .form-field .input-wrap input:invalid:not(:placeholder-shown) + .error {
@@ -53,16 +73,28 @@
 .authorization-wrap .form-active {
   display: block;
 }
-.authorization-wrap .create-account, .authorization-wrap .button-login {
+.authorization-wrap .create-account, .authorization-wrap .button-login, .authorization-wrap .button-logout {
   display: flex;
   align-items: center;
   justify-content: center;
   align-self: center;
   width: 100%;
-  height: 50px;
+  height: 40px;
   font-size: 18px;
   margin-top: 20px;
-  background: olivedrab;
+  background: darkolivegreen;
+}
+.authorization-wrap .button-logout {
+  background: brown;
+}
+
+.active-signin {
+  display: block;
+}
+
+.user-name {
+  margin-right: 20px;
+  font-size: 20px;
 }
 
 input:invalid:not(:placeholder-shown) {
@@ -78,11 +110,16 @@ input:valid:not(:placeholder-shown) {
     width: 280px;
     height: 380px;
   }
-  .authorization-wrap .header-authorization {
-    font-size: 18px;
+  .authorization-wrap .header-authorization .title {
+    font-size: 16px;
   }
   .authorization-wrap .form-field .input-wrap .input {
     margin: 15px 0;
+    height: 45px;
+  }
+  .authorization-wrap .form-field .input-wrap .error {
+    top: 55px;
+    font-size: 12px;
   }
 }
 
