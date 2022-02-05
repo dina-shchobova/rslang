@@ -118,7 +118,7 @@ input:valid:not(:placeholder-shown) {
     height: 45px;
   }
   .authorization-wrap .form-field .input-wrap .error {
-    top: 55px;
+    top: 60px;
     font-size: 12px;
   }
 }
