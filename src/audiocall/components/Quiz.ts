@@ -1,4 +1,4 @@
-import { IGameCallComponent } from '../scripts/audiocallTypes';
+import { IAnswerOnPage, IGameCallComponent, IWordData } from '../scripts/audiocallTypes';
 import { gameCallState } from '../scripts/audiocallState';
 
 function shuffleAnswers(array: IAnswerOnPage[]): IAnswerOnPage[] {
@@ -18,18 +18,18 @@ const htmlCodeQuiz = `
           <div class="quiz-answer__img"></div>
           <div class="quiz-answer__description">
             <div class="quiz-answer__word">
-            <div class="volume-container">
-              <div class="volume-icon"></div>
+              <div class="sound-container">
+                <div class="sound-icon"></div>
+              </div>
+              <div class="quiz-answer__word-spelling"></div>
             </div>
-            <div class="quiz-answer__word-spelling"></div>
-          </div>
             <div class="quiz-answer__word-translate"></div>
             <div class="quiz-answer__example-spelling"></div>
             <div class="quiz-answer__example-translate"></div>
           </div>
         </div>
         <div class="game-call__question">
-          <div class="volume-icon"></div>
+          <div class="sound-icon"></div>
         </div>
       </div>
       <div class="game-call__answer-buttons">
@@ -41,29 +41,6 @@ const htmlCodeQuiz = `
       </div>
       <div class="game-call__quiz-control">Дальше</div>
 `;
-
-interface IWordData{
-  id: string,
-  group: 0,
-  page: 0,
-  word: string,
-  image: string,
-  audio: string,
-  audioMeaning: string,
-  audioExample: string,
-  textMeaning: string,
-  textExample: string,
-  transcription: string,
-  wordTranslate: string,
-  textMeaningTranslate: string,
-  textExampleTranslate: string
-}
-
-interface IAnswerOnPage {
-  answerData: IWordData;
-  correct: undefined | boolean;
-  inactive: boolean
-}
 
 const BACKEND_URL = 'https://rs-learnwords.herokuapp.com/';
 
@@ -88,6 +65,10 @@ class Quiz {
 
   error: string | undefined;
 
+  sound: HTMLAudioElement | undefined;
+
+  numbersWordsOnPage: number[];
+
   constructor(game: IGameCallComponent) {
     this.game = game;
     this.rootElement = undefined;
@@ -95,10 +76,12 @@ class Quiz {
     this.controlButton = undefined;
     this.answerImgContainer = undefined;
     this.answersOnPage = [];
+    this.numbersWordsOnPage = [];
     this.wordsForTour = [];
     this.correctAnswerOnPage = undefined;
     this.currentWordNumber = 0;
     this.error = undefined;
+    this.sound = undefined;
   }
 
   createRootElement(): HTMLElement {
@@ -120,6 +103,11 @@ class Quiz {
     await this.loadWordsForTour();
     this.updateAnswersOnPage();
     this.updateAnswerView();
+    this.addSoundIconsListener();
+  }
+
+  getElementBySelector(selector: string): HTMLElement {
+    return (this.rootElement as HTMLElement).querySelector(selector) as HTMLElement;
   }
 
   // load words
@@ -129,6 +117,7 @@ class Quiz {
     this.wordsForTour = [];
     const page = Math.floor(Math.random() * amountPage);
     const rawResponse = await fetch(`${BACKEND_URL}words?page=${page}&group=${gameCallState.level}`, {
+      // FIXME: Move To resource
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -156,7 +145,7 @@ class Quiz {
 
   getAnswerImgContainer(): HTMLElement {
     if (!this.answerImgContainer) {
-      this.answerImgContainer = (this.rootElement as HTMLElement).querySelector('.quiz-answer__img') as HTMLElement;
+      this.answerImgContainer = this.getElementBySelector('.quiz-answer__img');
     }
     return this.answerImgContainer;
   }
@@ -173,9 +162,11 @@ class Quiz {
 
   getRandomWordNumber(): number {
     const amountWordsOnPage = 20;
-    const number = Math.floor(Math.random() * amountWordsOnPage);
-    if (number !== this.currentWordNumber) {
-      return number;
+    const randomNumber = Math.floor(Math.random() * amountWordsOnPage);
+    const index = this.numbersWordsOnPage.findIndex((item: number) => item === randomNumber);
+    if (randomNumber !== this.currentWordNumber && index === -1) {
+      this.numbersWordsOnPage.push(randomNumber);
+      return randomNumber;
     }
     return this.getRandomWordNumber();
   }
@@ -184,6 +175,7 @@ class Quiz {
     this.answersOnPage = [];
     this.setCorrectAnswerOnPage();
     this.preloadImgAnswer();
+    this.playSoundAnswer();
     const amountIncorrectAnswersOnPage = 4;
     this.answersOnPage.push(this.correctAnswerOnPage as IAnswerOnPage);
     for (let i = 0; i < amountIncorrectAnswersOnPage; i++) {
@@ -193,6 +185,27 @@ class Quiz {
       this.answersOnPage = shuffleAnswers(this.answersOnPage);
     }
     this.updateAnswerButtonsView();
+  }
+
+  // play sound
+
+  getPlayer(): HTMLAudioElement {
+    if (!this.sound) {
+      this.sound = new Audio();
+    }
+    return this.sound;
+  }
+
+  playSoundAnswer(): void {
+    const sound = this.getPlayer();
+    const { audio } = (this.correctAnswerOnPage as IAnswerOnPage).answerData;
+    sound.src = `${BACKEND_URL}${audio}`;
+    sound.play();
+  }
+
+  addSoundIconsListener(): void {
+    const soundIcons = (this.rootElement as HTMLElement).querySelectorAll('.sound-icon');
+    soundIcons.forEach((elem) => elem.addEventListener('click', () => this.playSoundAnswer()));
   }
 
   // answer button
@@ -209,7 +222,7 @@ class Quiz {
     const correctModifierClass = 'game-call__answer-button_correct';
     const incorrectModifierClass = 'game-call__answer-button_incorrect';
     const allModifiers = [inactiveModifierClass, correctModifierClass, incorrectModifierClass];
-    buttonElement.innerHTML = answer.answerData.word;
+    buttonElement.innerHTML = answer.answerData.wordTranslate;
     buttonElement.classList.remove(...allModifiers);
     if (answer.correct === true) {
       buttonElement.classList.add(correctModifierClass);
@@ -234,7 +247,7 @@ class Quiz {
   }
 
   onAnswerButtonClick(elem: HTMLElement): void {
-    this.makeVisibleAnswer();
+    this.makeAnswerVisible();
     const numOfClickedAnswer: number = parseInt(elem.dataset.number as string, 10);
     const selectedAnswer = this.answersOnPage[numOfClickedAnswer];
     if (selectedAnswer.inactive) {
@@ -244,6 +257,7 @@ class Quiz {
     if (this.answersOnPage[numOfClickedAnswer] === this.correctAnswerOnPage) {
       answeredCorrectly = true;
     }
+    this.saveToResults(answeredCorrectly);
     this.answersOnPage.forEach((answerOnPage) => {
       if (answerOnPage === this.correctAnswerOnPage) {
         answerOnPage.correct = true;
@@ -255,10 +269,18 @@ class Quiz {
     this.updateAnswerButtonsView();
   }
 
+  saveToResults(isCorrect: boolean): void {
+    if (isCorrect) {
+      gameCallState.correctAnswers.push((this.correctAnswerOnPage as IAnswerOnPage).answerData);
+    } else {
+      gameCallState.wrongAnswers.push((this.correctAnswerOnPage as IAnswerOnPage).answerData);
+    }
+  }
+
   // control button
   getControlButton(): HTMLElement {
     if (!this.controlButton) {
-      this.controlButton = document.querySelector('.game-call__quiz-control') as HTMLElement;
+      this.controlButton = this.getElementBySelector('.game-call__quiz-control') as HTMLElement;
     }
     return this.controlButton;
   }
@@ -269,7 +291,7 @@ class Quiz {
   }
 
   onControlButtonClick(): void {
-    if (this.currentWordNumber === 19) {
+    if (this.currentWordNumber === 20) {
       this.game.showResults();
     } else {
       this.currentWordNumber += 1;
@@ -282,14 +304,10 @@ class Quiz {
 
   updateAnswerView(): void {
     this.makeInvisibleAnswer();
-    const spellingWordContainer = (this.rootElement as HTMLElement)
-      .querySelector('.quiz-answer__word-spelling') as HTMLElement;
-    const translateWordContainer = (this.rootElement as HTMLElement)
-      .querySelector('.quiz-answer__word-translate') as HTMLElement;
-    const exampleSpellingContainer = (this.rootElement as HTMLElement)
-      .querySelector('.quiz-answer__example-spelling') as HTMLElement;
-    const exampleTranslateContainer = (this.rootElement as HTMLElement)
-      .querySelector('.quiz-answer__example-translate') as HTMLElement;
+    const spellingWordContainer = this.getElementBySelector('.quiz-answer__word-spelling');
+    const translateWordContainer = this.getElementBySelector('.quiz-answer__word-translate');
+    const exampleSpellingContainer = this.getElementBySelector('.quiz-answer__example-spelling');
+    const exampleTranslateContainer = this.getElementBySelector('.quiz-answer__example-translate');
     const {
       word, transcription, wordTranslate, textExample, textExampleTranslate,
     } = (this.correctAnswerOnPage as IAnswerOnPage).answerData;
@@ -299,19 +317,19 @@ class Quiz {
     exampleTranslateContainer.innerHTML = textExampleTranslate;
   }
 
-  makeVisibleAnswer(): void {
-    const answerContainer = (this.rootElement as HTMLElement).querySelector('.game-call__quiz-answer') as HTMLElement;
+  makeAnswerVisible(): void {
+    const answerContainer = this.getElementBySelector('.game-call__quiz-answer');
     answerContainer.style.visibility = 'visible';
-    const questionContainer = (this.rootElement as HTMLElement).querySelector('.game-call__question') as HTMLElement;
+    const questionContainer = this.getElementBySelector('.game-call__question');
     questionContainer.style.visibility = 'hidden';
   }
 
   makeInvisibleAnswer(): void {
-    const answerContainer = (this.rootElement as HTMLElement).querySelector('.game-call__quiz-answer') as HTMLElement;
+    const answerContainer = this.getElementBySelector('.game-call__quiz-answer');
     answerContainer.style.visibility = 'hidden';
-    const questionContainer = (this.rootElement as HTMLElement).querySelector('.game-call__question') as HTMLElement;
+    const questionContainer = this.getElementBySelector('.game-call__question');
     questionContainer.style.visibility = 'visible';
   }
 }
 
-export { Quiz };
+export { Quiz, BACKEND_URL };

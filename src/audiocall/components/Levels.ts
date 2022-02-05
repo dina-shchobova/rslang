@@ -47,6 +47,10 @@ class Levels implements ICallLevelsComponent {
     this.addStartButtonListeners();
   }
 
+  getElementBySelector(selector: string): HTMLElement {
+    return (this.rootElement as HTMLElement).querySelector(selector) as HTMLElement;
+  }
+
   getLevelButtons(): NodeList {
     if (!this.levelButtons) {
       this.levelButtons = (this.rootElement as HTMLElement).querySelectorAll('.game-call__level-button');
@@ -70,7 +74,7 @@ class Levels implements ICallLevelsComponent {
   }
 
   addStartButtonListeners(): void {
-    const startButton = (this.rootElement as HTMLElement).querySelector('.game-call__start');
+    const startButton = this.getElementBySelector('.game-call__start');
     (startButton as HTMLElement).addEventListener('click', () => this.game.startGame());
   }
 }

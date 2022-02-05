@@ -1,7 +1,9 @@
-const gameCallState = {
+import { IGameCallState } from './audiocallTypes';
+
+const gameCallState: IGameCallState = {
   level: 1,
-  rightAnswers: ['coming', 'soon'],
-  wrongAnswers: ['wait', 'a', 'moment'],
+  correctAnswers: [],
+  wrongAnswers: [],
 };
 
 export { gameCallState };

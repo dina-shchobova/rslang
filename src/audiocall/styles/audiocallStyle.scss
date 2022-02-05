@@ -140,12 +140,12 @@
   align-items: center;
 }
 
-.volume-container {
+.sound-container {
   width: 3rem;
   height: 3rem;
 }
 
-.volume-icon {
+.sound-icon {
   width: 50%;
   height: 100%;
   margin: 0 auto;
@@ -231,4 +231,30 @@
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
+}
+
+.wrong-answer {
+  background-color: red;
+}
+
+.correct-answer {
+  background-color: #69c216;
+}
+
+.count-answer {
+  display: inline-flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.count-correct-answer {
+  background-color: #69c216;
+}
+
+.count-wrong-answer {
+  background-color: red;
 }

@@ -5,6 +5,7 @@ type SubPages = {
 interface ICallComponent {
   rootElement?: HTMLElement;
   mount:(elem: HTMLElement) => void;
+  getElementBySelector:(selector: string) => HTMLElement;
   // TODO: destroy:() => void;
 }
 
@@ -22,6 +23,35 @@ interface ICallLevelsComponent extends ICallComponent {
   game: IGameCallComponent;
 }
 
+interface IWordData{
+  id: string,
+  group: 0,
+  page: 0,
+  word: string,
+  image: string,
+  audio: string,
+  audioMeaning: string,
+  audioExample: string,
+  textMeaning: string,
+  textExample: string,
+  transcription: string,
+  wordTranslate: string,
+  textMeaningTranslate: string,
+  textExampleTranslate: string
+}
+
+interface IAnswerOnPage {
+  answerData: IWordData;
+  correct: undefined | boolean;
+  inactive: boolean
+}
+
+interface IGameCallState {
+  level: number;
+  correctAnswers: IWordData[];
+  wrongAnswers: IWordData[];
+}
+
 export {
-  ICallComponent, IGameCallComponent, ICallLevelsComponent, SubPages,
+  ICallComponent, IGameCallComponent, ICallLevelsComponent, SubPages, IWordData, IAnswerOnPage, IGameCallState,
 };

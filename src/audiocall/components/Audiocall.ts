@@ -61,9 +61,13 @@ class Audiocall implements IGameCallComponent {
 
   getContentContainer(): HTMLElement {
     if (!this.contentContainer) {
-      this.contentContainer = (this.rootElement as HTMLElement).querySelector('.game-call__content') as HTMLElement;
+      this.contentContainer = this.getElementBySelector('.game-call__content') as HTMLElement;
     }
     return this.contentContainer;
+  }
+
+  getElementBySelector(selector: string): HTMLElement {
+    return (this.rootElement as HTMLElement).querySelector(selector) as HTMLElement;
   }
 
   startGame(): void {
