@@ -67,8 +67,6 @@ class Quiz {
 
   sound: HTMLAudioElement | undefined;
 
-  numbersWordsOnPage: number[];
-
   constructor(game: IGameCallComponent) {
     this.game = game;
     this.rootElement = undefined;
@@ -76,7 +74,6 @@ class Quiz {
     this.controlButton = undefined;
     this.answerImgContainer = undefined;
     this.answersOnPage = [];
-    this.numbersWordsOnPage = [];
     this.wordsForTour = [];
     this.correctAnswerOnPage = undefined;
     this.currentWordNumber = 0;
@@ -160,15 +157,14 @@ class Quiz {
     };
   }
 
-  getRandomWordNumber(): number {
-    const amountWordsOnPage = 20;
-    const randomNumber = Math.floor(Math.random() * amountWordsOnPage);
-    const index = this.numbersWordsOnPage.findIndex((item: number) => item === randomNumber);
-    if (randomNumber !== this.currentWordNumber && index === -1) {
-      this.numbersWordsOnPage.push(randomNumber);
-      return randomNumber;
+  getRandomIncorrectWord(): IWordData {
+    const allWordsAmount = this.wordsForTour.length;
+    const randomNumber = Math.floor(Math.random() * allWordsAmount);
+    const potentialWord = this.wordsForTour[randomNumber];
+    if (this.answersOnPage.findIndex((answerOnPage) => answerOnPage.answerData.id === potentialWord.id) !== -1) {
+      return this.getRandomIncorrectWord();
     }
-    return this.getRandomWordNumber();
+    return potentialWord;
   }
 
   updateAnswersOnPage(): void {
@@ -179,7 +175,7 @@ class Quiz {
     const amountIncorrectAnswersOnPage = 4;
     this.answersOnPage.push(this.correctAnswerOnPage as IAnswerOnPage);
     for (let i = 0; i < amountIncorrectAnswersOnPage; i++) {
-      const wordForAnswer = this.wordsForTour[this.getRandomWordNumber()];
+      const wordForAnswer = this.getRandomIncorrectWord();
       const wrappedAnswer = Quiz.wrapAnswer(wordForAnswer);
       this.answersOnPage.push(wrappedAnswer);
       this.answersOnPage = shuffleAnswers(this.answersOnPage);
