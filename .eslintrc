@@ -10,7 +10,8 @@
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": "./tsconfig.json"
+    "project": "./tsconfig.json",
+    "extraFileExtensions": [".ts"]
   },
   "plugins": [
     "@typescript-eslint",

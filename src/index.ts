@@ -17,8 +17,11 @@ pageContainer.id = 'page_container';
 document.body.appendChild(pageContainer);
 
 const header = document.getElementById('header') as HTMLElement;
-(async () => header.innerHTML = await Navbar())();
-
+const navAwaiter = async () => {
+  const temp = await Navbar();
+  header.innerHTML = temp;
+};
+navAwaiter();
 const content = document.getElementById('page_container') as HTMLDivElement;
 
 const routes = {
@@ -27,8 +30,6 @@ const routes = {
   '/games': Games,
   '/winners': Statistics,
 };
-
-const player = document.getElementById('ddd')
 
 const notFound = async () => '<div>Not Found</div>';
 const app = new ApplicationRoute(content, routes, notFound);
