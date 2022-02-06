@@ -1,4 +1,5 @@
 import './style.scss';
+import { ChooseLevel } from './sprint/script/chooseLevel';
 
 import { ApplicationRoute } from './services/application-route';
 import { Navbar } from './views/components/navbar';
@@ -44,3 +45,5 @@ const burger = document.querySelector('.menu') as HTMLElement;
   });
 }());
 
+const chooseLevel = new ChooseLevel();
+chooseLevel.createFieldChoose();
