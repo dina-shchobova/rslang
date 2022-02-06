@@ -1,6 +1,5 @@
 $firstAccent: #2a7799;
 $secondAccent: lightgrey;
-$textShadow: 0 0 25px white;
 $colorCorrectAnswer: #69c216;
 $colorWrongAnswer: #ff1e00;
 
@@ -36,7 +35,15 @@ $colorWrongAnswer: #ff1e00;
     opacity: 1;
   }
   &_scroll {
-    overflow: scroll;
+    overflow-y: scroll;
+  }
+  &_words {
+    width: 30rem;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 25px;
   }
 }
 
@@ -92,13 +99,6 @@ $colorWrongAnswer: #ff1e00;
 
   }
 
-  &__start {
-    width: 8rem;
-    height: 2.5rem;
-    margin: 1.5rem;
-    cursor: pointer;
-  }
-
   // quiz
 
   &__quiz-answer {
@@ -132,7 +132,8 @@ $colorWrongAnswer: #ff1e00;
 
   &__answer-button,
   &__quiz-control,
-  &__close-result {
+  &__close-result,
+  &__start {
     cursor: pointer;
     width: 12rem;
     height: 3rem;
@@ -165,6 +166,15 @@ $colorWrongAnswer: #ff1e00;
     }
   }
 
+  // results
+  &__right-answers,
+  &__wrong-answers {
+    width: 20rem;
+  }
+
+  &__close-result {
+    margin-top: 1.5rem;
+  }
 }
 
 .question-answer-container {
@@ -196,6 +206,16 @@ $colorWrongAnswer: #ff1e00;
   &:hover {
     background-color: white;
   }
+}
+
+.counter-words {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  border-radius: 50%;
 }
 
 .quiz-answer {
@@ -236,7 +256,7 @@ $colorWrongAnswer: #ff1e00;
     width: 100%;
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
   }
 
@@ -257,8 +277,6 @@ $colorWrongAnswer: #ff1e00;
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
-  background-color: white;
-  color: black;
 }
 
 #game-call__quiz {
@@ -294,4 +312,10 @@ $colorWrongAnswer: #ff1e00;
 
 .count-wrong-answer {
   background-color: red;
+}
+
+.results-subtitle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
