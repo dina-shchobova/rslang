@@ -1,4 +1,4 @@
 export const TextBook = async (): Promise<string> => {
-  const view = '<div id="text-book">Text Book</div>';
+  const view = '<div>TextBook</div>'
   return view;
 };

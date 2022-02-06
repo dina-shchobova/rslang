@@ -1,36 +1,26 @@
-import { Home } from '../views/pages/home';
-import { TextBook } from '../views/pages/text-book';
-import { Games } from '../views/pages/games';
-import { Statistics } from '../views/pages/statistics';
-import { Navbar } from '../views/components/navbar';
-import Utils, { IResource } from './utils';
+import { PageContentRoutes, PageContentThunk } from "./types";
 
-export const ApplicationRoute = (): void => {
-  const routes: any = {
-    '/': Home,
-    '/text-book': TextBook,
-    '/games': Games,
-    '/winners': Statistics,
-  };
-  const headerStart = document.createElement('header');
-  const pageContainer = document.createElement('div');
-  headerStart.classList.add('header');
-  headerStart.id = 'header';
-  document.body.appendChild(headerStart);
-  pageContainer.classList.add('container');
-  pageContainer.id = 'page_container';
-  document.body.appendChild(pageContainer);
+export class ApplicationRoute {
+  content: HTMLDivElement;
+  routes: PageContentRoutes;
+  notFound: PageContentThunk;
+  constructor(content: HTMLDivElement, routes: PageContentRoutes, notFound: PageContentThunk) {
+    this.content = content;
+    this.routes = routes;
+    this.notFound = notFound
+  }
 
-  const router = async () => {
-    const header = document.getElementById('header') as HTMLElement;
-    const content = document.getElementById('page_container') as HTMLDivElement;
-    header.innerHTML = await Navbar();
-    const request: IResource = Utils.parseRequestURL();
-    const parsedURL: string = request.resource ? `/${request.resource}` : '/';
-    const page = routes[parsedURL];
-    content.innerHTML = await page();
-  };
+  router() {
+    const url = window.location.hash.slice(1).toLowerCase() || '/';
+    const resource = url.split('/')[1];
+    const request = { resource };
+    const parsedURL = request.resource ? `/${request.resource}` : '/';
+    if (this.routes[parsedURL]) return this.routes[parsedURL]()
+    return this.notFound();
+  }
 
-  window.addEventListener('hashchange', router);
-  window.addEventListener('load', router);
+  async listen() {
+    window.addEventListener('hashchange', async () => this.content.innerHTML = await this.router());
+    window.addEventListener('load', async () => this.content.innerHTML = await this.router());
+  }
 };
