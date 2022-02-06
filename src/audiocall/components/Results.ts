@@ -6,16 +6,16 @@ import { BACKEND_URL } from './Quiz';
 
 const htmlCodeResult = `
       <h2 class="title">Результаты</h2>
-      <div class="field_white field_scroll field_words">
-        <div class="results-subtitle">
-          <span class="text-advantages">Вы знаете</span>
+      <div class="field_white field_scroll">
+        <div>
+          <span>Вы знаете</span>
           <span class="count-answer count-correct-answer"></span>
         </div>
         <div class="game-call__right-answers">
 
         </div>
-        <div class="results-subtitle">
-          <span class="text-advantages">Вы не знаете</span>
+        <div>
+          <span>Вы не знаете</span>
           <span class="count-answer count-wrong-answer"></span>
         </div>
 
@@ -89,7 +89,7 @@ class Results implements ICallLevelsComponent {
       const spellingBox = document.createElement('div');
       spellingBox.classList.add('quiz-answer__word-spelling');
       wordBox.appendChild(spellingBox);
-      spellingBox.innerHTML = `${answer.word} - ${answer.wordTranslate}`;
+      spellingBox.innerHTML = answer.word;
       box.appendChild(wordBox);
     });
   }

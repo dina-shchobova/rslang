@@ -4,7 +4,7 @@ import { IGameCallComponent, ICallLevelsComponent } from '../scripts/audiocallTy
 const htmlCodeLevels = `
     <h2 class="title">Аудиовызов</h2>
       <p class="game-call__game-description">Выбрать правильный перевод озвученного слова</p>
-      <h3 class="text-advantages instructions">Выберите уровень</h3>
+      <h3>Выберите уровень</h3>
       <div class="game-call__levels-buttons">
         <div class="game-call__level-button button_shadow" data-level="0">A1</div>
         <div class="game-call__level-button button_shadow" data-level="1">A2</div>
@@ -13,7 +13,7 @@ const htmlCodeLevels = `
         <div class="game-call__level-button button_shadow" data-level="4">C1</div>
         <div class="game-call__level-button button_shadow" data-level="5">C2</div>
       </div>
-      <div class="game-call__start">Старт</div>
+      <button class="game-call__start">Старт</button>
 `;
 
 class Levels implements ICallLevelsComponent {

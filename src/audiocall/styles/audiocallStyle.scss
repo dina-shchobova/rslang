@@ -1,5 +1,6 @@
 $firstAccent: #2a7799;
 $secondAccent: lightgrey;
+$textShadow: 0 0 25px white;
 $colorCorrectAnswer: #69c216;
 $colorWrongAnswer: #ff1e00;
 
@@ -10,9 +11,6 @@ $colorWrongAnswer: #ff1e00;
   flex-direction: column;
   justify-content: space-between;
   margin: 0 auto;
-  @media (max-width: 425px) {
-    width: 94%;
-  }
 }
 
 .controls {
@@ -33,28 +31,12 @@ $colorWrongAnswer: #ff1e00;
   padding: 25px;
   background: rgba(255, 255, 255, 0.8);
   border-radius: 25px;
-//  box-shadow: 0 0 10px black;
+  box-shadow: 0 0 10px black;
   &_white {
     opacity: 1;
-    background-color: white;
-    border-radius: 25px;
   }
   &_scroll {
-    overflow-y: scroll;
-  }
-  &_words {
-    width: 30rem;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border-radius: 25px;
-    @media (max-width: 425px) {
-      width: 100%;
-    }
-  }
-  @media (max-width: 425px) {
-    padding: 10px;
+    overflow: scroll;
   }
 }
 
@@ -80,21 +62,12 @@ $colorWrongAnswer: #ff1e00;
 }
 
 .game-call__levels-buttons {
-  width: 30rem;
+  width: 40%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  @media (max-width: 768px) {
-    width: 20rem;
-  }
-  @media (max-width: 425px) {
-    width: 17rem;
-  }
 }
 
-.instructions {
-  text-align: center;
-}
 
 .game-call {
   &__game-description {
@@ -116,10 +89,14 @@ $colorWrongAnswer: #ff1e00;
       box-shadow: 0 0 20px $firstAccent;
       color: $firstAccent;
     }
-    @media (max-width: 425px) {
-      width: 2.5rem;
-      height: 2.5rem;
-    }
+
+  }
+
+  &__start {
+    width: 8rem;
+    height: 2.5rem;
+    margin: 1.5rem;
+    cursor: pointer;
   }
 
   // quiz
@@ -128,20 +105,8 @@ $colorWrongAnswer: #ff1e00;
     height: 100%;
     margin: 0 auto;
     display: flex;
-    flex-direction: row;
     justify-content: space-around;
     visibility: hidden;
-    @media (max-width: 768px) {
-      width: 20rem;
-      flex-direction: column;
-
-      &.field {
-        box-shadow: none;
-        border-radius: 0;
-        padding: 0;
-      }
-    }
-
   }
 
   &__question {
@@ -163,17 +128,11 @@ $colorWrongAnswer: #ff1e00;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
-    @media (max-width: 1024px) {
-      flex-direction: column;
-      height: 17rem;
-      align-items: center;
-    }
   }
 
   &__answer-button,
   &__quiz-control,
-  &__close-result,
-  &__start {
+  &__close-result {
     cursor: pointer;
     width: 12rem;
     height: 3rem;
@@ -206,18 +165,6 @@ $colorWrongAnswer: #ff1e00;
     }
   }
 
-  // results
-  &__right-answers,
-  &__wrong-answers {
-    width: 20rem;
-    @media (max-width: 425px) {
-      width: 100%
-    }
-  }
-
-  &__close-result {
-    margin-top: 1.5rem;
-  }
 }
 
 .question-answer-container {
@@ -225,13 +172,6 @@ $colorWrongAnswer: #ff1e00;
   width: 100%;
   display: flex;
   align-items: center;
-  @media (min-width: 769px) and (max-width: 1024px) {
-    height: 15rem;
-  }
-}
-
-.game-call__quiz-control {
-  background-color: rgba(42, 119, 153, 0.25);
 }
 
 .sound-container {
@@ -258,16 +198,6 @@ $colorWrongAnswer: #ff1e00;
   }
 }
 
-.counter-words {
-  width: 2rem;
-  height: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: white;
-  border-radius: 50%;
-}
-
 .quiz-answer {
 
   &__img {
@@ -278,18 +208,6 @@ $colorWrongAnswer: #ff1e00;
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
-    border-radius: 25px 25px 0 0;
-    @media (max-width: 768px) {
-      width: 100%;
-    }
-    @media (min-width: 769px) and (max-width: 1024px) {
-      width: 16rem;
-      border-radius: 25px 0 0 25px;
-    }
-    @media (min-width: 1025px) {
-      width: 20rem;
-      border-radius: 25px 0 0 25px;
-    }
   }
 
   &__description {
@@ -301,12 +219,6 @@ $colorWrongAnswer: #ff1e00;
     align-items: center;
     padding: 0.5rem;
     box-sizing: border-box;
-    @media (max-width: 768px) {
-      width: 100%;
-    }
-    @media (min-width: 769px) and (max-width: 1024px) {
-      width: 16rem;
-    }
   }
 
   &__word-pronounce,
@@ -324,7 +236,7 @@ $colorWrongAnswer: #ff1e00;
     width: 100%;
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: center;
     align-items: center;
   }
 
@@ -345,6 +257,8 @@ $colorWrongAnswer: #ff1e00;
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
+  background-color: white;
+  color: black;
 }
 
 #game-call__quiz {
@@ -380,10 +294,4 @@ $colorWrongAnswer: #ff1e00;
 
 .count-wrong-answer {
   background-color: red;
-}
-
-.results-subtitle {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
 }

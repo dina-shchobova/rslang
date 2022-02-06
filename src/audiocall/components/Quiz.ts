@@ -14,7 +14,7 @@ function shuffleAnswers(array: IAnswerOnPage[]): IAnswerOnPage[] {
 
 const htmlCodeQuiz = `
       <div class="question-answer-container">
-        <div class="game-call__quiz-answer field_white">
+        <div class="game-call__quiz-answer field field_white">
           <div class="quiz-answer__img"></div>
           <div class="quiz-answer__description">
             <div class="quiz-answer__word">
@@ -40,7 +40,7 @@ const htmlCodeQuiz = `
         <div class="game-call__answer-button" data-number="4">...</div>
       </div>
       <div class="game-call__quiz-control">Дальше</div>
-      <div class="counter-words button_shadow">1</div>
+      <div class="counter-words"></div>
 `;
 
 const BACKEND_URL = 'https://rs-learnwords.herokuapp.com/';
@@ -294,7 +294,7 @@ class Quiz {
       this.game.showResults();
     } else {
       const counterBox = this.getElementBySelector('.counter-words');
-      counterBox.innerHTML = (this.currentWordNumber + 1).toString();
+      counterBox.innerHTML = (this.currentWordNumber).toString();
       this.updateAnswersOnPage();
       this.updateAnswerView();
     }
