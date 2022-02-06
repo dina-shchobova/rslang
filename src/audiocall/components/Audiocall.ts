@@ -91,6 +91,10 @@ class Audiocall implements IGameCallComponent {
   clearChildrenContainer(): void {
     this.getContentContainer().innerHTML = '';
   }
+
+  static clearContainer(elem: HTMLElement) {
+    elem.innerHTML = '';
+  }
 }
 
 export { Audiocall };

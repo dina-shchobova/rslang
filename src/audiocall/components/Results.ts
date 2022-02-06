@@ -5,22 +5,25 @@ import {
 import { BACKEND_URL } from './Quiz';
 
 const htmlCodeResult = `
-      <h2>Результаты</h2>
-      <div>
-        <span>Вы знаете</span>
-        <span class="count-answer count-correct-answer"></span>
-      </div>
-      <div class="game-call__right-answers">
+      <h2 class="title">Результаты</h2>
+      <div class="field_white field_scroll">
+        <div>
+          <span>Вы знаете</span>
+          <span class="count-answer count-correct-answer"></span>
+        </div>
+        <div class="game-call__right-answers">
 
-      </div>
-      <div>
-        <span>Вы не знаете</span>
-        <span class="count-answer count-wrong-answer"></span>
+        </div>
+        <div>
+          <span>Вы не знаете</span>
+          <span class="count-answer count-wrong-answer"></span>
+        </div>
+
+        <div class="game-call__wrong-answers">
+
+        </div>
       </div>
 
-      <div class="game-call__wrong-answers">
-
-      </div>
       <button class="game-call__close-result">Закрыть</button>
 `;
 
@@ -43,6 +46,7 @@ class Results implements ICallLevelsComponent {
   createRootElement(): HTMLElement {
     const rootElement = document.createElement('div');
     rootElement.id = 'game-call__results';
+    rootElement.classList.add('field');
     rootElement.innerHTML = htmlCodeResult;
     this.rootElement = rootElement;
     return rootElement;

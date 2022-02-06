@@ -14,7 +14,7 @@ function shuffleAnswers(array: IAnswerOnPage[]): IAnswerOnPage[] {
 
 const htmlCodeQuiz = `
       <div class="question-answer-container">
-        <div class="game-call__quiz-answer">
+        <div class="game-call__quiz-answer field field_white">
           <div class="quiz-answer__img"></div>
           <div class="quiz-answer__description">
             <div class="quiz-answer__word">
@@ -85,6 +85,7 @@ class Quiz {
   createRootElement(): HTMLElement {
     const rootElement = document.createElement('div');
     rootElement.id = 'game-call__quiz';
+    rootElement.classList.add('field');
     rootElement.innerHTML = htmlCodeQuiz;
     this.rootElement = rootElement;
     return rootElement;

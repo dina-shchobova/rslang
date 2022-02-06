@@ -2,16 +2,16 @@ import { gameCallState } from '../scripts/audiocallState';
 import { IGameCallComponent, ICallLevelsComponent } from '../scripts/audiocallTypes';
 
 const htmlCodeLevels = `
-    <h2>Аудиовызов</h2>
-      <p>Выбрать правильный перевод озвученного слова</p>
+    <h2 class="title">Аудиовызов</h2>
+      <p class="game-call__game-description">Выбрать правильный перевод озвученного слова</p>
       <h3>Выберите уровень</h3>
       <div class="game-call__levels-buttons">
-        <div class="game-call__level-button" data-level="0">A1</div>
-        <div class="game-call__level-button" data-level="1">A2</div>
-        <div class="game-call__level-button" data-level="2">B1</div>
-        <div class="game-call__level-button" data-level="3">B2</div>
-        <div class="game-call__level-button" data-level="4">C1</div>
-        <div class="game-call__level-button" data-level="5">C2</div>
+        <div class="game-call__level-button button_shadow" data-level="0">A1</div>
+        <div class="game-call__level-button button_shadow" data-level="1">A2</div>
+        <div class="game-call__level-button button_shadow" data-level="2">B1</div>
+        <div class="game-call__level-button button_shadow" data-level="3">B2</div>
+        <div class="game-call__level-button button_shadow" data-level="4">C1</div>
+        <div class="game-call__level-button button_shadow" data-level="5">C2</div>
       </div>
       <button class="game-call__start">Старт</button>
 `;
@@ -32,6 +32,7 @@ class Levels implements ICallLevelsComponent {
   createRootElement(): HTMLElement {
     const rootElement = document.createElement('div');
     rootElement.id = 'game-call__levels';
+    rootElement.classList.add('field');
     rootElement.innerHTML = htmlCodeLevels;
     this.rootElement = rootElement;
     return rootElement;

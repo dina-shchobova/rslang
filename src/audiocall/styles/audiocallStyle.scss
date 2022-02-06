@@ -1,9 +1,16 @@
+$firstAccent: #2a7799;
+$secondAccent: lightgrey;
+$textShadow: 0 0 25px white;
+$colorCorrectAnswer: #69c216;
+$colorWrongAnswer: #ff1e00;
+
 #game-call {
-  width: 70%;
+  width: 76%;
   height: 90vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  margin: 0 auto;
 }
 
 .controls {
@@ -18,7 +25,24 @@
 .game-call__content {
   width: 100%;
   height: 100%;
-  border: 1px solid black;
+}
+
+.field {
+  padding: 25px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 25px;
+  box-shadow: 0 0 10px black;
+  &_white {
+    opacity: 1;
+  }
+  &_scroll {
+    overflow: scroll;
+  }
+}
+
+.button_shadow {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 10px black;
 }
 
 .btn-back {
@@ -33,7 +57,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
+  height: 100%;
 }
 
 .game-call__levels-buttons {
@@ -43,18 +68,26 @@
   justify-content: space-between;
 }
 
+
 .game-call {
+  &__game-description {
+    font-size: 16px;
+    text-shadow: 0 0 10px black;
+    text-align: center;
+  }
+
   &__level-button {
     width: 3rem;
     height: 3rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 3px solid white;
+    background-color: white;
     border-radius: 50%;
     cursor: pointer;
     &_active{
-      border: 3px solid #349a25;
+      box-shadow: 0 0 20px $firstAccent;
+      color: $firstAccent;
     }
 
   }
@@ -67,7 +100,6 @@
   }
 
   // quiz
-
 
   &__quiz-answer {
     height: 100%;
@@ -83,7 +115,7 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background-color: lightgrey;
+    background-color: $secondAccent;
     opacity: 1;
     position: absolute;
     left: 0;
@@ -102,32 +134,34 @@
   &__quiz-control,
   &__close-result {
     cursor: pointer;
-    width: 8rem;
-    height: 2.5rem;
+    width: 12rem;
+    height: 3rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 3px solid black;
+    background-color: white;
+    border-radius: 0.5rem;
+    border: 3px solid $firstAccent;
 
     &.game-call__answer-button_active {
-      border-color: red;
+      border-color: $colorWrongAnswer;
     }
   }
 
   &__answer-button {
 
     &_inactive {
-      border: 3px solid white;
+      border-color: white;
       opacity: 0.3;
       cursor: not-allowed;
     }
 
     &_correct {
-      border: 3px solid #69c216;
+      border-color: $colorCorrectAnswer;
     }
 
     &_incorrect {
-      border: 3px solid #ff0000;
+      border-color: $colorWrongAnswer;
     }
   }
 
@@ -141,32 +175,36 @@
 }
 
 .sound-container {
-  width: 3rem;
-  height: 3rem;
+  width: 2rem;
+  height: 2rem;
+  background-color: lightgray;
+  border-radius: 50%;
+  margin: 0 1rem;
 }
 
 .sound-icon {
   width: 50%;
   height: 100%;
   margin: 0 auto;
-  background-color: white;
+  background-color: $firstAccent;
   -webkit-mask-image: url("../assets/volume.svg");
   -webkit-mask-position: center;
   -webkit-mask-size: contain;
   -webkit-mask-repeat: no-repeat;
   cursor: pointer;
+  transition: background-color 0.2s;
   &:hover {
-    background-color: grey;
+    background-color: white;
   }
 }
 
 .quiz-answer {
+
   &__img {
     width: 20rem;
     height: 100%;
     padding: 0.5rem;
     box-sizing: border-box;
-    border: 3px solid black;
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
@@ -181,7 +219,6 @@
     align-items: center;
     padding: 0.5rem;
     box-sizing: border-box;
-    border: 3px solid black;
   }
 
   &__word-pronounce,
@@ -234,11 +271,11 @@
 }
 
 .wrong-answer {
-  background-color: red;
+  background-color: #ff2f00;
 }
 
 .correct-answer {
-  background-color: #69c216;
+  background-color: $colorCorrectAnswer;
 }
 
 .count-answer {
@@ -252,7 +289,7 @@
 }
 
 .count-correct-answer {
-  background-color: #69c216;
+  background-color: $colorCorrectAnswer;
 }
 
 .count-wrong-answer {
