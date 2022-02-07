@@ -7,6 +7,7 @@ const ESLintPlugin = require('eslint-webpack-plugin');
 
 const devServer = (isDev) => !isDev ? {} : {
   devServer: {
+    watchFiles: ["./src/*"],
     open: true,
     port: 8080,
     static: path.join(__dirname, 'public'),
@@ -46,7 +47,7 @@ module.exports = ({ development }) => ({
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
-        test: /\.s[ac]ss$/i,
+        test: /\.(sa|sc)ss$/i,
         use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader']
       }
     ],
