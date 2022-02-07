@@ -1,4 +1,5 @@
 import { SprintResult } from './sprintResult';
+import { exitGame } from './sprintGameControl';
 
 export class Timer {
   startTimer = (answers: (string | boolean)[][]): void => {
@@ -6,6 +7,7 @@ export class Timer {
     let currentTimer = +timer.innerHTML;
 
     const interval = setInterval(() => {
+      if (exitGame.isExit) clearInterval(interval);
       if (currentTimer === -1) {
         clearInterval(interval);
         new SprintResult().showResult(answers);

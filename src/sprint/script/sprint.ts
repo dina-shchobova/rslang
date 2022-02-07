@@ -1,7 +1,10 @@
 import '../style/sprint.scss';
 import { getWord } from './services';
 import { Timer } from './timer';
+import { SprintGameControl } from './sprintGameControl';
+import { Score, amountTrueAnswers } from './score';
 
+const AMOUNT_WORDS = 20;
 let amountWords = 0;
 let currentPage = 0;
 let currentWord = 0;
@@ -15,14 +18,18 @@ const htmlCodeSprint = `
           <div class="zoom button"></div>
           <div class="close button"></div>
       </div>
-      <div class="timer">60</div>
-      <div class="sprint-game">
-          <div class="word"></div>
-          <div class="translate"></div>
-          <div class="response-type">
-              <div class="answer-false button" id="false">Неверно</div>
-              <div class="answer-true button" id="true">Верно</div>
-          </div>
+      <div class="game-wrap">
+        <div class="current-state">
+          <div class="timer">60</div>
+        </div>
+        <div class="sprint-game">
+            <div class="word"></div>
+            <div class="translate"></div>
+            <div class="response-type">
+                <div class="answer-false button" id="false">Неверно</div>
+                <div class="answer-true button" id="true">Верно</div>
+            </div>
+        </div>
       </div>
     </div>
 `;
@@ -30,27 +37,43 @@ const htmlCodeSprint = `
 export class Sprint {
   private timer: Timer;
 
+  private controlGame: SprintGameControl;
+
+  private score: Score;
+
   constructor() {
     this.timer = new Timer();
+    this.controlGame = new SprintGameControl();
+    this.score = new Score();
   }
 
   async createPageGameSprint(group: number): Promise<void> {
     const body = document.querySelector('body') as HTMLElement;
+    const chooseLevels = document.querySelector('.choose-levels') as HTMLElement;
     const sprintPage = document.createElement('div');
+
     sprintPage.innerHTML = htmlCodeSprint;
     sprintPage.classList.add('sprint-wrap');
     body.appendChild(sprintPage);
+    chooseLevels.remove();
 
-    await this.generateWord(group, currentPage);
+    await this.generateWord(group);
     this.showNextWord(group);
     this.timer.startTimer(answers);
+    this.controlGame.controlGame();
+    this.score.createScoreWrap();
   }
 
-  async generateWord(group: number, page = 0): Promise<void> {
-    const word = document.querySelector('.word') as HTMLElement;
-    const words = await getWord(group, page);
+  randomGeneratePage = (): void => {
+    currentPage = Math.floor(Math.random() * AMOUNT_WORDS);
+  };
 
-    answers[currentWord] = [words[currentWord].word, words[currentWord].wordTranslate, words[currentWord].audio];
+  async generateWord(group: number): Promise<void> {
+    this.randomGeneratePage();
+    const word = document.querySelector('.word') as HTMLElement;
+    const words = await getWord(group, currentPage);
+
+    answers[amountWords] = [words[currentWord].word, words[currentWord].wordTranslate, words[currentWord].audio];
     await this.generateWordTranslate(group, words[currentWord].wordTranslate)
       .then(() => {
         word.innerHTML = words[currentWord].word;
@@ -59,11 +82,13 @@ export class Sprint {
 
   generateWordTranslate = async (group: number, trueTranslate: string): Promise<void> => {
     const wordTranslate = document.querySelector('.translate') as HTMLElement;
-    const numberTranslateWord = Math.floor(Math.random() * 20);
+    const numberTranslateWord = Math.floor(Math.random() * AMOUNT_WORDS);
     const translate = await getWord(group, currentPage);
+    const translateWord = [translate[numberTranslateWord].wordTranslate, trueTranslate];
+    const word = translateWord[Math.floor(Math.random() * translateWord.length)];
 
-    wordTranslate.innerHTML = translate[numberTranslateWord].wordTranslate;
-    trueAnswer = trueTranslate === translate[numberTranslateWord].wordTranslate;
+    wordTranslate.innerHTML = word;
+    trueAnswer = trueTranslate === word;
   };
 
   showNextWord(group: number): void {
@@ -78,7 +103,7 @@ export class Sprint {
         currentPage++;
         currentWord = 0;
       }
-      await this.generateWord(group, currentPage);
+      await this.generateWord(group);
     };
 
     const clickAnswer = (button: HTMLElement) => {
@@ -96,13 +121,24 @@ export class Sprint {
     clickAnswer(answerFalse);
   }
 
-  checkAnswer = (typeAnswer: string | null): void => {
+  checkAnswer(typeAnswer: string | null): void {
     const sprintGame = document.querySelector('.sprint-game') as HTMLElement;
     // new Audio(String(trueAnswer) === typeAnswer ? './assets/true.mp3' : './assets/false.mp3').play();
+
     sprintGame.classList.add(String(trueAnswer) === typeAnswer ? 'true' : 'false');
-    answers[currentWord].push(String(trueAnswer) === typeAnswer);
+    answers[amountWords].push(String(trueAnswer) === typeAnswer);
+
+    if (String(trueAnswer) === typeAnswer) {
+      amountTrueAnswers.count++;
+      amountTrueAnswers.numberBulb = amountTrueAnswers.numberBulb === 2 ? 0 : amountTrueAnswers.numberBulb + 1;
+    } else {
+      amountTrueAnswers.count = 0;
+      amountTrueAnswers.numberBulb = -1;
+    }
+    this.score.countAnswers();
+
     setTimeout(() => {
       sprintGame.classList.remove('true', 'false');
-    }, 1000);
-  };
+    }, 500);
+  }
 }

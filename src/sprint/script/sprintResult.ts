@@ -1,4 +1,5 @@
 import { Answer } from './dataTypes';
+import { ChooseLevel } from './chooseLevel';
 
 const htmlCodeResult = `
   <div class="sprint-result">
@@ -10,6 +11,10 @@ const htmlCodeResult = `
       <hr>
        <div class="result-false">
           <div class="title-false">Ошибок:</div>
+      </div>
+      <div class="result-navigation">
+        <div class="new-game">Продолжить игру</div>
+        <div class="close-game">Выход</div>
       </div>
     </div>
   </div>
@@ -43,6 +48,7 @@ export class SprintResult {
 
         resultWrap.appendChild(oneWord);
         oneWord.append(answer, word, dash, wordTranslate);
+        this.addAudioOnAnswer(item[Answer.audio] as string, answer);
       });
     };
     typeAnswer(trueAnswers, resultTrue);
@@ -50,6 +56,14 @@ export class SprintResult {
     this.countTrueAndFalseAnswer(true, trueAnswers.length);
     this.countTrueAndFalseAnswer(false, falseAnswers.length);
   }
+
+  addAudioOnAnswer = (audio: string, answer: HTMLElement): void => {
+    const sound = new Audio(`https://rs-learnwords.herokuapp.com/${audio}`);
+    answer.addEventListener('click', () => {
+      sound.play()
+        .catch(() => sound.pause());
+    });
+  };
 
   countTrueAndFalseAnswer = (typeAnswer: boolean, amount: number): HTMLElement => {
     const titleFalse = document.querySelector('.title-false') as HTMLElement;
@@ -62,12 +76,39 @@ export class SprintResult {
   };
 
   showResult(answers: (string | boolean)[][]): void {
+    const body = document.querySelector('body') as HTMLElement;
     const sprintWrap = document.querySelector('.sprint-wrap') as HTMLElement;
-    const sprint = document.querySelector('.sprint') as HTMLElement;
     const result = document.createElement('div');
+
     result.innerHTML = htmlCodeResult;
-    sprintWrap.appendChild(result);
-    sprint.classList.add('hide');
+    result.classList.add('result');
+    body.appendChild(result);
+    sprintWrap.remove();
+    if (document.fullscreenElement) document.exitFullscreen();
     this.createResult(answers);
+    this.startNewGame();
+    this.closeGame();
   }
+
+  startNewGame = (): void => {
+    const newGame = document.querySelector('.new-game') as HTMLElement;
+    const openNewGame = () => {
+      const result = document.querySelector('.result') as HTMLElement;
+      result.remove();
+      new ChooseLevel().createFieldChoose();
+    };
+
+    newGame.addEventListener('click', openNewGame);
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Enter') openNewGame();
+    });
+  };
+
+  closeGame = (): void => {
+    const closeGame = document.querySelector('.close-game') as HTMLElement;
+    const result = document.querySelector('.result') as HTMLElement;
+    closeGame.addEventListener('click', () => {
+      result.remove();
+    });
+  };
 }

@@ -48,6 +48,11 @@ header {
   padding: 5px 10px;
   display: flex;
   justify-content: space-between;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  max-width: 1440px;
+  z-index: 50;
 
   .logo {
     width: 70px;
@@ -116,11 +121,11 @@ header {
     }
 
     .main-menu {
-      position: absolute;
+      position: fixed;
       left: -50%;
       top: 0;
       padding: 70px 100px 50px 60px;
-      height: 100%;
+      height: 100vh;
       background: #2a7799;
       z-index: 10;
       transition: 1s;
