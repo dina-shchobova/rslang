@@ -21,3 +21,10 @@ export enum Answer {
   audio,
   answer,
 }
+
+export enum Points {
+  ten = 10,
+  twenty = 20,
+  forty = 40,
+  eighty = 80,
+}
