@@ -1,4 +1,5 @@
 import './style.scss';
+
 import { ApplicationRoute } from './services/application-route';
 import { Navbar } from './views/components/navbar';
 import { Home } from './views/pages/home';
@@ -34,3 +35,12 @@ const routes = {
 const notFound = async () => '<div>Not Found</div>';
 const app = new ApplicationRoute(content, routes, notFound);
 app.listen();
+
+
+const burger = document.querySelector('.menu') as HTMLElement;
+(function switchBurger() {
+  burger.addEventListener('click', () => {
+    burger.classList.toggle('burger_active');
+  });
+}());
+
