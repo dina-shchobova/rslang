@@ -1,5 +1,5 @@
 import './style.scss';
-import { ChooseLevel } from './sprint/script/chooseLevel';
+import { StartGameSprint } from './sprint/script/startGame';
 
 const burger = document.querySelector('.menu') as HTMLElement;
 (function switchBurger() {
@@ -8,5 +8,5 @@ const burger = document.querySelector('.menu') as HTMLElement;
   });
 }());
 
-const chooseLevel = new ChooseLevel();
-chooseLevel.createFieldChoose();
+const startSprint = new StartGameSprint();
+startSprint.start();
