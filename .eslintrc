@@ -10,10 +10,12 @@
   ],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "project": "./tsconfig.json"
+    "project": "./tsconfig.json",
+    "extraFileExtensions": [".ts"]
   },
   "plugins": [
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "html"
   ],
   "rules": {
     "no-plusplus": "off",
