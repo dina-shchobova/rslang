@@ -1,4 +1,8 @@
 import './style.scss';
+import { Authorization } from './authorization/authorization';
+
+const authorization = new Authorization();
+authorization.createFieldAuthorization();
 
 import { ApplicationRoute } from './services/application-route';
 import { Navbar } from './views/components/navbar';
