@@ -1,8 +1,5 @@
 import './style.scss';
 import { Authorization } from './authorization/authorization';
-
-const authorization = new Authorization();
-authorization.createFieldAuthorization();
 import { StartGameSprint } from './sprint/script/startGame';
 
 import { ApplicationRoute } from './services/application-route';
@@ -11,6 +8,9 @@ import { Home } from './views/pages/home';
 import { TextBook } from './views/pages/text-book';
 import { Games } from './views/pages/games';
 import { Statistics } from './views/pages/statistics';
+
+const authorization = new Authorization();
+authorization.createFieldAuthorization();
 
 const headerStart = document.createElement('header');
 const pageContainer = document.createElement('div');
@@ -40,7 +40,6 @@ const routes = {
 const notFound = async () => '<div>Not Found</div>';
 const app = new ApplicationRoute(content, routes, notFound);
 app.listen();
-
 
 const burger = document.querySelector('.menu') as HTMLElement;
 (function switchBurger() {
