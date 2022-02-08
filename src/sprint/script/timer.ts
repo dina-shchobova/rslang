@@ -9,11 +9,11 @@ export class Timer {
     const sprintPage = document.querySelector('.sprint-page') as HTMLElement;
     let currentTimer = +timer.innerHTML;
 
-    const interval = setTimeout(function tick() {
-      if (exitGame.isExit) clearTimeout(interval);
+    setTimeout(function tick() {
+      if (exitGame.isExit) return;
       if (currentTimer === -1) {
-        clearTimeout(interval);
         new SprintResult().showResult(answers);
+        return;
       }
 
       timer.innerHTML = `${currentTimer--}`;
@@ -21,8 +21,7 @@ export class Timer {
     }, ONE_SECOND);
 
     sprintPage.addEventListener('click', () => {
-      clearTimeout(interval);
-      exitGame.isExit = false;
+      exitGame.isExit = true;
     });
   };
 }

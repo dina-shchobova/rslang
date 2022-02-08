@@ -1,5 +1,6 @@
 import '../style/sprint.scss';
 import { Sprint } from './sprint';
+import { exitGame } from './sprintGameControl';
 
 const htmlCodeForChoose = `
    <div class="choose-wrap">
@@ -18,6 +19,7 @@ export class ChooseLevel {
   }
 
   createFieldChoose(): void {
+    exitGame.isExit = true;
     const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
     const body = document.querySelector('body') as HTMLElement;
     const chooseLevels = document.createElement('div');

@@ -21,7 +21,7 @@ hr {
   width: 100vw;
   top: 0;
   left: 0;
-  background: url("../assets/sprint-bg.jpg") no-repeat center;
+  background: url("/public/assets/sprint-bg.jpg") no-repeat center;
   background-size: cover;
 }
 .sprint-wrap .sprint, .result .sprint {
@@ -45,23 +45,23 @@ hr {
   transition: 0.3s;
 }
 .sprint-wrap .sprint-header .sound, .result .sprint-header .sound {
-  background: url("../assets/svg/sound.svg") no-repeat center, rgba(255, 255, 255, 0.4);
+  background: url("/public/assets/svg/sound.svg") no-repeat center, rgba(255, 255, 255, 0.4);
   background-size: contain;
 }
 .sprint-wrap .sprint-header .sound-active, .result .sprint-header .sound-active {
-  background: url("../assets/svg/mute.svg") no-repeat center, rgba(255, 255, 255, 0.4);
+  background: url("/public/assets/svg/mute.svg") no-repeat center, rgba(255, 255, 255, 0.4);
   background-size: contain;
 }
 .sprint-wrap .sprint-header .zoom, .result .sprint-header .zoom {
-  background: url("../assets/svg/zoom+.svg") no-repeat center, rgba(255, 255, 255, 0.4);
+  background: url("/public/assets/svg/zoom+.svg") no-repeat center, rgba(255, 255, 255, 0.4);
   background-size: 80% 80%;
 }
 .sprint-wrap .sprint-header .zoom-active, .result .sprint-header .zoom-active {
-  background: url("../assets/svg/zoom-.svg") no-repeat center, rgba(255, 255, 255, 0.4);
+  background: url("/public/assets/svg/zoom-.svg") no-repeat center, rgba(255, 255, 255, 0.4);
   background-size: 80% 80%;
 }
 .sprint-wrap .sprint-header .close, .result .sprint-header .close {
-  background: url("../assets/svg/close.svg") no-repeat center, rgba(255, 255, 255, 0.4);
+  background: url("/public/assets/svg/close.svg") no-repeat center, rgba(255, 255, 255, 0.4);
   background-size: contain;
 }
 .sprint-wrap .timer, .result .timer {
@@ -156,7 +156,7 @@ hr {
   width: 40px;
   height: 30px;
   background: green;
-  -webkit-mask-image: url("../assets/svg/volume.svg");
+  -webkit-mask-image: url("/public/assets/svg/volume.svg");
   -webkit-mask-position: center;
   -webkit-mask-size: 80% 80%;
   -webkit-mask-repeat: no-repeat;
@@ -172,7 +172,7 @@ hr {
   display: flex;
   justify-content: center;
 }
-.sprint-result .result-wrap .result-navigation .new-game, .sprint-result .result-wrap .result-navigation .close-game {
+.sprint-result .result-wrap .result-navigation .close-game {
   border: 2px solid green;
   border-radius: 10px;
   padding: 5px 10px;
@@ -182,12 +182,12 @@ hr {
   align-self: center;
   transition: 0.3s;
 }
-.sprint-result .result-wrap .result-navigation .new-game:hover, .sprint-result .result-wrap .result-navigation .close-game:hover {
+.sprint-result .result-wrap .result-navigation .close-game:hover {
   cursor: pointer;
   transform: scale(1.05);
   background: rgba(255, 255, 255, 0.5);
 }
-.sprint-result .result-wrap .result-navigation .new-game:active, .sprint-result .result-wrap .result-navigation .close-game:active {
+.sprint-result .result-wrap .result-navigation .close-game:active {
   transform: scale(0.95);
 }
 .sprint-result .result-wrap .result-navigation .close-game {
@@ -313,7 +313,7 @@ hr {
   height: 70px;
   margin: -30px 25px 10px;
   background: black;
-  -webkit-mask-image: url("../assets/svg/lightbulb.svg");
+  -webkit-mask-image: url("../../../public/assets/svg/lightbulb.svg");
   -webkit-mask-position: center;
   -webkit-mask-size: contain;
   -webkit-mask-repeat: no-repeat;

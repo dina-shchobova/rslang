@@ -1,7 +1,7 @@
 import '../style/sprint.scss';
 import { getWord } from './services';
 import { Timer } from './timer';
-import { SprintGameControl } from './sprintGameControl';
+import { SprintGameControl, exitGame } from './sprintGameControl';
 import { Score, amountTrueAnswers } from './score';
 
 const AMOUNT_WORDS = 20;
@@ -21,7 +21,7 @@ const htmlCodeSprint = `
       </div>
       <div class="game-wrap">
         <div class="current-state">
-          <div class="timer">60</div>
+          <div class="timer">10</div>
         </div>
         <div class="sprint-game">
             <div class="word"></div>
@@ -49,6 +49,7 @@ export class Sprint {
   }
 
   async createPageGameSprint(group: number): Promise<void> {
+    exitGame.isExit = false;
     const body = document.querySelector('body') as HTMLElement;
     const chooseLevels = document.querySelector('.choose-levels') as HTMLElement;
     const sprintPage = document.createElement('div');
@@ -82,14 +83,14 @@ export class Sprint {
   }
 
   generateWordTranslate = async (group: number, trueTranslate: string): Promise<void> => {
-    const wordTranslate = document.querySelector('.translate') as HTMLElement;
+    const wordTranslate = document.querySelector('.translate');
     const numberTranslateWord = Math.floor(Math.random() * AMOUNT_WORDS);
     const translate = await getWord(group, currentPage);
     if (!translate) return;
     const translateWord = [translate[numberTranslateWord].wordTranslate, trueTranslate];
     const word = translateWord[Math.floor(Math.random() * translateWord.length)];
 
-    wordTranslate.innerHTML = word;
+    if (wordTranslate) wordTranslate.innerHTML = word;
     trueAnswer = trueTranslate === word;
   };
 
@@ -115,8 +116,8 @@ export class Sprint {
     };
 
     document.addEventListener('keydown', async (e) => {
-      if (e.code === 'ArrowLeft') await switchWord(answerFalse);
-      if (e.code === 'ArrowRight') await switchWord(answerTrue);
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') await switchWord(answerFalse);
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') await switchWord(answerTrue);
     });
 
     clickAnswer(answerTrue);
@@ -125,10 +126,10 @@ export class Sprint {
 
   checkAnswer(typeAnswer: string | null): void {
     const sprintGame = document.querySelector('.sprint-game') as HTMLElement;
-    // new Audio(String(trueAnswer) === typeAnswer ? './assets/true.mp3' : './assets/false.mp3').play();
+    // new Audio(String(trueAnswer) === typeAnswer ? '/public/assets/true.mp3' : '/public/assets/false.mp3').play();
 
     sprintGame.classList.add(String(trueAnswer) === typeAnswer ? 'true' : 'false');
-    answers[amountWords].push(String(trueAnswer) === typeAnswer);
+    answers[amountWords]?.push(String(trueAnswer) === typeAnswer);
 
     if (String(trueAnswer) === typeAnswer) {
       amountTrueAnswers.count++;

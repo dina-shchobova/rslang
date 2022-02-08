@@ -1,6 +1,5 @@
 header {
   background: rgba(255, 255, 255, 0.3);
-  //backdrop-filter: blur(5px);
 }
 
 hr {
@@ -22,7 +21,7 @@ hr {
   width: 100vw;
   top: 0;
   left: 0;
-  background: url("../assets/sprint-bg.jpg") no-repeat center;
+  background: url("/public/assets/sprint-bg.jpg") no-repeat center;
   background-size: cover;
 
   .sprint {
@@ -48,27 +47,27 @@ hr {
     }
 
     .sound {
-      background: url("../assets/svg/sound.svg") no-repeat center, rgba(255, 255, 255, 0.4);
+      background: url("/public/assets/svg/sound.svg") no-repeat center, rgba(255, 255, 255, 0.4);
       background-size: contain;
     }
 
     .sound-active {
-      background: url("../assets/svg/mute.svg") no-repeat center, rgba(255, 255, 255, 0.4);
+      background: url("/public/assets/svg/mute.svg") no-repeat center, rgba(255, 255, 255, 0.4);
       background-size: contain;
     }
 
     .zoom {
-      background: url("../assets/svg/zoom+.svg") no-repeat center, rgba(255, 255, 255, 0.4);
+      background: url("/public/assets/svg/zoom+.svg") no-repeat center, rgba(255, 255, 255, 0.4);
       background-size: 80% 80%;
     }
 
     .zoom-active {
-      background: url("../assets/svg/zoom-.svg") no-repeat center, rgba(255, 255, 255, 0.4);
+      background: url("/public/assets/svg/zoom-.svg") no-repeat center, rgba(255, 255, 255, 0.4);
       background-size: 80% 80%;
     }
 
     .close {
-      background: url("../assets/svg/close.svg") no-repeat center, rgba(255, 255, 255, 0.4);
+      background: url("/public/assets/svg/close.svg") no-repeat center, rgba(255, 255, 255, 0.4);
       background-size: contain;
     }
   }
@@ -176,7 +175,7 @@ hr {
         width: 40px;
         height: 30px;
         background: green;
-        -webkit-mask-image: url("../assets/svg/volume.svg");
+        -webkit-mask-image: url("/public/assets/svg/volume.svg");
         -webkit-mask-position: center;
         -webkit-mask-size: 80% 80%;
         -webkit-mask-repeat: no-repeat;
@@ -354,7 +353,7 @@ hr {
     height: 70px;
     margin: -30px 25px 10px;
     background: black;
-    -webkit-mask-image: url("../assets/svg/lightbulb.svg");
+    -webkit-mask-image: url("../../../public/assets/svg/lightbulb.svg");
     -webkit-mask-position: center;
     -webkit-mask-size: contain;
     -webkit-mask-repeat: no-repeat;

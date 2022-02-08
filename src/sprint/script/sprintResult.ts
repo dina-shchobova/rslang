@@ -1,4 +1,5 @@
 import { Answer } from './dataTypes';
+import { exitGame } from './sprintGameControl';
 
 const htmlCodeResult = `
   <div class="sprint-result">
@@ -75,6 +76,8 @@ export class SprintResult {
   };
 
   showResult(answers: (string | boolean)[][]): void {
+    if (exitGame.isExit) return;
+
     const body = document.querySelector('body') as HTMLElement;
     const sprintWrap = document.querySelector('.sprint-wrap') as HTMLElement;
     const result = document.createElement('div');
