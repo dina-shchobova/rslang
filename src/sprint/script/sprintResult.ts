@@ -1,5 +1,4 @@
 import { Answer } from './dataTypes';
-import { ChooseLevel } from './chooseLevel';
 
 const htmlCodeResult = `
   <div class="sprint-result">
@@ -13,7 +12,6 @@ const htmlCodeResult = `
           <div class="title-false">Ошибок:</div>
       </div>
       <div class="result-navigation">
-        <div class="new-game">Продолжить игру</div>
         <div class="close-game">Выход</div>
       </div>
     </div>
@@ -86,23 +84,8 @@ export class SprintResult {
     sprintWrap.remove();
     if (document.fullscreenElement) document.exitFullscreen();
     this.createResult(answers);
-    this.startNewGame();
     this.closeGame();
   }
-
-  startNewGame = (): void => {
-    const newGame = document.querySelector('.new-game') as HTMLElement;
-    const openNewGame = () => {
-      const result = document.querySelector('.result') as HTMLElement;
-      result.remove();
-      new ChooseLevel().createFieldChoose();
-    };
-
-    newGame.addEventListener('click', openNewGame);
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Enter') openNewGame();
-    });
-  };
 
   closeGame = (): void => {
     const closeGame = document.querySelector('.close-game') as HTMLElement;

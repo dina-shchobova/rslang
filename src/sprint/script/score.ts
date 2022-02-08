@@ -23,6 +23,8 @@ export class Score {
     score.classList.add('score');
     lightBulbs.classList.add('bulbs');
     pointsWrap.classList.add('points');
+    amountTrueAnswers.numberBulb = -1;
+    amountTrueAnswers.count = 0;
 
     for (let i = 0; i < AMOUNT_BULBS; i++) {
       const bulb = document.createElement('div');
