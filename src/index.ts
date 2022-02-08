@@ -37,8 +37,6 @@ const notFound = async () => '<div>Not Found</div>';
 const app = new ApplicationRoute(content, routes, notFound);
 app.listen();
 
-import { StartGameSprint } from './sprint/script/startGame';
-
 const burger = document.querySelector('.menu') as HTMLElement;
 (function switchBurger() {
   burger.addEventListener('click', () => {
