@@ -1,4 +1,8 @@
 import './style.scss';
+import { Authorization } from './authorization/authorization';
+
+const authorization = new Authorization();
+authorization.createFieldAuthorization();
 import { StartGameSprint } from './sprint/script/startGame';
 
 import { ApplicationRoute } from './services/application-route';
@@ -36,6 +40,7 @@ const routes = {
 const notFound = async () => '<div>Not Found</div>';
 const app = new ApplicationRoute(content, routes, notFound);
 app.listen();
+
 
 const burger = document.querySelector('.menu') as HTMLElement;
 (function switchBurger() {
