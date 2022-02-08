@@ -1,24 +1,27 @@
 import { SprintResult } from './sprintResult';
 import { exitGame } from './sprintGameControl';
 
+const ONE_SECOND = 1000;
+
 export class Timer {
   startTimer = (answers: (string | boolean)[][]): void => {
     const timer = document.querySelector('.timer') as HTMLElement;
     const sprintPage = document.querySelector('.sprint-page') as HTMLElement;
     let currentTimer = +timer.innerHTML;
 
-    const interval = setInterval(() => {
-      if (exitGame.isExit) clearInterval(interval);
+    const interval = setTimeout(function tick() {
+      if (exitGame.isExit) clearTimeout(interval);
       if (currentTimer === -1) {
-        clearInterval(interval);
+        clearTimeout(interval);
         new SprintResult().showResult(answers);
       }
 
       timer.innerHTML = `${currentTimer--}`;
-    }, 1000);
+      setTimeout(tick, ONE_SECOND);
+    }, ONE_SECOND);
 
     sprintPage.addEventListener('click', () => {
-      clearInterval(interval);
+      clearTimeout(interval);
       exitGame.isExit = false;
     });
   };

@@ -1,4 +1,4 @@
-import { Points } from './dataTypes';
+import { Points, MaxPoints } from './dataTypes';
 
 const AMOUNT_BULBS = 3;
 
@@ -48,7 +48,7 @@ export class Score {
       pointsWrap.innerHTML = `+${points}`;
     };
 
-    if (amountTrueAnswers.count < 12) {
+    if (amountTrueAnswers.count < MaxPoints.twelve) {
       if (amountTrueAnswers.numberBulb === -1) pointsWrap.innerHTML = '+10';
 
       for (let i = 0; i <= amountTrueAnswers.numberBulb; i++) {
@@ -59,11 +59,11 @@ export class Score {
     }
 
     if (amountTrueAnswers.count !== 0) {
-      if (amountTrueAnswers.count < 4) {
+      if (amountTrueAnswers.count < MaxPoints.four) {
         addPoints(Points.ten);
-      } else if (amountTrueAnswers.count < 7) {
+      } else if (amountTrueAnswers.count < MaxPoints.seven) {
         addPoints(Points.twenty);
-      } else if (amountTrueAnswers.count < 10) {
+      } else if (amountTrueAnswers.count < MaxPoints.ten) {
         addPoints(Points.forty);
       } else {
         addPoints(Points.eighty);

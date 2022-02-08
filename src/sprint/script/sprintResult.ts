@@ -27,33 +27,34 @@ export class SprintResult {
 
     answers.forEach((item) => (item[Answer.answer] ? trueAnswers.push(item) : falseAnswers.push(item)));
 
-    const typeAnswer = (allAnswers: (string | boolean)[][], resultWrap: HTMLElement) => {
-      allAnswers.forEach((item) => {
-        const oneWord = document.createElement('div');
-        const word = document.createElement('div');
-        const dash = document.createElement('div');
-        const wordTranslate = document.createElement('div');
-        const answer = document.createElement('div');
-
-        oneWord.classList.add('one-word');
-        word.classList.add('word-result', 'answer');
-        wordTranslate.classList.add('word-result', 'answer');
-
-        word.innerHTML = `${item[Answer.word]}`;
-        dash.innerHTML = '-';
-        wordTranslate.innerHTML = `${item[Answer.wordTranslate]}`;
-        answer.classList.add(item[Answer.answer] ? 'true-answer' : 'false-answer');
-
-        resultWrap.appendChild(oneWord);
-        oneWord.append(answer, word, dash, wordTranslate);
-        this.addAudioOnAnswer(item[Answer.audio] as string, answer);
-      });
-    };
-    typeAnswer(trueAnswers, resultTrue);
-    typeAnswer(falseAnswers, resultFalse);
+    this.typeAnswer(trueAnswers, resultTrue);
+    this.typeAnswer(falseAnswers, resultFalse);
     this.countTrueAndFalseAnswer(true, trueAnswers.length);
     this.countTrueAndFalseAnswer(false, falseAnswers.length);
   }
+
+  private typeAnswer = (allAnswers: (string | boolean)[][], resultWrap: HTMLElement) => {
+    allAnswers.forEach((item) => {
+      const oneWord = document.createElement('div');
+      const word = document.createElement('div');
+      const dash = document.createElement('div');
+      const wordTranslate = document.createElement('div');
+      const answer = document.createElement('div');
+
+      oneWord.classList.add('one-word');
+      word.classList.add('word-result', 'answer');
+      wordTranslate.classList.add('word-result', 'answer');
+
+      word.innerHTML = `${item[Answer.word]}`;
+      dash.innerHTML = '-';
+      wordTranslate.innerHTML = `${item[Answer.wordTranslate]}`;
+      answer.classList.add(item[Answer.answer] ? 'true-answer' : 'false-answer');
+
+      resultWrap.appendChild(oneWord);
+      oneWord.append(answer, word, dash, wordTranslate);
+      this.addAudioOnAnswer(item[Answer.audio] as string, answer);
+    });
+  };
 
   addAudioOnAnswer = (audio: string, answer: HTMLElement): void => {
     const sound = new Audio(`https://rs-learnwords.herokuapp.com/${audio}`);

@@ -10,6 +10,7 @@ let currentPage = 0;
 let currentWord = 0;
 let trueAnswer = false;
 const answers: (string | boolean)[][] = [];
+const HALF_SECOND = 500;
 
 const htmlCodeSprint = `
     <div class="sprint">
@@ -84,6 +85,7 @@ export class Sprint {
     const wordTranslate = document.querySelector('.translate') as HTMLElement;
     const numberTranslateWord = Math.floor(Math.random() * AMOUNT_WORDS);
     const translate = await getWord(group, currentPage);
+    if (!translate) return;
     const translateWord = [translate[numberTranslateWord].wordTranslate, trueTranslate];
     const word = translateWord[Math.floor(Math.random() * translateWord.length)];
 
@@ -99,7 +101,7 @@ export class Sprint {
       this.checkAnswer(button.getAttribute('id'));
       currentWord++;
       amountWords++;
-      if (amountWords % 19 === 0) {
+      if (amountWords % (AMOUNT_WORDS - 1) === 0) {
         currentPage++;
         currentWord = 0;
       }
@@ -139,6 +141,6 @@ export class Sprint {
 
     setTimeout(() => {
       sprintGame.classList.remove('true', 'false');
-    }, 500);
+    }, HALF_SECOND);
   }
 }

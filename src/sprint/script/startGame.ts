@@ -8,9 +8,14 @@ export class StartGameSprint {
       const choose = document.querySelector('.choose-levels');
       const result = document.querySelector('.sprint-result');
       const game = document.querySelector('.sprint-wrap');
-      if (choose) choose.remove();
-      if (result) result.remove();
-      if (game) game.remove();
+
+      const deleteNode = (node: Element | null) => {
+        if (node) node.remove();
+      };
+      deleteNode(choose);
+      deleteNode(result);
+      deleteNode(game);
+
       chooseLevel.createFieldChoose();
     });
   };

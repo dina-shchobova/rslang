@@ -28,3 +28,19 @@ export enum Points {
   forty = 40,
   eighty = 80,
 }
+
+export enum MaxPoints {
+  four = 4,
+  seven = 7,
+  ten = 10,
+  twelve = 12,
+}
+
+export enum Levels {
+  A1,
+  A2,
+  B1,
+  B2,
+  C1,
+  C2,
+}
