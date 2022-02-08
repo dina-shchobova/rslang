@@ -47,4 +47,3 @@ const burger = document.querySelector('.menu') as HTMLElement;
     burger.classList.toggle('burger_active');
   });
 }());
-
