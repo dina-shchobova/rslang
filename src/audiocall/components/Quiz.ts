@@ -33,11 +33,11 @@ const htmlCodeQuiz = `
         </div>
       </div>
       <div class="game-call__answer-buttons">
-        <div class="game-call__answer-button" data-number="0">...</div>
-        <div class="game-call__answer-button" data-number="1">...</div>
-        <div class="game-call__answer-button" data-number="2">...</div>
-        <div class="game-call__answer-button" data-number="3">...</div>
-        <div class="game-call__answer-button" data-number="4">...</div>
+        <div class="game-call__answer-button Digit1" data-number="0">...</div>
+        <div class="game-call__answer-button Digit2" data-number="1">...</div>
+        <div class="game-call__answer-button Digit3" data-number="2">...</div>
+        <div class="game-call__answer-button Digit4" data-number="3">...</div>
+        <div class="game-call__answer-button Digit5" data-number="4">...</div>
       </div>
       <div class="game-call__quiz-control">Дальше</div>
       <div class="counter-words button_shadow">1</div>
@@ -103,6 +103,7 @@ class Quiz {
     this.updateAnswersOnPage();
     this.updateAnswerView();
     this.addSoundIconsListener();
+    this.addListenersForKeyboardKeys();
   }
 
   getElementBySelector(selector: string): HTMLElement {
@@ -329,6 +330,24 @@ class Quiz {
     answerContainer.style.visibility = 'hidden';
     const questionContainer = this.getElementBySelector('.game-call__question');
     questionContainer.style.visibility = 'visible';
+  }
+
+  // keyboard control
+
+  addListenersForKeyboardKeys(): void {
+    document.addEventListener('keydown', (event: KeyboardEvent) => this.selectAnswer(event.code));
+  }
+
+  selectAnswer(code: string): void {
+    switch (code) {
+      case 'Digit1':
+      case 'Digit2':
+      case 'Digit3':
+      case 'Digit4':
+      case 'Digit5': this.onAnswerButtonClick(this.getElementBySelector(`.${code}`)); break;
+      case 'Enter': this.onControlButtonClick(); break;
+      default: break;
+    }
   }
 }
 
