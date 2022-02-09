@@ -1,15 +1,14 @@
 import './style.scss';
 import { Authorization } from './authorization/authorization';
-
-const authorization = new Authorization();
-authorization.createFieldAuthorization();
-
 import { ApplicationRoute } from './services/application-route';
 import { Navbar } from './views/components/navbar';
 import { Home } from './views/pages/home';
 import { Games } from './views/pages/games';
 import { Statistics } from './views/pages/statistics';
 import { TextBook } from './views/pages/text-book';
+
+const authorization = new Authorization();
+authorization.createFieldAuthorization();
 
 const headerStart = document.createElement('header');
 const pageContainer = document.createElement('div');
@@ -21,10 +20,10 @@ pageContainer.classList.add('container');
 pageContainer.id = 'page_container';
 document.body.appendChild(pageContainer);
 
-const header = document.getElementById('header') as HTMLElement;
+// const header = document.getElementById('header') as HTMLElement;
 const navAwaiter = async () => {
   const temp = await Navbar();
-  header.innerHTML = temp;
+  headerStart.innerHTML = temp;
 };
 navAwaiter();
 const content = document.getElementById('page_container') as HTMLDivElement;
@@ -38,6 +37,7 @@ const routes = {
 
 const notFound = async () => '<div>Not Found</div>';
 const app = new ApplicationRoute(content, routes, notFound);
+
 app.listen();
 
 const burger = document.querySelector('.menu') as HTMLElement;

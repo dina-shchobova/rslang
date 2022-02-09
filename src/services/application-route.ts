@@ -14,21 +14,26 @@ export class ApplicationRoute {
   }
 
   router() {
-    const url = window.location.hash.slice(1).toLowerCase() || '/';
+    const url1 = (window.location.hash.slice(1).toLowerCase() || '/').split('?');
+    const url = url1[0];
+    let query = {};
+    if (url1[1]) {
+      const params = url1[1].split('&').map((p) => p.split('='));
+      query = Object.fromEntries(params);
+    }
     const resource = url.split('/')[1];
     const request = { resource };
     const parsedURL = request.resource ? `/${request.resource}` : '/';
-    if (this.routes[parsedURL]) return this.routes[parsedURL]();
+    if (this.routes[parsedURL]) return this.routes[parsedURL](query);
     return this.notFound();
   }
 
-  private async setHTML() {
-    const temp = await this.router();
-    this.content.innerHTML = temp;
+  async listen() {
+    window.addEventListener('hashchange', async () => this.setHTML());
+    window.addEventListener('load', async () => this.setHTML());
   }
 
-  async listen() {
-    window.addEventListener('hashchange', this.setHTML);
-    window.addEventListener('load', this.setHTML);
+  private async setHTML() {
+    this.content.innerHTML = await this.router();
   }
 }

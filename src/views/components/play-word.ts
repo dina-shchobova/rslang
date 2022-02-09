@@ -22,3 +22,5 @@ export function createOneWordDiv(wordObject: IWordObject): string {
   </div>
   `;
 }
+
+export const createCard = (wordObject: IWordObject) => `Description ${createOneWordDiv(wordObject)}`;
