@@ -50,6 +50,9 @@ interface IGameCallState {
   level: number;
   correctAnswers: IWordData[];
   wrongAnswers: IWordData[];
+  maxSeries: number;
+  percentCorrectAnswer: number;
+  getPercentCorrectAnswer: () => number;
 }
 
 export {

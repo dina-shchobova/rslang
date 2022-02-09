@@ -70,6 +70,10 @@ class Quiz {
 
   answerSelected: boolean;
 
+  longestSeriesLength: number;
+
+  currentSeriesLength: number;
+
   constructor(game: IGameCallComponent) {
     this.game = game;
     this.rootElement = undefined;
@@ -83,6 +87,8 @@ class Quiz {
     this.error = undefined;
     this.sound = undefined;
     this.answerSelected = false;
+    this.longestSeriesLength = 0;
+    this.currentSeriesLength = 0;
   }
 
   createRootElement(): HTMLElement {
@@ -120,7 +126,6 @@ class Quiz {
     this.wordsForTour = [];
     const page = Math.floor(Math.random() * amountPage);
     const rawResponse = await fetch(`${BACKEND_URL}words?page=${page}&group=${gameCallState.level}`, {
-      // FIXME: Move To resource
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -263,6 +268,14 @@ class Quiz {
     } else {
       this.playOops();
     }
+    if (answeredCorrectly) {
+      this.currentSeriesLength += 1;
+      if (this.currentSeriesLength > this.longestSeriesLength) {
+        this.longestSeriesLength = this.currentSeriesLength;
+      }
+    } else {
+      this.currentSeriesLength = 0;
+    }
     this.saveToResults(answeredCorrectly);
     this.answersOnPage.forEach((answerOnPage) => {
       if (answerOnPage === this.correctAnswerOnPage) {
@@ -297,7 +310,7 @@ class Quiz {
 
   playOops(): void {
     const sound = this.getPlayer();
-    sound.src = '/call_wrong.wav';
+    sound.src = ('/call_wrong.wav');
     sound.play();
   }
 
@@ -318,6 +331,7 @@ class Quiz {
     if (this.answerSelected) {
       this.currentWordNumber += 1;
       if (this.currentWordNumber === this.wordsForTour.length) {
+        gameCallState.maxSeries = this.longestSeriesLength;
         this.game.showResults();
       } else {
         const counterBox = this.getElementBySelector('.counter-words');
