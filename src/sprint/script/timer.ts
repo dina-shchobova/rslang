@@ -6,7 +6,6 @@ const ONE_SECOND = 1000;
 export class Timer {
   startTimer = (answers: (string | boolean)[][]): void => {
     const timer = document.querySelector('.timer') as HTMLElement;
-    const sprintPage = document.querySelector('.sprint-page') as HTMLElement;
     let currentTimer = +timer.innerHTML;
 
     setTimeout(function tick() {
@@ -19,9 +18,5 @@ export class Timer {
       timer.innerHTML = `${currentTimer--}`;
       setTimeout(tick, ONE_SECOND);
     }, ONE_SECOND);
-
-    sprintPage.addEventListener('click', () => {
-      exitGame.isExit = true;
-    });
   };
 }

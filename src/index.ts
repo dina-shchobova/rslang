@@ -30,10 +30,19 @@ const navAwaiter = async () => {
 navAwaiter();
 const content = document.getElementById('page_container') as HTMLDivElement;
 
+const SprintBinder = async (): Promise<string> => {
+  const main = document.body.querySelector('main') as HTMLElement;
+  main.innerHTML = '';
+  const startSprint = new StartGameSprint();
+  startSprint.start();
+  return '';
+};
+
 const routes = {
   '/': Home,
   '/text-book': TextBook,
   '/games': Games,
+  '/games-sprint': SprintBinder,
   '/winners': Statistics,
 };
 
@@ -47,6 +56,3 @@ const burger = document.querySelector('.menu') as HTMLElement;
     burger.classList.toggle('burger_active');
   });
 }());
-
-const startSprint = new StartGameSprint();
-startSprint.start();

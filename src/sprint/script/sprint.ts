@@ -98,31 +98,36 @@ export class Sprint {
     const answerFalse = document.querySelector('.answer-false') as HTMLElement;
     const answerTrue = document.querySelector('.answer-true') as HTMLElement;
 
-    const switchWord = async (button: HTMLElement) => {
-      this.checkAnswer(button.getAttribute('id'));
-      currentWord++;
-      amountWords++;
-      if (amountWords % (AMOUNT_WORDS - 1) === 0) {
-        currentPage++;
-        currentWord = 0;
-      }
-      await this.generateWord(group);
-    };
-
     const clickAnswer = (button: HTMLElement) => {
       button.addEventListener('click', async () => {
-        await switchWord(button);
+        await this.switchWord(button, group);
       });
     };
 
-    document.addEventListener('keydown', async (e) => {
-      if (e.code === 'ArrowLeft' || e.code === 'KeyA') await switchWord(answerFalse);
-      if (e.code === 'ArrowRight' || e.code === 'KeyD') await switchWord(answerTrue);
-    });
-
+    this.keyPress(group);
     clickAnswer(answerTrue);
     clickAnswer(answerFalse);
   }
+
+  keyPress(group: number) {
+    const answerFalse = document.querySelector('.answer-false') as HTMLElement;
+    const answerTrue = document.querySelector('.answer-true') as HTMLElement;
+    document.addEventListener('keydown', async (e) => {
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') await this.switchWord(answerFalse, group);
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') await this.switchWord(answerTrue, group);
+    });
+  }
+
+  switchWord = async (button: HTMLElement, group: number) => {
+    this.checkAnswer(button.getAttribute('id'));
+    currentWord++;
+    amountWords++;
+    if (amountWords % (AMOUNT_WORDS - 1) === 0) {
+      currentPage++;
+      currentWord = 0;
+    }
+    await this.generateWord(group);
+  };
 
   checkAnswer(typeAnswer: string | null): void {
     const sprintGame = document.querySelector('.sprint-game') as HTMLElement;
