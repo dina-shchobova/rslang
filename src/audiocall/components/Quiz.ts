@@ -259,6 +259,9 @@ class Quiz {
     let answeredCorrectly = false;
     if (this.answersOnPage[answerNum] === this.correctAnswerOnPage) {
       answeredCorrectly = true;
+      this.playYahoo();
+    } else {
+      this.playOops();
     }
     this.saveToResults(answeredCorrectly);
     this.answersOnPage.forEach((answerOnPage) => {
@@ -284,6 +287,18 @@ class Quiz {
     } else {
       gameCallState.wrongAnswers.push((this.correctAnswerOnPage as IAnswerOnPage).answerData);
     }
+  }
+
+  playYahoo(): void {
+    const sound = this.getPlayer();
+    sound.src = '/audiocall_correct.mp3';
+    sound.play();
+  }
+
+  playOops(): void {
+    const sound = this.getPlayer();
+    sound.src = '/call_wrong.wav';
+    sound.play();
   }
 
   // control button

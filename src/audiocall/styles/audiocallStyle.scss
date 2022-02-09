@@ -239,7 +239,7 @@ $colorWrongAnswer: #ff1e00;
   height: 2rem;
   background-color: lightgray;
   border-radius: 50%;
-  margin: 0 1rem;
+  margin-right: 0.5rem;
 }
 
 .sound-icon {
@@ -323,7 +323,7 @@ $colorWrongAnswer: #ff1e00;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    align-items: center;
+    align-items: flex-start;
     padding: 0.5rem;
     box-sizing: border-box;
     @media (max-width: 768px) {
