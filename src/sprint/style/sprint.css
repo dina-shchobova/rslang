@@ -313,7 +313,7 @@ hr {
   height: 70px;
   margin: -30px 25px 10px;
   background: black;
-  -webkit-mask-image: url("../../../public/assets/svg/lightbulb.svg");
+  -webkit-mask-image: url("/public/assets/svg/lightbulb.svg");
   -webkit-mask-position: center;
   -webkit-mask-size: contain;
   -webkit-mask-repeat: no-repeat;

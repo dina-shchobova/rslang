@@ -6,6 +6,7 @@ import { ApplicationRoute } from './services/application-route';
 import { Navbar } from './views/components/navbar';
 import { Home } from './views/pages/home';
 import { TextBook } from './views/pages/text-book';
+import { AuthorizationPage } from './views/pages/authorization';
 import { Games } from './views/pages/games';
 import { Statistics } from './views/pages/statistics';
 
@@ -41,8 +42,9 @@ const SprintBinder = async (): Promise<string> => {
 const routes = {
   '/': Home,
   '/text-book': TextBook,
+  '/authorization': AuthorizationPage,
   '/games': Games,
-  '/games-sprint': SprintBinder,
+  '/sprint': SprintBinder,
   '/winners': Statistics,
 };
 

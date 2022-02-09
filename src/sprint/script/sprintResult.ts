@@ -13,7 +13,7 @@ const htmlCodeResult = `
           <div class="title-false">Ошибок:</div>
       </div>
       <div class="result-navigation">
-        <div class="close-game">Выход</div>
+        <a href="#/"><div class="close-game">Выход</div></a>
       </div>
     </div>
   </div>
@@ -78,24 +78,15 @@ export class SprintResult {
   showResult(answers: (string | boolean)[][]): void {
     if (exitGame.isExit) return;
 
-    const body = document.querySelector('body') as HTMLElement;
+    const main = document.querySelector('main') as HTMLElement;
     const sprintWrap = document.querySelector('.sprint-wrap') as HTMLElement;
     const result = document.createElement('div');
 
     result.innerHTML = htmlCodeResult;
     result.classList.add('result');
-    body.appendChild(result);
+    main.appendChild(result);
     sprintWrap.remove();
     if (document.fullscreenElement) document.exitFullscreen();
     this.createResult(answers);
-    this.closeGame();
   }
-
-  closeGame = (): void => {
-    const closeGame = document.querySelector('.close-game') as HTMLElement;
-    const result = document.querySelector('.result') as HTMLElement;
-    closeGame.addEventListener('click', () => {
-      result.remove();
-    });
-  };
 }
