@@ -68,6 +68,8 @@ class Quiz {
 
   sound: HTMLAudioElement | undefined;
 
+  answerSelected: boolean;
+
   constructor(game: IGameCallComponent) {
     this.game = game;
     this.rootElement = undefined;
@@ -80,6 +82,7 @@ class Quiz {
     this.currentWordNumber = 0;
     this.error = undefined;
     this.sound = undefined;
+    this.answerSelected = false;
   }
 
   createRootElement(): HTMLElement {
@@ -245,27 +248,34 @@ class Quiz {
       .forEach((elem) => elem.addEventListener('click', (e) => this.onAnswerButtonClick(e.target as HTMLElement)));
   }
 
-  onAnswerButtonClick(elem: HTMLElement): void {
-    this.makeAnswerVisible();
-    const numOfClickedAnswer: number = parseInt(elem.dataset.number as string, 10);
-    const selectedAnswer = this.answersOnPage[numOfClickedAnswer];
-    if (selectedAnswer.inactive) {
-      return;
+  processAnswer(answerNum: number): void {
+    this.answerSelected = true;
+    if (answerNum !== -1) {
+      const selectedAnswer = this.answersOnPage[answerNum];
+      if (selectedAnswer.inactive) {
+        return;
+      }
     }
     let answeredCorrectly = false;
-    if (this.answersOnPage[numOfClickedAnswer] === this.correctAnswerOnPage) {
+    if (this.answersOnPage[answerNum] === this.correctAnswerOnPage) {
       answeredCorrectly = true;
     }
     this.saveToResults(answeredCorrectly);
     this.answersOnPage.forEach((answerOnPage) => {
       if (answerOnPage === this.correctAnswerOnPage) {
         answerOnPage.correct = true;
-      } else if (!answeredCorrectly && (this.answersOnPage.indexOf(answerOnPage) === numOfClickedAnswer)) {
+      } else if (!answeredCorrectly && (this.answersOnPage.indexOf(answerOnPage) === answerNum)) {
         answerOnPage.correct = false;
       }
       answerOnPage.inactive = true;
     });
     this.updateAnswerButtonsView();
+  }
+
+  onAnswerButtonClick(elem: HTMLElement): void {
+    this.makeAnswerVisible();
+    const numOfClickedAnswer: number = parseInt(elem.dataset.number as string, 10);
+    this.processAnswer(numOfClickedAnswer);
   }
 
   saveToResults(isCorrect: boolean): void {
@@ -290,14 +300,19 @@ class Quiz {
   }
 
   onControlButtonClick(): void {
-    this.currentWordNumber += 1;
-    if (this.currentWordNumber === this.wordsForTour.length) {
-      this.game.showResults();
+    if (this.answerSelected) {
+      this.currentWordNumber += 1;
+      if (this.currentWordNumber === this.wordsForTour.length) {
+        this.game.showResults();
+      } else {
+        const counterBox = this.getElementBySelector('.counter-words');
+        counterBox.innerHTML = (this.currentWordNumber + 1).toString();
+        this.updateAnswersOnPage();
+        this.updateAnswerView();
+        this.answerSelected = false;
+      }
     } else {
-      const counterBox = this.getElementBySelector('.counter-words');
-      counterBox.innerHTML = (this.currentWordNumber + 1).toString();
-      this.updateAnswersOnPage();
-      this.updateAnswerView();
+      this.processAnswer(-1);
     }
   }
 
