@@ -3,9 +3,9 @@ import './style.scss';
 import { ApplicationRoute } from './services/application-route';
 import { Navbar } from './views/components/navbar';
 import { Home } from './views/pages/home';
-import { TextBook } from './views/pages/text-book';
 import { Games } from './views/pages/games';
 import { Statistics } from './views/pages/statistics';
+import { TextBook } from './views/pages/text-book';
 
 const headerStart = document.createElement('header');
 const pageContainer = document.createElement('div');
@@ -36,11 +36,9 @@ const notFound = async () => '<div>Not Found</div>';
 const app = new ApplicationRoute(content, routes, notFound);
 app.listen();
 
-
 const burger = document.querySelector('.menu') as HTMLElement;
 (function switchBurger() {
   burger.addEventListener('click', () => {
     burger.classList.toggle('burger_active');
   });
 }());
-

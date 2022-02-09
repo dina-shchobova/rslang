@@ -22,14 +22,13 @@ export class ApplicationRoute {
     return this.notFound();
   }
 
+  private async setHTML() {
+    const temp = await this.router();
+    this.content.innerHTML = temp;
+  }
+
   async listen() {
-    window.addEventListener('hashchange', async () => {
-      const temp = await this.router();
-      this.content.innerHTML = temp;
-    });
-    window.addEventListener('load', async () => {
-      const temp = await this.router();
-      this.content.innerHTML = temp;
-    });
+    window.addEventListener('hashchange', this.setHTML);
+    window.addEventListener('load', this.setHTML);
   }
 }
