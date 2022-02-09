@@ -268,29 +268,11 @@ $colorWrongAnswer: #ff1e00;
   border-radius: 50%;
 }
 
-.Digit1:before {
-  content: '1 ';
-  white-space: pre;
-}
-
-.Digit2:before {
-  content: '2 ';
-  white-space: pre;
-}
-
-.Digit3:before {
-  content: '3 ';
-  white-space: pre;
-}
-
-.Digit4:before {
-  content: '4 ';
-  white-space: pre;
-}
-
-.Digit5:before {
-  content: '5 ';
-  white-space: pre;
+@for $i from 1 through 5 {
+  .Digit#{$i}:before {
+    content: "#{$i} ";
+    white-space: pre;
+  }
 }
 
 .quiz-answer {
