@@ -12,15 +12,17 @@ let userAuthorized = localStorage.getItem('userAuthorized') || false;
 export class Authorization {
   createFieldAuthorization(): void {
     const main = document.querySelector('main') as HTMLElement;
+    const authorizationTitle = document.createElement('div');
     const authorizationWrap = document.createElement('div');
     const authorizationElement = document.createElement('div');
-    const overlay = document.createElement('div');
-    overlay.classList.add('overlay');
+
+    authorizationTitle.classList.add('title');
     authorizationWrap.classList.add('authorization-container');
     authorizationElement.classList.add('authorization-wrap');
+    authorizationTitle.innerHTML = 'Авторизация';
     authorizationElement.innerHTML = htmlCodeAuthorization;
 
-    authorizationWrap.append(overlay, authorizationElement);
+    authorizationWrap.append(authorizationTitle, authorizationElement);
     main.append(authorizationWrap);
     this.checkIfUserIsLoggedIn();
     this.showFieldAuthorization();
@@ -39,11 +41,9 @@ export class Authorization {
 
   showFieldAuthorization = (): void => {
     const loginIcon = document.querySelector('.login') as HTMLElement;
-    const overlay = document.querySelector('.overlay') as HTMLElement;
     const authorization = document.querySelector('.authorization-wrap') as HTMLElement;
 
     loginIcon.addEventListener('click', () => {
-      overlay.classList.add('active-signin');
       authorization.classList.add('active-signin');
     });
   };

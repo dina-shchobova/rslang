@@ -43,13 +43,18 @@ export class StatisticsPage {
     statisticsWrap.innerHTML = isAuthorized ? htmlCodeStatistic : dontShowStatistics;
     statisticsWrap.classList.add('statistics-wrap');
     main.appendChild(statisticsWrap);
-    this.createStatisticsInfo('game');
+    this.createStatisticsInfo('Аудиовызов');
+    this.toggleStatistics();
   };
 
   createStatisticsInfo = (typeInfo: string): void => {
     const getStatistics = (info: object) => {
       const statisticsInfo = document.querySelector('.statistics-info') as HTMLElement;
+      const subtitle = document.querySelector('.subtitle') as HTMLElement;
+      statisticsInfo.innerHTML = '';
+      subtitle.innerHTML = typeInfo;
       const gamesInfo = Object.entries(info);
+
       gamesInfo.forEach((item) => {
         const statisticPoint = document.createElement('div');
         const titlePoint = document.createElement('div');
@@ -59,11 +64,31 @@ export class StatisticsPage {
         titlePoint.classList.add('title-point');
         titlePoint.innerHTML = `${item[1][1]}`;
         statisticValue.classList.add(`amount-${item[0][1]}`);
+        statisticValue.innerHTML = '0';
 
         statisticsInfo.appendChild(statisticPoint);
         statisticPoint.append(titlePoint, statisticValue);
       });
     };
-    getStatistics(typeInfo === 'game' ? statisticsGames : statisticsWords);
+    getStatistics(typeInfo === 'Аудиовызов' || typeInfo === 'Спринт' ? statisticsGames : statisticsWords);
+  };
+
+  toggleStatistics() {
+    const audicol = document.querySelector('.statistics-audiocall') as HTMLElement;
+    const sprint = document.querySelector('.statistics-sprint') as HTMLElement;
+    const words = document.querySelector('.statistics-words') as HTMLElement;
+
+    const toggle = (button: HTMLElement, typeInfo: string) => {
+      button.addEventListener('click', () => {
+        const allIcons = document.querySelectorAll('.game') as unknown as HTMLElement[];
+        allIcons.forEach((item) => item.classList.remove('active'));
+        button.classList.add('active');
+        this.createStatisticsInfo(typeInfo);
+      });
+    };
+
+    toggle(audicol, 'Аудиовызов');
+    toggle(sprint, 'Спринт');
+    toggle(words, 'Слова');
   }
 }
