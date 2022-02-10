@@ -12,15 +12,18 @@ let userAuthorized = localStorage.getItem('userAuthorized') || false;
 export class Authorization {
   createFieldAuthorization(): void {
     const main = document.querySelector('main') as HTMLElement;
+    const authorizationWrap = document.createElement('div');
     const authorizationElement = document.createElement('div');
     const overlay = document.createElement('div');
     overlay.classList.add('overlay');
+    authorizationWrap.classList.add('authorization-container');
     authorizationElement.classList.add('authorization-wrap');
     authorizationElement.innerHTML = htmlCodeAuthorization;
 
-    main.append(overlay, authorizationElement);
+    authorizationWrap.append(overlay, authorizationElement);
+    main.append(authorizationWrap);
     this.checkIfUserIsLoggedIn();
-    this.showOrHideFieldAuthorization();
+    this.showFieldAuthorization();
     this.switchForm();
     this.createUser();
     this.loginUser();
@@ -34,7 +37,7 @@ export class Authorization {
     }
   }
 
-  showOrHideFieldAuthorization(): void {
+  showFieldAuthorization = (): void => {
     const loginIcon = document.querySelector('.login') as HTMLElement;
     const overlay = document.querySelector('.overlay') as HTMLElement;
     const authorization = document.querySelector('.authorization-wrap') as HTMLElement;
@@ -43,17 +46,6 @@ export class Authorization {
       overlay.classList.add('active-signin');
       authorization.classList.add('active-signin');
     });
-    overlay.addEventListener('click', () => {
-      this.hideAuthorization();
-    });
-  }
-
-  hideAuthorization = (): void => {
-    const overlay = document.querySelector('.overlay') as HTMLElement;
-    const authorization = document.querySelector('.authorization-wrap') as HTMLElement;
-
-    authorization.classList.remove('active-signin');
-    overlay.classList.remove('active-signin');
   };
 
   switchForm = (): void => {
@@ -117,37 +109,25 @@ export class Authorization {
     if (!userEmail || !userPassword) return;
     const user = await signin({ email: userEmail, password: userPassword }, path.signin);
     this.showUserName(`${user.name}`);
-    this.hideAuthorization();
     userAuthorized = true;
     localStorage.setItem('userAuthorized', JSON.stringify(userAuthorized));
     localStorage.setItem('user', JSON.stringify(user));
   };
 
-  logOut(): void {
+  logOut = (): void => {
     if (!userAuthorized) return;
     const logout = document.querySelector('.button-logout') as HTMLElement;
     logout.addEventListener('click', () => {
       const lastUser = document.querySelector('.user-name') as HTMLElement;
-      lastUser.remove();
+      lastUser.innerHTML = '';
       ['user', 'user name', 'userAuthorized'].forEach((item) => localStorage.removeItem(item));
       userAuthorized = false;
-      this.hideAuthorization();
     });
-  }
+  };
 
   showUserName = (name: string): void => {
-    const lastUser = document.querySelector('.user-name');
-    if (lastUser) {
-      lastUser.remove();
-    }
-
-    const navigation = document.querySelector('.navigation') as HTMLElement;
-    const login = document.querySelector('.login') as HTMLElement;
-    const userName = document.createElement('div');
-
-    userName.classList.add('user-name');
+    const userName = document.querySelector('.user-name') as HTMLElement;
     userName.innerHTML = name;
     localStorage.setItem('user name', name);
-    navigation.insertBefore(userName, login);
   };
 }

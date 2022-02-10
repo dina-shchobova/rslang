@@ -6,7 +6,7 @@ export const amountTrueAnswers = {
   count: 0,
   numberBulb: -1,
 };
-
+let maxTrueAnswer = 0;
 let currentScore = 0;
 
 export class Score {
@@ -70,5 +70,7 @@ export class Score {
       }
       score.innerHTML = `${currentScore}`;
     }
+
+    if (maxTrueAnswer < amountTrueAnswers.count) maxTrueAnswer = amountTrueAnswers.count;
   };
 }

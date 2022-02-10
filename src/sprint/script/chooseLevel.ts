@@ -21,12 +21,12 @@ export class ChooseLevel {
   createFieldChoose(): void {
     exitGame.isExit = true;
     const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
-    const body = document.querySelector('body') as HTMLElement;
+    const main = document.querySelector('main') as HTMLElement;
     const chooseLevels = document.createElement('div');
 
     chooseLevels.innerHTML = htmlCodeForChoose;
     chooseLevels.classList.add('choose-levels');
-    body.appendChild(chooseLevels);
+    main.appendChild(chooseLevels);
 
     levels.forEach((item) => {
       const levelsWrap = document.querySelector('.levels-wrap') as HTMLElement;
