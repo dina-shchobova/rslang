@@ -7,13 +7,16 @@ export class ApplicationRoute {
 
   notFound: PageContentThunk;
 
+  unmount: () => void;
+
   constructor(content: HTMLDivElement, routes: PageContentRoutes, notFound: PageContentThunk) {
     this.content = content;
     this.routes = routes;
     this.notFound = notFound;
+    this.unmount = () => { };
   }
 
-  router() {
+  async router() {
     const url1 = (window.location.hash.slice(1).toLowerCase() || '/').split('?');
     const url = url1[0];
     let query = {};
@@ -24,8 +27,11 @@ export class ApplicationRoute {
     const resource = url.split('/')[1];
     const request = { resource };
     const parsedURL = request.resource ? `/${request.resource}` : '/';
-    if (this.routes[parsedURL]) return this.routes[parsedURL](query);
-    return this.notFound();
+    this.unmount();
+    const route = this.routes[parsedURL] ?? this.notFound;
+    const { html, unmount } = await route(query);
+    this.unmount = unmount;
+    return html;
   }
 
   async listen() {

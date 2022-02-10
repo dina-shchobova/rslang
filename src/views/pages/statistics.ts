@@ -1,4 +1,4 @@
-export const Statistics = async (): Promise<string> => {
+export const Statistics = async (): Promise<{ html:string, unmount: () => void }> => {
   const view = '<div id="garage-view">Стата</div>';
-  return view;
+  return { html: view, unmount: () => {} };
 };

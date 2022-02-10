@@ -1,4 +1,4 @@
-export const Games = async (): Promise<string> => {
+export const Games = async (): Promise<{ html:string, unmount: () => void }> => {
   const view = '<div id="text-book">Play</div>';
-  return view;
+  return { html: view, unmount: () => {} };
 };
