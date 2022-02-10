@@ -3,6 +3,7 @@ import { Authorization } from './authorization/authorization';
 import { StartGameSprint } from './sprint/script/startGame';
 import { ApplicationRoute } from './services/application-route';
 import { Home } from './views/pages/home';
+
 import { TextBook } from './views/pages/text-book';
 import { AuthorizationPage } from './views/pages/authorization';
 import { Games } from './views/pages/games';
@@ -12,6 +13,7 @@ import { Audiocall } from './audiocall/components/Audiocall';
 
 const authorization = new Authorization();
 authorization.createFieldAuthorization();
+
 
 const pageContainer = document.createElement('div');
 
