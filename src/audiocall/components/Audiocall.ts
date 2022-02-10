@@ -4,14 +4,11 @@ import { Results } from './Results';
 import { SubPages, IGameCallComponent } from '../scripts/audiocallTypes';
 
 const htmlCodeAudiocall = `
-
-<!--    <div class="controls">-->
-<!--      <div class="btn-back"></div>-->
-<!--      <div>-->
-<!--        <div class="btn-sound"></div>-->
-<!--        <div class="btn-fullscreen"></div>-->
-<!--      </div>-->
-<!--    </div>-->
+    <div class="game-header">
+      <div class="sound button"></div>
+      <div class="zoom button"></div>
+      <div class="close button"></div>
+    </div>
     <div class="game-call__content">
 
     </div>
@@ -26,10 +23,13 @@ class Audiocall implements IGameCallComponent {
 
   subPages: SubPages;
 
+  soundEffectOn: boolean;
+
   constructor() {
     this.subPage = 'levels';
     this.rootElement = undefined;
     this.contentContainer = undefined;
+    this.soundEffectOn = true;
     this.subPages = {
       levels: Levels,
       quiz: Quiz,
@@ -52,6 +52,8 @@ class Audiocall implements IGameCallComponent {
 
   mounted(): void {
     this.mountSubPage();
+    this.addSoundButtonListener();
+    this.addFullscreenButtonListener();
   }
 
   mountSubPage(): void {
@@ -94,6 +96,41 @@ class Audiocall implements IGameCallComponent {
 
   static clearContainer(elem: HTMLElement) {
     elem.innerHTML = '';
+  }
+
+  // button controlls
+
+  // addCloseButtonListener(): void {
+  //   this.getElementBySelector('.close').addEventListener(('click'), () => this.goToMain());
+  // }
+  //
+  // goToMain(): void {
+  //
+  // }
+
+  addFullscreenButtonListener(): void {
+    this.getElementBySelector('.zoom').addEventListener(('click'), () => this.toggleFullScreen());
+  }
+
+  toggleFullScreen(): void {
+    const fullButton = this.getElementBySelector('.zoom');
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+      fullButton.classList.remove('zoom-active');
+    } else {
+      document.documentElement.requestFullscreen();
+      fullButton.classList.add('zoom-active');
+    }
+  }
+
+  addSoundButtonListener(): void {
+    this.getElementBySelector('.sound').addEventListener(('click'), () => this.toggleSound());
+  }
+
+  toggleSound(): void {
+    const soundEffectButton = this.getElementBySelector('.sound');
+    soundEffectButton.classList.toggle('sound-active');
+    this.soundEffectOn = !this.soundEffectOn;
   }
 }
 

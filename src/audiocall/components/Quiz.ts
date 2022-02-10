@@ -304,7 +304,7 @@ class Quiz {
 
   playYahoo(): void {
     const sound = this.getPlayer();
-    sound.src = '/audiocall_correct.mp3';
+    sound.src = '/call_correct.mp3';
     sound.play();
   }
 
