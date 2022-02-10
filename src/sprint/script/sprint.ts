@@ -16,7 +16,7 @@ const VOLUME = 0.4;
 
 const htmlCodeSprint = `
     <div class="sprint">
-      <div class="sprint-header">
+      <div class="game-header">
           <div class="sound button"></div>
           <div class="zoom button"></div>
           <a href="#/"><div class="close button"></div></a>

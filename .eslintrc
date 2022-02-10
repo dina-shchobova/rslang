@@ -14,8 +14,7 @@
     "extraFileExtensions": [".ts"]
   },
   "plugins": [
-    "@typescript-eslint",
-    "html"
+    "@typescript-eslint"
   ],
   "rules": {
     "no-plusplus": "off",

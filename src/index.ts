@@ -7,6 +7,8 @@ import { TextBook } from './views/pages/text-book';
 import { AuthorizationPage } from './views/pages/authorization';
 import { Games } from './views/pages/games';
 import { Statistics } from './views/pages/statistics';
+import './audiocall/styles/audiocallStyle.scss';
+import { Audiocall } from './audiocall/components/Audiocall';
 
 const authorization = new Authorization();
 authorization.createFieldAuthorization();
@@ -27,11 +29,20 @@ const SprintBinder = async (): Promise<string> => {
   return '';
 };
 
+const AudioCallBinder = async (): Promise<string> => {
+  const main = document.body.querySelector('main') as HTMLElement;
+  main.innerHTML = '';
+  const audiocall = new Audiocall();
+  audiocall.mount(main);
+  return '';
+};
+
 const routes = {
   '/': Home,
   '/text-book': TextBook,
   '/authorization': AuthorizationPage,
   '/games': Games,
+  '/audiocall': AudioCallBinder,
   '/sprint': SprintBinder,
   '/winners': Statistics,
 };
