@@ -2,12 +2,13 @@ import { Levels } from './Levels';
 import { Quiz } from './Quiz';
 import { Results } from './Results';
 import { SubPages, IGameCallComponent } from '../scripts/audiocallTypes';
+import { gameCallState } from '../scripts/audiocallState';
 
 const htmlCodeAudiocall = `
     <div class="game-header">
       <div class="sound button"></div>
       <div class="zoom button"></div>
-      <div class="close button"></div>
+      <a href="#/"><div class="close button"></div></a>
     </div>
     <div class="game-call__content">
 
@@ -23,13 +24,10 @@ class Audiocall implements IGameCallComponent {
 
   subPages: SubPages;
 
-  soundEffectOn: boolean;
-
   constructor() {
     this.subPage = 'levels';
     this.rootElement = undefined;
     this.contentContainer = undefined;
-    this.soundEffectOn = true;
     this.subPages = {
       levels: Levels,
       quiz: Quiz,
@@ -100,14 +98,6 @@ class Audiocall implements IGameCallComponent {
 
   // button controlls
 
-  // addCloseButtonListener(): void {
-  //   this.getElementBySelector('.close').addEventListener(('click'), () => this.goToMain());
-  // }
-  //
-  // goToMain(): void {
-  //
-  // }
-
   addFullscreenButtonListener(): void {
     this.getElementBySelector('.zoom').addEventListener(('click'), () => this.toggleFullScreen());
   }
@@ -130,7 +120,7 @@ class Audiocall implements IGameCallComponent {
   toggleSound(): void {
     const soundEffectButton = this.getElementBySelector('.sound');
     soundEffectButton.classList.toggle('sound-active');
-    this.soundEffectOn = !this.soundEffectOn;
+    gameCallState.soundEffectOn = !gameCallState.soundEffectOn;
   }
 }
 
