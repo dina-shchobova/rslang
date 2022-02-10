@@ -42,7 +42,7 @@ const routes = {
   '/': Home,
   '/text-book': TextBook,
   '/games': Games,
-  '/games-audiocall': AudioCallBinder,
+  '/audiocall': AudioCallBinder,
   '/winners': Statistics,
 };
 
