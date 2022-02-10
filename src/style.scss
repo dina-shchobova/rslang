@@ -1,6 +1,6 @@
 @font-face {
   font-family: "Balsamiq Sans";
-  src: url("./assets/BalsamiqSans-Regular.ttf");
+  src: url("/public/assets/BalsamiqSans-Regular.ttf");
 }
 
 * {
@@ -38,7 +38,7 @@ body {
     left: 0; right: 0;
     top: 0; bottom: 0;
     z-index: -1;
-    background: url("./assets/background.jpg") no-repeat center;
+    background: url("/public/assets/background.jpg") no-repeat center;
     background-size: contain;
     filter: blur(5px);
   }
@@ -48,13 +48,18 @@ header {
   padding: 5px 10px;
   display: flex;
   justify-content: space-between;
+  position: fixed;
+  top: 0;
+  width: 100vw;
+  max-width: 1440px;
+  z-index: 50;
 
   .logo {
     width: 70px;
     height: 60px;
     display: flex;
     align-items: center;
-    background: url("./assets/svg/logo.svg") no-repeat center;
+    background: url("/public/assets/svg/logo.svg") no-repeat center;
     background-size: contain;
     transition: 0.3s;
   }
@@ -66,7 +71,7 @@ header {
     .login {
       width: 40px;
       height: 40px;
-      background: url("./assets/svg/login.svg") no-repeat center;
+      background: url("/public/assets/svg/login.svg") no-repeat center;
       background-size: contain;
       margin-right: 25px;
       transition: 0.3s;
@@ -116,11 +121,11 @@ header {
     }
 
     .main-menu {
-      position: absolute;
+      position: fixed;
       left: -50%;
       top: 0;
       padding: 70px 100px 50px 60px;
-      height: 100%;
+      height: 100vh;
       background: #2a7799;
       z-index: 10;
       transition: 1s;
@@ -149,7 +154,7 @@ main {
 
   .text-advantages {
     font-size: 26px;
-    margin: 30px 10px;
+    margin: 110px 10px 50px;
   }
 
   .advantage {
@@ -173,22 +178,22 @@ main {
     }
 
     .locate {
-      background: url("./assets/svg/locate.svg") no-repeat center;
+      background: url("/public/assets/svg/locate.svg") no-repeat center;
       background-size: contain;
     }
 
     .play {
-      background: url("./assets/svg/game.svg") no-repeat center;
+      background: url("/public/assets/svg/game.svg") no-repeat center;
       background-size: contain;
     }
 
     .hard {
-      background: url("./assets/svg/warning.svg") no-repeat center;
+      background: url("/public/assets/svg/warning.svg") no-repeat center;
       background-size: contain;
     }
 
     .progress {
-      background: url("./assets/svg/statistic.svg") no-repeat center;
+      background: url("/public/assets/svg/statistic.svg") no-repeat center;
       background-size: contain;
     }
   }
@@ -217,17 +222,17 @@ main {
       }
 
       .alexander {
-        background: url("./assets/avatar/aleksandr.jpg") no-repeat center, white;
+        background: url("/public/assets/avatar/aleksandr.jpg") no-repeat center, white;
         background-size: contain;
       }
 
       .dina {
-        background: url("./assets/avatar/dina.jpg") no-repeat center, white;
+        background: url("/public/assets/avatar/dina.jpg") no-repeat center, white;
         background-size: contain;
       }
 
       .tatsiana {
-        background: url("./assets/avatar/tatsiana.jpg") no-repeat center, white;
+        background: url("/public/assets/avatar/tatsiana.jpg") no-repeat center, white;
         background-size: contain;
       }
 
@@ -262,7 +267,7 @@ footer {
     justify-content: space-between;
 
     .creator {
-      background: url("./assets/svg/github.svg") no-repeat left;
+      background: url("/public/assets/svg/github.svg") no-repeat left;
       background-size: 40px 40px;
       display: flex;
       align-items: center;
@@ -275,7 +280,7 @@ footer {
   .rs-school {
     width: 100px;
     height: 60px;
-    background: url("./assets/svg/rs_school_js.svg") no-repeat center;
+    background: url("/public/assets/svg/rs_school_js.svg") no-repeat center;
     background-size: contain;
     transition: 0.3s;
   }

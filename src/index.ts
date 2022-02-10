@@ -1,5 +1,7 @@
 import './style.scss';
 import { Authorization } from './authorization/authorization';
+import { StartGameSprint } from './sprint/script/startGame';
+
 import { ApplicationRoute } from './services/application-route';
 import { Navbar } from './views/components/navbar';
 import { Home } from './views/pages/home';
@@ -30,6 +32,14 @@ const navAwaiter = async () => {
 navAwaiter();
 const content = document.getElementById('page_container') as HTMLDivElement;
 
+const SprintBinder = async (): Promise<string> => {
+  const main = document.body.querySelector('main') as HTMLElement;
+  main.innerHTML = '';
+  const startSprint = new StartGameSprint();
+  startSprint.start();
+  return '';
+};
+
 const AudioCallBinder = async (): Promise<string> => {
   const main = document.body.querySelector('main') as HTMLElement;
   main.innerHTML = '';
@@ -43,6 +53,7 @@ const routes = {
   '/text-book': TextBook,
   '/games': Games,
   '/audiocall': AudioCallBinder,
+  '/games-sprint': SprintBinder,
   '/winners': Statistics,
 };
 
