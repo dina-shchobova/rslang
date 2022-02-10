@@ -1,0 +1,155 @@
+.authorization-container {
+  position: relative;
+  height: calc(100vh - 100px);
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 10;
+}
+
+.authorization-wrap {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 350px;
+  height: 450px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 25px;
+  border-radius: 25px;
+  z-index: 20;
+
+  .header-authorization {
+    display: flex;
+    font-size: 22px;
+    color: black;
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    .title {
+      width: calc(100% / 2);
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.4);
+      font-size: 22px;
+      margin: 0;
+    }
+
+    .title-active {
+      background: #2a7799;
+    }
+  }
+
+  .form-field {
+    display: none;
+    flex-direction: column;
+    margin: 10px 0;
+
+    .input-wrap {
+      position: relative;
+
+      .input {
+        margin: 20px 0;
+        width: 100%;
+        height: 50px;
+        padding: 5px;
+        font-size: 20px;
+        outline: none;
+      }
+
+      .error {
+        position: absolute;
+        margin: 0;
+        color: red;
+        text-transform: none;
+        top: 70px;
+        display: none;
+      }
+
+      input:invalid:not(:placeholder-shown) + .error {
+        display: block;
+      }
+    }
+  }
+
+  .form-active {
+    display: block;
+  }
+
+  .create-account, .button-login, .button-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    width: 100%;
+    height: 40px;
+    font-size: 18px;
+    margin-top: 20px;
+    background: darkolivegreen;
+    border-radius: 5px;
+    transition: 0.3s;
+
+    &:hover {
+      cursor: pointer;
+      transform: scale(1.05);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  .button-logout {
+    background: brown;
+  }
+}
+
+.active-signin {
+  display: block;
+}
+
+.user-name {
+  margin-right: 20px;
+  font-size: 20px;
+}
+
+input:invalid:not(:placeholder-shown) {
+  border-color: red;
+}
+
+input:valid:not(:placeholder-shown) {
+  border-color: green;
+}
+
+@media (max-width: 500px) {
+  .authorization-wrap {
+    width: 280px;
+    height: 380px;
+
+    .header-authorization .title {
+      font-size: 16px;
+    }
+
+    .form-field .input-wrap {
+      .input {
+        margin: 15px 0;
+        height: 45px;
+      }
+
+      .error {
+        top: 60px;
+        font-size: 12px;
+      }
+    }
+  }
+}
