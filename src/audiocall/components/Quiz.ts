@@ -262,12 +262,15 @@ class Quiz {
       }
     }
     let answeredCorrectly = false;
-    if (this.answersOnPage[answerNum] === this.correctAnswerOnPage) {
-      answeredCorrectly = true;
-      this.playYahoo();
-    } else {
-      this.playOops();
+    if (gameCallState.soundEffectOn) {
+      if (this.answersOnPage[answerNum] === this.correctAnswerOnPage) {
+        answeredCorrectly = true;
+        this.playYahoo();
+      } else {
+        this.playOops();
+      }
     }
+
     if (answeredCorrectly) {
       this.currentSeriesLength += 1;
       if (this.currentSeriesLength > this.longestSeriesLength) {
@@ -304,7 +307,7 @@ class Quiz {
 
   playYahoo(): void {
     const sound = this.getPlayer();
-    sound.src = '/audiocall_correct.mp3';
+    sound.src = '/call_correct.mp3';
     sound.play();
   }
 
