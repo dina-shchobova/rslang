@@ -9,6 +9,8 @@ export class Timer {
     let currentTimer = +timer.innerHTML;
 
     setTimeout(function tick() {
+      const sprintWrap = document.querySelector('.sprint-wrap');
+      if (!sprintWrap) return;
       if (exitGame.isExit) return;
       if (currentTimer === -1) {
         new SprintResult().showResult(answers);

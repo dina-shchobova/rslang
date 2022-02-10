@@ -44,7 +44,7 @@ const routes = {
   '/games': Games,
   '/audiocall': AudioCallBinder,
   '/sprint': SprintBinder,
-  '/winners': Statistics,
+  '/statistics': Statistics,
 };
 
 const notFound = async () => '<div>Not Found</div>';
