@@ -1,11 +1,12 @@
 import '../style/sprint.scss';
-import { getWord } from './services';
+import { getWord, createUserWord, getUserWord } from './services';
 import { Timer } from './timer';
 import { SprintGameControl, exitGame } from './sprintGameControl';
 import { Score, amountTrueAnswers } from './score';
 import { sound } from './dataTypes';
 
 const AMOUNT_WORDS = 20;
+const AMOUNT_PAGE = 30;
 let amountWords = 0;
 let currentPage = 0;
 let currentWord = 0;
@@ -13,6 +14,7 @@ let trueAnswer = false;
 const answers: (string | boolean)[][] = [];
 const HALF_SECOND = 500;
 const VOLUME = 0.4;
+let userId = '';
 
 const htmlCodeSprint = `
     <div class="sprint">
@@ -51,6 +53,7 @@ export class Sprint {
   }
 
   async createPageGameSprint(group: number): Promise<void> {
+    userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
     exitGame.isExit = false;
     const main = document.querySelector('main') as HTMLElement;
     const chooseLevels = document.querySelector('.choose-levels') as HTMLElement;
@@ -69,7 +72,7 @@ export class Sprint {
   }
 
   randomGeneratePage = (): void => {
-    currentPage = Math.floor(Math.random() * AMOUNT_WORDS);
+    currentPage = Math.floor(Math.random() * AMOUNT_PAGE);
   };
 
   async generateWord(group: number): Promise<void> {
@@ -81,6 +84,12 @@ export class Sprint {
     await this.generateWordTranslate(group, words[currentWord].wordTranslate)
       .then(() => {
         word.innerHTML = words[currentWord].word;
+        if (userId) {
+          createUserWord(userId, words[currentWord].id, {
+            difficulty: words[currentWord].word,
+            optional: { testFieldString: 'test', testFieldBoolean: true },
+          });
+        }
       });
   }
 

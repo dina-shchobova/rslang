@@ -83,7 +83,7 @@
     display: block;
   }
 
-  .create-account, .button-login, .button-logout {
+  .create-account, .button-login {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -108,6 +108,19 @@
 
   .button-logout {
     background: brown;
+    width: 230px;
+    height: 70px;
+    margin: 0 auto;
+    font-size: 32px;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 5px;
+
+    &:hover {
+      cursor: pointer;
+    }
   }
 }
 

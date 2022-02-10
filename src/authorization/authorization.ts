@@ -1,6 +1,6 @@
 import './authorization.scss';
 import { signin } from './services';
-import { htmlCodeAuthorization } from './createFieldAuthorization';
+import { htmlCodeAuthorization, htmlCodeLogout } from './createFieldAuthorization';
 
 const path = {
   user: 'https://rs-learnwords.herokuapp.com/users',
@@ -12,6 +12,7 @@ let userAuthorized = localStorage.getItem('userAuthorized') || false;
 export class Authorization {
   createFieldAuthorization(): void {
     const main = document.querySelector('main') as HTMLElement;
+    const login = document.querySelector('.login') as HTMLElement;
     const authorizationTitle = document.createElement('div');
     const authorizationWrap = document.createElement('div');
     const authorizationElement = document.createElement('div');
@@ -20,16 +21,21 @@ export class Authorization {
     authorizationWrap.classList.add('authorization-container');
     authorizationElement.classList.add('authorization-wrap');
     authorizationTitle.innerHTML = 'Авторизация';
-    authorizationElement.innerHTML = htmlCodeAuthorization;
-
+    authorizationElement.innerHTML = !userAuthorized ? htmlCodeAuthorization : htmlCodeLogout;
     authorizationWrap.append(authorizationTitle, authorizationElement);
     main.append(authorizationWrap);
+
+    this.logOut();
     this.checkIfUserIsLoggedIn();
+    if (userAuthorized) {
+      login.classList.add('logout');
+      return;
+    }
+
     this.showFieldAuthorization();
     this.switchForm();
     this.createUser();
     this.loginUser();
-    this.logOut();
   }
 
   checkIfUserIsLoggedIn(): void {
@@ -108,8 +114,10 @@ export class Authorization {
   logIn = async (userEmail: string, userPassword: string): Promise<void> => {
     if (!userEmail || !userPassword) return;
     const user = await signin({ email: userEmail, password: userPassword }, path.signin);
+    const login = document.querySelector('.login') as HTMLElement;
     this.showUserName(`${user.name}`);
     userAuthorized = true;
+    login.classList.add('logout');
     localStorage.setItem('userAuthorized', JSON.stringify(userAuthorized));
     localStorage.setItem('user', JSON.stringify(user));
   };
@@ -117,11 +125,14 @@ export class Authorization {
   logOut = (): void => {
     if (!userAuthorized) return;
     const logout = document.querySelector('.button-logout') as HTMLElement;
+    const login = document.querySelector('.login') as HTMLElement;
+
     logout.addEventListener('click', () => {
       const lastUser = document.querySelector('.user-name') as HTMLElement;
       lastUser.innerHTML = '';
       ['user', 'user name', 'userAuthorized'].forEach((item) => localStorage.removeItem(item));
       userAuthorized = false;
+      login.classList.remove('logout');
     });
   };
 
