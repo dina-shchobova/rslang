@@ -31,30 +31,28 @@ export class Main {
   }
 
   createAdvantages = (): void => {
-    const typeAdvantages = Object.keys(textAdvantages);
-    const titleAdvantages = Object.values(textAdvantages);
+    const typeAdvantages = Object.entries(textAdvantages);
 
-    for (let i = 0; i < typeAdvantages.length; i++) {
+    typeAdvantages.forEach((item) => {
       const advantages = document.querySelector('.advantages') as HTMLElement;
       const advantage = document.createElement('div');
       const imgAdvantage = document.createElement('div');
       const titleAdvantage = document.createElement('div');
 
       advantage.classList.add('advantage');
-      imgAdvantage.classList.add('img-advantages', typeAdvantages[i]);
+      imgAdvantage.classList.add('img-advantages', item[0]);
       titleAdvantage.classList.add('title-advantages');
-      titleAdvantage.innerHTML = titleAdvantages[i];
+      titleAdvantage.innerHTML = `${item[1]}`;
 
       advantages.appendChild(advantage);
       advantage.append(imgAdvantage, titleAdvantage);
-    }
+    });
   };
 
   createInfoAboutOurTeam = (): void => {
-    const names = Object.keys(ourTeam);
-    const teamMemberInformation = Object.values(ourTeam);
+    const teamMemberInformation = Object.entries(ourTeam);
 
-    for (let i = 0; i < names.length; i++) {
+    teamMemberInformation.forEach((item) => {
       const team = document.querySelector('.our-team') as HTMLElement;
       const teamMember = document.createElement('div');
       const avatar = document.createElement('div');
@@ -63,15 +61,15 @@ export class Main {
       const role = document.createElement('div');
 
       teamMember.classList.add('team-member');
-      avatar.classList.add('avatar', names[i]);
+      avatar.classList.add('avatar', item[0]);
       title.classList.add('title', 'link');
-      linkForGithub.innerHTML = `${teamMemberInformation[i][1]}`;
-      linkForGithub.setAttribute('href', `https://github.com/${teamMemberInformation[i][0]}`);
+      linkForGithub.innerHTML = `${item[1][1]}`;
+      linkForGithub.setAttribute('href', `https://github.com/${item[1][0]}`);
       linkForGithub.setAttribute('target', '_blank');
 
       team.appendChild(teamMember);
       teamMember.append(avatar, title, role);
       title.appendChild(linkForGithub);
-    }
+    });
   };
 }
