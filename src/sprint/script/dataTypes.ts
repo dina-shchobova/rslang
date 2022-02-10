@@ -44,3 +44,5 @@ export enum Levels {
   C1,
   C2,
 }
+
+export const sound = new Audio();

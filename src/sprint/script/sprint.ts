@@ -3,6 +3,7 @@ import { getWord } from './services';
 import { Timer } from './timer';
 import { SprintGameControl, exitGame } from './sprintGameControl';
 import { Score, amountTrueAnswers } from './score';
+import { sound } from './dataTypes';
 
 const AMOUNT_WORDS = 20;
 let amountWords = 0;
@@ -11,17 +12,18 @@ let currentWord = 0;
 let trueAnswer = false;
 const answers: (string | boolean)[][] = [];
 const HALF_SECOND = 500;
+const VOLUME = 0.4;
 
 const htmlCodeSprint = `
     <div class="sprint">
-      <div class="sprint-header">
+      <div class="game-header">
           <div class="sound button"></div>
           <div class="zoom button"></div>
-          <div class="close button"></div>
+          <a href="#/"><div class="close button"></div></a>
       </div>
       <div class="game-wrap">
         <div class="current-state">
-          <div class="timer">10</div>
+          <div class="timer">60</div>
         </div>
         <div class="sprint-game">
             <div class="word"></div>
@@ -50,13 +52,13 @@ export class Sprint {
 
   async createPageGameSprint(group: number): Promise<void> {
     exitGame.isExit = false;
-    const body = document.querySelector('body') as HTMLElement;
+    const main = document.querySelector('main') as HTMLElement;
     const chooseLevels = document.querySelector('.choose-levels') as HTMLElement;
     const sprintPage = document.createElement('div');
 
     sprintPage.innerHTML = htmlCodeSprint;
     sprintPage.classList.add('sprint-wrap');
-    body.appendChild(sprintPage);
+    main.appendChild(sprintPage);
     chooseLevels.remove();
 
     await this.generateWord(group);
@@ -122,7 +124,7 @@ export class Sprint {
     this.checkAnswer(button.getAttribute('id'));
     currentWord++;
     amountWords++;
-    if (amountWords % (AMOUNT_WORDS - 1) === 0) {
+    if (amountWords % AMOUNT_WORDS === 0) {
       currentPage++;
       currentWord = 0;
     }
@@ -131,7 +133,9 @@ export class Sprint {
 
   checkAnswer(typeAnswer: string | null): void {
     const sprintGame = document.querySelector('.sprint-game') as HTMLElement;
-    // new Audio(String(trueAnswer) === typeAnswer ? '/public/assets/true.mp3' : '/public/assets/false.mp3').play();
+    sound.src = String(trueAnswer) === typeAnswer ? '/assets/true.mp3' : '/assets/false.mp3';
+    sound.volume = VOLUME;
+    sound.play();
 
     sprintGame.classList.add(String(trueAnswer) === typeAnswer ? 'true' : 'false');
     answers[amountWords]?.push(String(trueAnswer) === typeAnswer);

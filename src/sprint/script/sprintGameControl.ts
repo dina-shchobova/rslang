@@ -1,3 +1,5 @@
+import { sound } from './dataTypes';
+
 export const exitGame = {
   isExit: false,
 };
@@ -7,10 +9,10 @@ export class SprintGameControl {
     const volume = document.querySelector('.sound') as HTMLElement;
     const zoom = document.querySelector('.zoom') as HTMLElement;
     const close = document.querySelector('.close') as HTMLElement;
-    const sprintWrap = document.querySelector('.sprint-wrap') as HTMLElement;
 
     volume.addEventListener('click', () => {
       volume.classList.toggle('sound-active');
+      sound.muted = !!document.querySelector('.sound-active');
     });
 
     zoom.addEventListener('click', () => {
@@ -23,9 +25,8 @@ export class SprintGameControl {
       }
     });
 
-    close.addEventListener('click', () => {
-      if (document.fullscreenElement) document.exitFullscreen();
-      sprintWrap.remove();
+    close.addEventListener('click', async () => {
+      if (document.fullscreenElement) await document.exitFullscreen();
       exitGame.isExit = true;
     });
   };
