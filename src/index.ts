@@ -1,5 +1,6 @@
 import './style.scss';
 import { Authorization } from './authorization/authorization';
+
 import { StartGameSprint } from './sprint/script/startGame';
 import { ApplicationRoute } from './services/application-route';
 import { Home } from './views/pages/home';
@@ -46,10 +47,10 @@ const routes = {
   '/games': Games,
   '/audiocall': AudioCallBinder,
   '/sprint': SprintBinder,
-  '/winners': Statistics,
+  '/statistics': Statistics,
 };
 
-const notFound = async () => '<div>Not Found</div>';
+const notFound = async () => ({ html: '<div>Not Found</div>' });
 const app = new ApplicationRoute(content, routes, notFound);
 app.listen();
 

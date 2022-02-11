@@ -1,34 +1,42 @@
-import { PageContentRoutes, PageContentThunk } from './types';
+import { PageRoutes, PageComponentThunk } from './types';
 
 export class ApplicationRoute {
-  content: HTMLDivElement;
+  private content: HTMLDivElement;
 
-  routes: PageContentRoutes;
+  private routes: PageRoutes;
 
-  notFound: PageContentThunk;
+  private notFound: PageComponentThunk;
 
-  constructor(content: HTMLDivElement, routes: PageContentRoutes, notFound: PageContentThunk) {
+  private unmount: () => void;
+
+  constructor(content: HTMLDivElement, routes: PageRoutes, notFound: PageComponentThunk) {
     this.content = content;
     this.routes = routes;
     this.notFound = notFound;
+    this.unmount = () => { };
   }
 
-  router() {
-    const url = window.location.hash.slice(1).toLowerCase() || '/';
+  async router() {
+    const urlWithQuery = (window.location.hash.slice(1).toLowerCase() || '/').split('?');
+    const url = urlWithQuery[0];
+    let query = {};
+    if (urlWithQuery[1]) {
+      const params = urlWithQuery[1].split('&').map((p) => p.split('='));
+      query = Object.fromEntries(params);
+    }
     const resource = url.split('/')[1];
     const request = { resource };
     const parsedURL = request.resource ? `/${request.resource}` : '/';
-    if (this.routes[parsedURL]) return this.routes[parsedURL]();
-    return this.notFound();
-  }
-
-  private async setHTML() {
-    const temp = await this.router();
-    this.content.innerHTML = temp;
+    this.unmount();
+    const route = this.routes[parsedURL] ?? this.notFound;
+    const { html, mount, unmount } = await route(query);
+    this.unmount = unmount || (() => { });
+    this.content.innerHTML = html;
+    if (mount) mount();
   }
 
   async listen() {
-    window.addEventListener('hashchange', this.setHTML);
-    window.addEventListener('load', this.setHTML);
+    window.addEventListener('hashchange', async () => this.router());
+    window.addEventListener('load', async () => this.router());
   }
 }

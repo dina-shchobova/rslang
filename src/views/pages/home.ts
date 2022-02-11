@@ -1,8 +1,9 @@
+import { PageComponentThunk } from '../../services/types';
 import { Main } from '../../mainPage/main';
 
-export const Home = async (): Promise<string> => {
+export const Home: PageComponentThunk = async () => {
   const mainPage = new Main();
   mainPage.createMainPage();
-
-  return '';
-};
+  const view = '<div id="">RsLang</div>';
+  return { html: '' };
+}
