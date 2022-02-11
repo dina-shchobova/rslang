@@ -1,4 +1,5 @@
 import './statistics.scss';
+import { SaveStatistics } from './saveStatistics';
 
 const htmlCodeStatistic = `
   <div class="statistics">
@@ -36,8 +37,8 @@ const dontShowStatistics = `
 
 const statisticsGames = {
   pointOne: ['new-words', 'Количество новых слов за день:'],
-  pointTwo: ['true-answers', 'Процент правильных ответов:'],
-  pointThree: ['max-true-answers', 'Самая длинная серия правильных ответов:'],
+  pointTwo: ['true-answers', 'Самая длинная серия правильных ответов:'],
+  pointThree: ['max-true-answers', 'Процент правильных ответов:'],
 };
 
 const statisticsWords = {
@@ -47,6 +48,12 @@ const statisticsWords = {
 };
 
 export class StatisticsPage {
+  private saveStatistics: SaveStatistics;
+
+  constructor() {
+    this.saveStatistics = new SaveStatistics();
+  }
+
   createFieldStatistics = (): void => {
     const main = document.querySelector('main') as HTMLElement;
     const statisticsWrap = document.createElement('div');
@@ -82,7 +89,7 @@ export class StatisticsPage {
         statisticPoint.classList.add(`${item[1][0]}`, 'statistics-point');
         titlePoint.classList.add('title-point');
         titlePoint.innerHTML = `${item[1][1]}`;
-        statisticValue.classList.add(`amount-${item[0][1]}`);
+        statisticValue.classList.add(`amount-${item[1][0]}`, 'amount-stat');
         statisticValue.innerHTML = '0';
 
         statisticsInfo.appendChild(statisticPoint);
@@ -90,15 +97,16 @@ export class StatisticsPage {
       });
     };
     getStatistics(typeInfo === 'Аудиовызов' || typeInfo === 'Спринт' ? statisticsGames : statisticsWords);
+    this.saveStatistics.showStatistics(typeInfo);
   };
 
   toggleStatistics() {
-    const audicol = document.querySelector('.statistics-audiocall') as HTMLElement;
+    const audiocall = document.querySelector('.statistics-audiocall') as HTMLElement;
     const sprint = document.querySelector('.statistics-sprint') as HTMLElement;
     const words = document.querySelector('.statistics-words') as HTMLElement;
     const allIcons = document.querySelectorAll('.game') as unknown as HTMLElement[];
 
-    this.toggle(audicol, allIcons, 'Аудиовызов', 'short');
+    this.toggle(audiocall, allIcons, 'Аудиовызов', 'short');
     this.toggle(sprint, allIcons, 'Спринт', 'short');
     this.toggle(words, allIcons, 'Слова', 'short');
   }

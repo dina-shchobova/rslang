@@ -1,20 +1,23 @@
 import '../style/sprint.scss';
-import { getWord, createUserWord, getUserWord } from './services';
+import { getWord, createUserWord } from './services';
 import { Timer } from './timer';
 import { SprintGameControl, exitGame } from './sprintGameControl';
 import { Score, amountTrueAnswers } from './score';
 import { sound } from './dataTypes';
+import { statistics } from '../../statistic/saveStatistics';
 
 const AMOUNT_WORDS = 20;
 const AMOUNT_PAGE = 30;
+const HALF_SECOND = 500;
 let amountWords = 0;
 let currentPage = 0;
 let currentWord = 0;
 let trueAnswer = false;
-const answers: (string | boolean)[][] = [];
-const HALF_SECOND = 500;
+let answers: (string | boolean)[][] = [];
 const VOLUME = 0.4;
 let userId = '';
+let trueAnswers = 0;
+let falseAnswers = 0;
 
 const htmlCodeSprint = `
     <div class="sprint">
@@ -53,6 +56,7 @@ export class Sprint {
   }
 
   async createPageGameSprint(group: number): Promise<void> {
+    answers = [];
     userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
     exitGame.isExit = false;
     const main = document.querySelector('main') as HTMLElement;
@@ -63,6 +67,8 @@ export class Sprint {
     sprintPage.classList.add('sprint-wrap');
     main.appendChild(sprintPage);
     chooseLevels.remove();
+    trueAnswers = JSON.parse(<string>localStorage.getItem('statistics'))?.sprint.trueAnswers || 0;
+    falseAnswers = JSON.parse(<string>localStorage.getItem('statistics'))?.sprint.falseAnswers || 0;
 
     await this.generateWord(group);
     this.showNextWord(group);
@@ -152,9 +158,16 @@ export class Sprint {
     if (String(trueAnswer) === typeAnswer) {
       amountTrueAnswers.count++;
       amountTrueAnswers.numberBulb = amountTrueAnswers.numberBulb === 2 ? 0 : amountTrueAnswers.numberBulb + 1;
+      trueAnswers++;
     } else {
       amountTrueAnswers.count = 0;
       amountTrueAnswers.numberBulb = -1;
+      falseAnswers++;
+    }
+
+    if (userId) {
+      statistics.sprint.trueAnswers = trueAnswers;
+      statistics.sprint.falseAnswers = falseAnswers;
     }
     this.score.countAnswers();
 

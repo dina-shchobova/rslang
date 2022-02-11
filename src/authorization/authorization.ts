@@ -1,6 +1,8 @@
 import './authorization.scss';
 import { signin } from './services';
 import { htmlCodeAuthorization, htmlCodeLogout } from './createFieldAuthorization';
+import { getStat, saveStat } from '../statistic/services';
+import { statistics } from '../statistic/saveStatistics';
 
 const path = {
   user: 'https://rs-learnwords.herokuapp.com/users',
@@ -10,7 +12,7 @@ const path = {
 let userAuthorized = localStorage.getItem('userAuthorized') || false;
 
 export class Authorization {
-  createFieldAuthorization(): void {
+  async createFieldAuthorization(): Promise<void> {
     const main = document.querySelector('main') as HTMLElement;
     const login = document.querySelector('.login') as HTMLElement;
     const authorizationTitle = document.createElement('div');
@@ -26,7 +28,7 @@ export class Authorization {
     main.append(authorizationWrap);
 
     this.logOut();
-    this.checkIfUserIsLoggedIn();
+    await this.checkIfUserIsLoggedIn();
     if (userAuthorized) {
       login.classList.add('logout');
       return;
@@ -38,10 +40,20 @@ export class Authorization {
     this.loginUser();
   }
 
-  checkIfUserIsLoggedIn(): void {
+  showUserStatistics = async (): Promise<void> => {
+    const statistic = await getStat(JSON.parse(<string>localStorage.getItem('user')).userId);
+    localStorage.setItem('statistics', JSON.stringify(statistic.optional.statistics));
+  };
+
+  createUserStatistics = async (): Promise<void> => {
+    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
+    return saveStat(userId, { learnedWords: 0, optional: { statistics } });
+  };
+
+  async checkIfUserIsLoggedIn(): Promise<void> {
     const name = localStorage.getItem('user name') as string;
     if (JSON.parse(<string>localStorage.getItem('userAuthorized'))) {
-      this.showUserName(name);
+      await this.showUserName(name, 'login');
     }
   }
 
@@ -93,7 +105,11 @@ export class Authorization {
 
       if (!userName || !userEmail || !userPassword) return;
       await signin({ name: userName, email: userEmail, password: userPassword }, path.user);
-      await this.logIn(userEmail, userPassword);
+      await this.logIn(userEmail, userPassword, 'createUser')
+        .then(async () => {
+          await this.createUserStatistics();
+          await this.showUserStatistics();
+        });
       name.value = ''; email.value = ''; password.value = '';
     });
   }
@@ -111,15 +127,17 @@ export class Authorization {
     });
   }
 
-  logIn = async (userEmail: string, userPassword: string): Promise<void> => {
+  logIn = async (userEmail: string, userPassword: string, state = 'login'): Promise<void> => {
     if (!userEmail || !userPassword) return;
-    const user = await signin({ email: userEmail, password: userPassword }, path.signin);
-    const login = document.querySelector('.login') as HTMLElement;
-    this.showUserName(`${user.name}`);
-    userAuthorized = true;
-    login.classList.add('logout');
-    localStorage.setItem('userAuthorized', JSON.stringify(userAuthorized));
-    localStorage.setItem('user', JSON.stringify(user));
+    await signin({ email: userEmail, password: userPassword }, path.signin)
+      .then((res) => {
+        const login = document.querySelector('.login') as HTMLElement;
+        userAuthorized = true;
+        login.classList.add('logout');
+        localStorage.setItem('userAuthorized', JSON.stringify(userAuthorized));
+        localStorage.setItem('user', JSON.stringify(res));
+        this.showUserName(`${res.name}`, state);
+      });
   };
 
   logOut = (): void => {
@@ -130,15 +148,16 @@ export class Authorization {
     logout.addEventListener('click', () => {
       const lastUser = document.querySelector('.user-name') as HTMLElement;
       lastUser.innerHTML = '';
-      ['user', 'user name', 'userAuthorized'].forEach((item) => localStorage.removeItem(item));
+      ['user', 'user name', 'userAuthorized', 'statistics'].forEach((item) => localStorage.removeItem(item));
       userAuthorized = false;
       login.classList.remove('logout');
     });
   };
 
-  showUserName = (name: string): void => {
+  showUserName = async (name: string, state: string): Promise<void> => {
     const userName = document.querySelector('.user-name') as HTMLElement;
     userName.innerHTML = name;
     localStorage.setItem('user name', name);
+    if (state === 'login') await this.showUserStatistics();
   };
 }
