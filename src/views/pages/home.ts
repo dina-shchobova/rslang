@@ -6,4 +6,4 @@ export const Home: PageComponentThunk = async () => {
   mainPage.createMainPage();
   const view = '<div id="">RsLang</div>';
   return { html: '' };
-}
+};
