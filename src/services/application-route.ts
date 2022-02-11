@@ -31,16 +31,12 @@ export class ApplicationRoute {
     const route = this.routes[parsedURL] ?? this.notFound;
     const { html, mount, unmount } = await route(query);
     this.unmount = unmount || (() => { });
+    this.content.innerHTML = html;
     if (mount) mount();
-    return html;
   }
 
   async listen() {
-    window.addEventListener('hashchange', async () => this.setHTML());
-    window.addEventListener('load', async () => this.setHTML());
-  }
-
-  private async setHTML() {
-    this.content.innerHTML = await this.router();
+    window.addEventListener('hashchange', async () => this.router());
+    window.addEventListener('load', async () => this.router());
   }
 }
