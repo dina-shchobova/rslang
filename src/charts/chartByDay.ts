@@ -1,10 +1,9 @@
-import Chart from 'chart.js/auto';
-import { ICallLevelsComponent, IGameCallComponent } from '../audiocall/scripts/audiocallTypes';
+import Chart, { ChartItem } from 'chart.js/auto';
 
 const htmlCodeChartDay = `
   <h2 class="title">Статистика за все время</h2>
   <div>
-     <canvas id="chart-by-day"></canvas>
+     <canvas id="chart-by-day" class="chart-field"></canvas>
   </div>
 `;
 
@@ -18,23 +17,22 @@ interface ChartData {
   }]
 }
 
-// interface ConfigCharts {
-//
-// }
+interface ConfigCharts {
+  type: string,
+  data: ChartData,
+  options: any,
+}
 
 class ChartDay {
   rootElement?: HTMLElement;
-
-  game: IGameCallComponent;
 
   levelButtons?: NodeList;
 
   data: ChartData;
 
-  // configChart: ConfigCharts;
+  configChart: any;
 
-  constructor(game: IGameCallComponent) {
-    this.game = game;
+  constructor() {
     this.rootElement = undefined;
     this.levelButtons = undefined;
     this.data = {
@@ -46,17 +44,17 @@ class ChartDay {
         data: [0, 10, 5, 2, 20, 30, 45],
       }],
     };
-    // this.configChart = {
-    //   type: 'line',
-    //   // data,
-    //   options: {},
-    // };
+    this.configChart = {
+      type: 'line',
+      data: this.data,
+      options: {},
+    };
   }
 
   createRootElement(): HTMLElement {
     const rootElement = document.createElement('div');
     rootElement.id = 'chart-by-days';
-    rootElement.classList.add('field');
+    rootElement.classList.add('chart-field');
     rootElement.innerHTML = htmlCodeChartDay;
     this.rootElement = rootElement;
     return rootElement;
@@ -64,15 +62,22 @@ class ChartDay {
 
   mount(elem: HTMLElement): void {
     elem.appendChild(this.createRootElement());
-    // this.mounted();
+    this.mounted();
   }
 
-  // mounted(): void {
-  //
-  // }
+  mounted(): void {
+    this.insertChart();
+  }
 
   getElementBySelector(selector: string): HTMLElement {
     return (this.rootElement as HTMLElement).querySelector(selector) as HTMLElement;
+  }
+
+  insertChart(): void {
+    const myChart = new Chart(
+      document.getElementById('chart-by-day') as ChartItem,
+      this.configChart,
+    );
   }
 }
 
