@@ -1,4 +1,5 @@
 import Chart, { ChartItem } from 'chart.js/auto';
+import { ChartConfiguration, Chart as IChart } from 'chart.js';
 
 const htmlCodeChartDay = `
   <h2 class="title">Статистика за все время</h2>
@@ -7,48 +8,16 @@ const htmlCodeChartDay = `
   </div>
 `;
 
-interface ChartData {
-  labels: string[];
-  datasets: [{
-    label: string,
-    backgroundColor: string,
-    borderColor: string,
-    data: number[],
-  }]
-}
-
-interface ConfigCharts {
-  type: string,
-  data: ChartData,
-  options: any,
-}
-
-class ChartDay {
+class ChartLearnedWordsByDays {
   rootElement?: HTMLElement;
 
   levelButtons?: NodeList;
 
-  data: ChartData;
-
-  configChart: any;
+  myChart?: IChart;
 
   constructor() {
     this.rootElement = undefined;
     this.levelButtons = undefined;
-    this.data = {
-      labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-      datasets: [{
-        label: 'My First dataset',
-        backgroundColor: 'rgb(255, 99, 132)',
-        borderColor: 'rgb(255, 99, 132)',
-        data: [0, 10, 5, 2, 20, 30, 45],
-      }],
-    };
-    this.configChart = {
-      type: 'line',
-      data: this.data,
-      options: {},
-    };
   }
 
   createRootElement(): HTMLElement {
@@ -74,11 +43,32 @@ class ChartDay {
   }
 
   insertChart(): void {
-    const myChart = new Chart(
+    this.myChart = new Chart(
       document.getElementById('chart-by-day') as ChartItem,
-      this.configChart,
+      ChartLearnedWordsByDays
+        .getChartConfiguration(
+          ['January', 'February', 'March', 'April', 'May', 'June'],
+          [0, 10, 5, 2, 20, 30, 45],
+        ),
     );
+  }
+
+  static getChartConfiguration(dates: string[], countWords: number[]): ChartConfiguration {
+    const data = {
+      labels: dates,
+      datasets: [{
+        label: 'My First dataset',
+        backgroundColor: 'rgb(255, 99, 132)',
+        borderColor: 'rgb(255, 99, 132)',
+        data: countWords,
+      }],
+    };
+    return {
+      type: 'line',
+      data,
+      options: {},
+    };
   }
 }
 
-export { ChartDay };
+export { ChartLearnedWordsByDays };

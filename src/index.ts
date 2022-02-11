@@ -10,10 +10,10 @@ import { Games } from './views/pages/games';
 import { Statistics } from './views/pages/statistics';
 import './audiocall/styles/audiocallStyle.scss';
 import { Audiocall } from './audiocall/components/Audiocall';
-import { ChartDay } from './charts/chartByDay';
+import { ChartLearnedWordsByDays } from './charts/chartByDay';
 
-const authorization = new Authorization();
-authorization.createFieldAuthorization();
+// const authorization = new Authorization();
+// authorization.createFieldAuthorization();
 
 const pageContainer = document.createElement('div');
 
@@ -60,6 +60,6 @@ const burger = document.querySelector('.menu') as HTMLElement;
   });
 }());
 
-const chart = new ChartDay();
+const chart = new ChartLearnedWordsByDays();
 const main = document.querySelector('main');
 chart.mount(main as HTMLElement);
