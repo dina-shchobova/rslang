@@ -17,11 +17,11 @@ export class ApplicationRoute {
   }
 
   async router() {
-    const url1 = (window.location.hash.slice(1).toLowerCase() || '/').split('?');
-    const url = url1[0];
+    const urlWithQuery = (window.location.hash.slice(1).toLowerCase() || '/').split('?');
+    const url = urlWithQuery[0];
     let query = {};
-    if (url1[1]) {
-      const params = url1[1].split('&').map((p) => p.split('='));
+    if (urlWithQuery[1]) {
+      const params = urlWithQuery[1].split('&').map((p) => p.split('='));
       query = Object.fromEntries(params);
     }
     const resource = url.split('/')[1];
