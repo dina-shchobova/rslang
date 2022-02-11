@@ -11,10 +11,10 @@ import { Games } from './views/pages/games';
 import { Statistics } from './views/pages/statistics';
 import './audiocall/styles/audiocallStyle.scss';
 import { Audiocall } from './audiocall/components/Audiocall';
+import { PageComponentThunk } from './services/types';
 
 const authorization = new Authorization();
 authorization.createFieldAuthorization();
-
 
 const pageContainer = document.createElement('div');
 
@@ -24,20 +24,20 @@ document.body.appendChild(pageContainer);
 
 const content = document.getElementById('page_container') as HTMLDivElement;
 
-const SprintBinder = async (): Promise<string> => {
+const SprintBinder: PageComponentThunk = async () => {
   const main = document.body.querySelector('main') as HTMLElement;
   main.innerHTML = '';
   const startSprint = new StartGameSprint();
   startSprint.start();
-  return '';
+  return { html: '' };
 };
 
-const AudioCallBinder = async (): Promise<string> => {
+const AudioCallBinder: PageComponentThunk = async () => {
   const main = document.body.querySelector('main') as HTMLElement;
   main.innerHTML = '';
   const audiocall = new Audiocall();
   audiocall.mount(main);
-  return '';
+  return { html: '' };
 };
 
 const routes = {
