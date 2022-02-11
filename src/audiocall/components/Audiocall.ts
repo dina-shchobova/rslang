@@ -2,16 +2,14 @@ import { Levels } from './Levels';
 import { Quiz } from './Quiz';
 import { Results } from './Results';
 import { SubPages, IGameCallComponent } from '../scripts/audiocallTypes';
+import { gameCallState } from '../scripts/audiocallState';
 
 const htmlCodeAudiocall = `
-
-<!--    <div class="controls">-->
-<!--      <div class="btn-back"></div>-->
-<!--      <div>-->
-<!--        <div class="btn-sound"></div>-->
-<!--        <div class="btn-fullscreen"></div>-->
-<!--      </div>-->
-<!--    </div>-->
+    <div class="game-header">
+      <div class="sound button"></div>
+      <div class="zoom button"></div>
+      <a href="#/"><div class="close button"></div></a>
+    </div>
     <div class="game-call__content">
 
     </div>
@@ -52,6 +50,8 @@ class Audiocall implements IGameCallComponent {
 
   mounted(): void {
     this.mountSubPage();
+    this.addSoundButtonListener();
+    this.addFullscreenButtonListener();
   }
 
   mountSubPage(): void {
@@ -94,6 +94,33 @@ class Audiocall implements IGameCallComponent {
 
   static clearContainer(elem: HTMLElement) {
     elem.innerHTML = '';
+  }
+
+  // button controlls
+
+  addFullscreenButtonListener(): void {
+    this.getElementBySelector('.zoom').addEventListener(('click'), () => this.toggleFullScreen());
+  }
+
+  toggleFullScreen(): void {
+    const fullButton = this.getElementBySelector('.zoom');
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+      fullButton.classList.remove('zoom-active');
+    } else {
+      document.documentElement.requestFullscreen();
+      fullButton.classList.add('zoom-active');
+    }
+  }
+
+  addSoundButtonListener(): void {
+    this.getElementBySelector('.sound').addEventListener(('click'), () => this.toggleSound());
+  }
+
+  toggleSound(): void {
+    const soundEffectButton = this.getElementBySelector('.sound');
+    soundEffectButton.classList.toggle('sound-active');
+    gameCallState.soundEffectOn = !gameCallState.soundEffectOn;
   }
 }
 

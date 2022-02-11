@@ -33,11 +33,11 @@ const htmlCodeQuiz = `
         </div>
       </div>
       <div class="game-call__answer-buttons">
-        <div class="game-call__answer-button" data-number="0">...</div>
-        <div class="game-call__answer-button" data-number="1">...</div>
-        <div class="game-call__answer-button" data-number="2">...</div>
-        <div class="game-call__answer-button" data-number="3">...</div>
-        <div class="game-call__answer-button" data-number="4">...</div>
+        <div class="game-call__answer-button Digit1" data-number="0">...</div>
+        <div class="game-call__answer-button Digit2" data-number="1">...</div>
+        <div class="game-call__answer-button Digit3" data-number="2">...</div>
+        <div class="game-call__answer-button Digit4" data-number="3">...</div>
+        <div class="game-call__answer-button Digit5" data-number="4">...</div>
       </div>
       <div class="game-call__quiz-control">Дальше</div>
       <div class="counter-words button_shadow">1</div>
@@ -68,6 +68,12 @@ class Quiz {
 
   sound: HTMLAudioElement | undefined;
 
+  answerSelected: boolean;
+
+  longestSeriesLength: number;
+
+  currentSeriesLength: number;
+
   constructor(game: IGameCallComponent) {
     this.game = game;
     this.rootElement = undefined;
@@ -80,6 +86,9 @@ class Quiz {
     this.currentWordNumber = 0;
     this.error = undefined;
     this.sound = undefined;
+    this.answerSelected = false;
+    this.longestSeriesLength = 0;
+    this.currentSeriesLength = 0;
   }
 
   createRootElement(): HTMLElement {
@@ -103,6 +112,7 @@ class Quiz {
     this.updateAnswersOnPage();
     this.updateAnswerView();
     this.addSoundIconsListener();
+    this.addListenersForKeyboardKeys();
   }
 
   getElementBySelector(selector: string): HTMLElement {
@@ -116,7 +126,6 @@ class Quiz {
     this.wordsForTour = [];
     const page = Math.floor(Math.random() * amountPage);
     const rawResponse = await fetch(`${BACKEND_URL}words?page=${page}&group=${gameCallState.level}`, {
-      // FIXME: Move To resource
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -244,27 +253,48 @@ class Quiz {
       .forEach((elem) => elem.addEventListener('click', (e) => this.onAnswerButtonClick(e.target as HTMLElement)));
   }
 
-  onAnswerButtonClick(elem: HTMLElement): void {
-    this.makeAnswerVisible();
-    const numOfClickedAnswer: number = parseInt(elem.dataset.number as string, 10);
-    const selectedAnswer = this.answersOnPage[numOfClickedAnswer];
-    if (selectedAnswer.inactive) {
-      return;
+  processAnswer(answerNum: number): void {
+    this.answerSelected = true;
+    if (answerNum !== -1) {
+      const selectedAnswer = this.answersOnPage[answerNum];
+      if (selectedAnswer.inactive) {
+        return;
+      }
     }
     let answeredCorrectly = false;
-    if (this.answersOnPage[numOfClickedAnswer] === this.correctAnswerOnPage) {
-      answeredCorrectly = true;
+    if (gameCallState.soundEffectOn) {
+      if (this.answersOnPage[answerNum] === this.correctAnswerOnPage) {
+        answeredCorrectly = true;
+        this.playYahoo();
+      } else {
+        this.playOops();
+      }
+    }
+
+    if (answeredCorrectly) {
+      this.currentSeriesLength += 1;
+      if (this.currentSeriesLength > this.longestSeriesLength) {
+        this.longestSeriesLength = this.currentSeriesLength;
+      }
+    } else {
+      this.currentSeriesLength = 0;
     }
     this.saveToResults(answeredCorrectly);
     this.answersOnPage.forEach((answerOnPage) => {
       if (answerOnPage === this.correctAnswerOnPage) {
         answerOnPage.correct = true;
-      } else if (!answeredCorrectly && (this.answersOnPage.indexOf(answerOnPage) === numOfClickedAnswer)) {
+      } else if (!answeredCorrectly && (this.answersOnPage.indexOf(answerOnPage) === answerNum)) {
         answerOnPage.correct = false;
       }
       answerOnPage.inactive = true;
     });
     this.updateAnswerButtonsView();
+  }
+
+  onAnswerButtonClick(elem: HTMLElement): void {
+    this.makeAnswerVisible();
+    const numOfClickedAnswer: number = parseInt(elem.dataset.number as string, 10);
+    this.processAnswer(numOfClickedAnswer);
   }
 
   saveToResults(isCorrect: boolean): void {
@@ -273,6 +303,18 @@ class Quiz {
     } else {
       gameCallState.wrongAnswers.push((this.correctAnswerOnPage as IAnswerOnPage).answerData);
     }
+  }
+
+  playYahoo(): void {
+    const sound = this.getPlayer();
+    sound.src = '/call_correct.mp3';
+    sound.play();
+  }
+
+  playOops(): void {
+    const sound = this.getPlayer();
+    sound.src = ('/call_wrong.wav');
+    sound.play();
   }
 
   // control button
@@ -289,14 +331,20 @@ class Quiz {
   }
 
   onControlButtonClick(): void {
-    this.currentWordNumber += 1;
-    if (this.currentWordNumber === this.wordsForTour.length) {
-      this.game.showResults();
+    if (this.answerSelected) {
+      this.currentWordNumber += 1;
+      if (this.currentWordNumber === this.wordsForTour.length) {
+        gameCallState.maxSeries = this.longestSeriesLength;
+        this.game.showResults();
+      } else {
+        const counterBox = this.getElementBySelector('.counter-words');
+        counterBox.innerHTML = (this.currentWordNumber + 1).toString();
+        this.updateAnswersOnPage();
+        this.updateAnswerView();
+        this.answerSelected = false;
+      }
     } else {
-      const counterBox = this.getElementBySelector('.counter-words');
-      counterBox.innerHTML = (this.currentWordNumber + 1).toString();
-      this.updateAnswersOnPage();
-      this.updateAnswerView();
+      this.processAnswer(-1);
     }
   }
 
@@ -329,6 +377,24 @@ class Quiz {
     answerContainer.style.visibility = 'hidden';
     const questionContainer = this.getElementBySelector('.game-call__question');
     questionContainer.style.visibility = 'visible';
+  }
+
+  // keyboard control
+
+  addListenersForKeyboardKeys(): void {
+    document.addEventListener('keydown', (event: KeyboardEvent) => this.selectAnswer(event.code));
+  }
+
+  selectAnswer(code: string): void {
+    switch (code) {
+      case 'Digit1':
+      case 'Digit2':
+      case 'Digit3':
+      case 'Digit4':
+      case 'Digit5': this.onAnswerButtonClick(this.getElementBySelector(`.${code}`)); break;
+      case 'Enter': this.onControlButtonClick(); break;
+      default: break;
+    }
   }
 }
 
