@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { IWordObject } from '../../services/types';
+import { IWordObject, PageComponentThunk } from '../../services/types';
 import { createOneWordDiv } from '../components/play-word';
 
 export const BASE_URL = 'https://rs-learnwords.herokuapp.com/';
@@ -40,7 +40,7 @@ class TextBookClass {
   }
 
   getView(words: IWordObject[]) {
-    return `<div>
+    return `<div id="pagination-buttons">
         <button id="prev-button" data-role="${BUTTON_PREV_ROLE}"${this.page === 0 ? ' disabled' : ''}
         data-href="${this.formatHash(this.group, this.page - 1)}">Previous page</button>
         <button id="next-buttom" data-role="${BUTTON_NEXT_ROLE}"${this.page === MAX_PAGE ? ' disabled' : ''}
@@ -67,18 +67,6 @@ class TextBookClass {
     if (group < 0 || group > MAX_GROUP) return;
     this.group = group;
   }
-
-  nextPage() {
-    if (this.page >= MAX_PAGE) return;
-    this.page++;
-    this.updateUI();
-  }
-
-  prevPage() {
-    if (this.page < 1) return;
-    this.page--;
-    this.updateUI();
-  }
 }
 
 let textbook: TextBookClass;
@@ -95,23 +83,20 @@ const createCard = (wordObject: IWordObject) => `
 
 const clickHandler = async (e: MouseEvent): Promise<void> => {
   const target = e.target as HTMLElement;
-  switch (target.dataset.role) {
-    case BUTTON_PREV_ROLE:
-      await textbook.prevPage();
-      break;
-    case BUTTON_NEXT_ROLE:
-      await textbook.nextPage();
-      break;
-    default:
-      break;
-  }
+  window.location.hash = target.dataset.href || '/';
+};
+
+const mount = () => {
+  const el = document.getElementById('pagination-buttons') as HTMLDivElement;
+  el.addEventListener('click', clickHandler);
 };
 
 const unmount = () => {
-  document.body.removeEventListener('click', clickHandler);
+  const el = document.getElementById('pagination-buttons') as HTMLDivElement;
+  if (el) el.removeEventListener('click', clickHandler);
 };
 
-export const TextBook = async (params?: Record<string, string>): Promise<{ html: string, unmount: () => void }> => {
+export const TextBook: PageComponentThunk = async (params) => {
   textbook = new TextBookClass(BASE_URL, document.querySelector('#page_container') || document.body, createCard);
   const args = params as { group: string, page: string };
   const group = +args.group;
@@ -120,7 +105,5 @@ export const TextBook = async (params?: Record<string, string>): Promise<{ html:
   if (!Number.isNaN(group)) { textbook.setGroup(group); }
   if (!Number.isNaN(page)) { textbook.setPage(page); }
 
-  document.body.addEventListener('click', clickHandler);
-
-  return { html: await textbook.getWordsConainer(), unmount };
+  return { html: await textbook.getWordsConainer(), mount, unmount };
 };
