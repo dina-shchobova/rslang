@@ -1,4 +1,6 @@
-export const Games = async (): Promise<string> => {
+import { PageComponentThunk } from '../../services/types';
+
+export const Games: PageComponentThunk = async () => {
   const view = '<div id="text-book">Play</div>';
-  return view;
+  return { html: view };
 };
