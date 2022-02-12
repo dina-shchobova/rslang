@@ -1,9 +1,10 @@
 import { StatisticsPage } from '../../statistic/statistics';
+import { PageComponentThunk } from '../../services/types';
 
-export const Statistics = async (): Promise<string> => {
-  const main = document.body.querySelector('main') as HTMLElement;
-  main.innerHTML = '';
+export const Statistics: PageComponentThunk = async () => {
   const statisticsPage = new StatisticsPage();
-  statisticsPage.createFieldStatistics();
-  return '';
+  return {
+    html: '',
+    mount: () => statisticsPage.createFieldStatistics(),
+  };
 };
