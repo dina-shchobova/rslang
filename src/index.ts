@@ -16,25 +16,17 @@ import { PageComponentThunk } from './services/types';
 const authorization = new Authorization();
 authorization.createFieldAuthorization();
 
-const pageContainer = document.createElement('div');
-
-pageContainer.classList.add('container');
-pageContainer.id = 'page_container';
-document.body.appendChild(pageContainer);
-
-const content = document.getElementById('page_container') as HTMLDivElement;
+const main = document.body.querySelector('main') as HTMLElement;
 
 const SprintBinder: PageComponentThunk = async () => {
-  const main = document.body.querySelector('main') as HTMLElement;
-  main.innerHTML = '';
   const startSprint = new StartGameSprint();
-  startSprint.start();
-  return { html: '' };
+  return {
+    html: '',
+    mount: () => startSprint.start(),
+  };
 };
 
 const AudioCallBinder: PageComponentThunk = async () => {
-  const main = document.body.querySelector('main') as HTMLElement;
-  main.innerHTML = '';
   const audiocall = new Audiocall();
   return {
     html: '',
@@ -54,7 +46,7 @@ const routes = {
 };
 
 const notFound = async () => ({ html: '<div>Not Found</div>' });
-const app = new ApplicationRoute(content, routes, notFound);
+const app = new ApplicationRoute(main, routes, notFound);
 app.listen();
 
 const burger = document.querySelector('.menu') as HTMLElement;

@@ -1,7 +1,7 @@
 import { PageRoutes, PageComponentThunk } from './types';
 
 export class ApplicationRoute {
-  private content: HTMLDivElement;
+  private content: HTMLElement;
 
   private routes: PageRoutes;
 
@@ -9,7 +9,7 @@ export class ApplicationRoute {
 
   private unmount: () => void;
 
-  constructor(content: HTMLDivElement, routes: PageRoutes, notFound: PageComponentThunk) {
+  constructor(content: HTMLElement, routes: PageRoutes, notFound: PageComponentThunk) {
     this.content = content;
     this.routes = routes;
     this.notFound = notFound;
