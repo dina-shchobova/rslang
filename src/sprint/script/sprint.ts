@@ -29,7 +29,7 @@ const htmlCodeSprint = `
       </div>
       <div class="game-wrap">
         <div class="current-state">
-          <div class="timer">10</div>
+          <div class="timer">60</div>
         </div>
         <div class="sprint-game">
             <div class="word"></div>

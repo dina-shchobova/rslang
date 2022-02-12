@@ -1,7 +1,7 @@
 import { saveStat } from './services';
 
 const date = new Date();
-const today = `${date.getUTCDate() + 1}.${date.getUTCMonth() + 1}.${date.getUTCFullYear()}`;
+const today = `${date.getUTCDate()}.${date.getUTCMonth() + 1}.${date.getUTCFullYear()}`;
 
 type Stat = {
   [key: string]: string | [object];
