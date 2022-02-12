@@ -99,10 +99,11 @@ export class SprintResult {
     this.createResult(answers);
 
     if (userId) {
-      const maxSeries = JSON.parse(<string>localStorage.getItem(String('statistics'))).sprint.series;
-      const compareSeries = amountTrueAnswers.count > +maxSeries || amountTrueAnswers.count === +maxSeries;
-      statistics.sprint.series = compareSeries ? amountTrueAnswers.count : maxSeries;
-      this.saveStatistics.saveStatistics();
+      const currentStatistics = JSON.parse(<string>localStorage.getItem('statistics'));
+      const maxSeries = currentStatistics.sprint[currentStatistics.sprint.length - 1].series || 0;
+      const compareSeries = amountTrueAnswers.maxCount > +maxSeries || amountTrueAnswers.maxCount === +maxSeries;
+      Object(statistics.sprint[0]).series = compareSeries ? amountTrueAnswers.maxCount : maxSeries;
+      this.saveStatistics.saveStatistics('sprint');
     }
   }
 }

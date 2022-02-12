@@ -2,7 +2,7 @@ import './authorization.scss';
 import { signin } from './services';
 import { htmlCodeAuthorization, htmlCodeLogout } from './createFieldAuthorization';
 import { getStat, saveStat } from '../statistic/services';
-import { statistics } from '../statistic/saveStatistics';
+import { statistics, SaveStatistics } from '../statistic/saveStatistics';
 
 const path = {
   user: 'https://rs-learnwords.herokuapp.com/users',
@@ -12,6 +12,12 @@ const path = {
 let userAuthorized = localStorage.getItem('userAuthorized') || false;
 
 export class Authorization {
+  private saveStatistics: SaveStatistics;
+
+  constructor() {
+    this.saveStatistics = new SaveStatistics();
+  }
+
   async createFieldAuthorization(): Promise<void> {
     const main = document.querySelector('main') as HTMLElement;
     const login = document.querySelector('.login') as HTMLElement;
@@ -41,8 +47,10 @@ export class Authorization {
   }
 
   showUserStatistics = async (): Promise<void> => {
-    const statistic = await getStat(JSON.parse(<string>localStorage.getItem('user')).userId);
+    const { userId } = JSON.parse(<string>localStorage.getItem('user'));
+    const statistic = await getStat(userId);
     localStorage.setItem('statistics', JSON.stringify(statistic.optional.statistics));
+    await this.saveStatistics.addTodayDate();
   };
 
   createUserStatistics = async (): Promise<void> => {

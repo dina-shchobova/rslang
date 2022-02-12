@@ -18,6 +18,7 @@ const VOLUME = 0.4;
 let userId = '';
 let trueAnswers = 0;
 let falseAnswers = 0;
+let currentStatistics = JSON.parse(<string>localStorage.getItem('statistics'));
 
 const htmlCodeSprint = `
     <div class="sprint">
@@ -28,7 +29,7 @@ const htmlCodeSprint = `
       </div>
       <div class="game-wrap">
         <div class="current-state">
-          <div class="timer">60</div>
+          <div class="timer">10</div>
         </div>
         <div class="sprint-game">
             <div class="word"></div>
@@ -62,13 +63,14 @@ export class Sprint {
     const main = document.querySelector('main') as HTMLElement;
     const chooseLevels = document.querySelector('.choose-levels') as HTMLElement;
     const sprintPage = document.createElement('div');
-
+    currentStatistics = JSON.parse(<string>localStorage.getItem('statistics'));
     sprintPage.innerHTML = htmlCodeSprint;
     sprintPage.classList.add('sprint-wrap');
     main.appendChild(sprintPage);
     chooseLevels.remove();
-    trueAnswers = JSON.parse(<string>localStorage.getItem('statistics'))?.sprint.trueAnswers || 0;
-    falseAnswers = JSON.parse(<string>localStorage.getItem('statistics'))?.sprint.falseAnswers || 0;
+
+    trueAnswers = currentStatistics.sprint[currentStatistics.sprint.length - 1].trueAnswers || 0;
+    falseAnswers = currentStatistics.sprint[currentStatistics.sprint.length - 1].falseAnswers || 0;
 
     await this.generateWord(group);
     this.showNextWord(group);
@@ -157,6 +159,7 @@ export class Sprint {
 
     if (String(trueAnswer) === typeAnswer) {
       amountTrueAnswers.count++;
+      if (amountTrueAnswers.count > amountTrueAnswers.maxCount) amountTrueAnswers.maxCount = amountTrueAnswers.count;
       amountTrueAnswers.numberBulb = amountTrueAnswers.numberBulb === 2 ? 0 : amountTrueAnswers.numberBulb + 1;
       trueAnswers++;
     } else {
@@ -166,8 +169,8 @@ export class Sprint {
     }
 
     if (userId) {
-      statistics.sprint.trueAnswers = trueAnswers;
-      statistics.sprint.falseAnswers = falseAnswers;
+      Object(statistics.sprint[0]).trueAnswers = trueAnswers;
+      Object(statistics.sprint[0]).falseAnswers = falseAnswers;
     }
     this.score.countAnswers();
 
