@@ -121,12 +121,12 @@ export class SaveStatistics {
   getLongTermStatistics = (): void => {
     const currentStat = JSON.parse(<string>localStorage.getItem('statistics'));
     const { words } = currentStat;
-    const newWords: number[] = [];
-    const learnWords: number[] = [];
+    const newWords: object[] = [];
+    const learnWords: object[] = [];
 
-    words.forEach((item: { newWords: number; learnWords: number }) => {
-      newWords.push(item.newWords);
-      learnWords.push(item.learnWords);
+    words.forEach((item: { date: string, newWords: number; learnWords: number }) => {
+      newWords.push({date: item.date, countWords: item.newWords});
+      learnWords.push({date: item.date, countWords: item.learnWords});
     });
   };
 }
