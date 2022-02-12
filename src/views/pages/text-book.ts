@@ -1,4 +1,3 @@
-export const TextBook = async (): Promise<string> => {
-  const view = '<div>TextBook</div>';
-  return view;
-};
+import { PageComponentThunk } from '../../services/types';
+
+export const TextBook: PageComponentThunk = async () => ({ html: '' });

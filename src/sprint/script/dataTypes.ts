@@ -25,6 +25,10 @@ export interface UserWords {
   wordId: string
 }
 
+export interface ISprint{
+  removeKeyPressListeners: () => void;
+}
+
 export enum Answer {
   word,
   wordTranslate,

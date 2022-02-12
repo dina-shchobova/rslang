@@ -139,7 +139,7 @@ class Quiz {
     return undefined;
   }
 
-  static wrapAnswer(answerData: IWordData):IAnswerOnPage {
+  static wrapAnswer(answerData: IWordData): IAnswerOnPage {
     return {
       answerData,
       correct: undefined,
@@ -262,12 +262,15 @@ class Quiz {
       }
     }
     let answeredCorrectly = false;
-    if (this.answersOnPage[answerNum] === this.correctAnswerOnPage) {
-      answeredCorrectly = true;
-      this.playYahoo();
-    } else {
-      this.playOops();
+    if (gameCallState.soundEffectOn) {
+      if (this.answersOnPage[answerNum] === this.correctAnswerOnPage) {
+        answeredCorrectly = true;
+        this.playYahoo();
+      } else {
+        this.playOops();
+      }
     }
+
     if (answeredCorrectly) {
       this.currentSeriesLength += 1;
       if (this.currentSeriesLength > this.longestSeriesLength) {
@@ -304,7 +307,7 @@ class Quiz {
 
   playYahoo(): void {
     const sound = this.getPlayer();
-    sound.src = '/audiocall_correct.mp3';
+    sound.src = '/call_correct.mp3';
     sound.play();
   }
 
@@ -354,7 +357,11 @@ class Quiz {
     const exampleSpellingContainer = this.getElementBySelector('.quiz-answer__example-spelling');
     const exampleTranslateContainer = this.getElementBySelector('.quiz-answer__example-translate');
     const {
-      word, transcription, wordTranslate, textExample, textExampleTranslate,
+      word,
+      transcription,
+      wordTranslate,
+      textExample,
+      textExampleTranslate,
     } = (this.correctAnswerOnPage as IAnswerOnPage).answerData;
     spellingWordContainer.innerHTML = `${word} ${transcription}`;
     translateWordContainer.innerHTML = wordTranslate;
@@ -378,8 +385,17 @@ class Quiz {
 
   // keyboard control
 
+  keyDownListener(event: KeyboardEvent) {
+    this.selectAnswer(event.code);
+  }
+
   addListenersForKeyboardKeys(): void {
-    document.addEventListener('keydown', (event: KeyboardEvent) => this.selectAnswer(event.code));
+    this.keyDownListener = this.keyDownListener.bind(this);
+    document.addEventListener('keydown', this.keyDownListener);
+  }
+
+  unmount() {
+    this.removeListenersForKeyboardKeys();
   }
 
   selectAnswer(code: string): void {
@@ -388,9 +404,20 @@ class Quiz {
       case 'Digit2':
       case 'Digit3':
       case 'Digit4':
-      case 'Digit5': this.onAnswerButtonClick(this.getElementBySelector(`.${code}`)); break;
-      case 'Enter': this.onControlButtonClick(); break;
-      default: break;
+      case 'Digit5':
+        this.onAnswerButtonClick(this.getElementBySelector(`.${code}`));
+        break;
+      case 'Enter':
+        this.onControlButtonClick();
+        break;
+      default:
+        break;
+    }
+  }
+
+  removeListenersForKeyboardKeys(): void {
+    if (this.keyDownListener) {
+      document.removeEventListener('keydown', this.keyDownListener);
     }
   }
 }

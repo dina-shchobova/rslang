@@ -5,8 +5,8 @@ type SubPages = {
 interface ICallComponent {
   rootElement?: HTMLElement;
   mount:(elem: HTMLElement) => void;
+  unmount?:() => void;
   getElementBySelector:(selector: string) => HTMLElement;
-  // TODO: destroy:() => void;
 }
 
 interface IGameCallComponent extends ICallComponent {
@@ -52,6 +52,7 @@ interface IGameCallState {
   wrongAnswers: IWordData[];
   maxSeries: number;
   percentCorrectAnswer: number;
+  soundEffectOn: boolean;
   getPercentCorrectAnswer: () => number;
 }
 

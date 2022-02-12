@@ -1,9 +1,9 @@
 import '../style/sprint.scss';
 import { getWord, createUserWord } from './services';
 import { Timer } from './timer';
-import { SprintGameControl, exitGame } from './sprintGameControl';
-import { Score, amountTrueAnswers } from './score';
-import { sound } from './dataTypes';
+import { exitGame, SprintGameControl } from './sprintGameControl';
+import { amountTrueAnswers, Score } from './score';
+import { ISprint, sound } from './dataTypes';
 import { statistics } from '../../statistic/saveStatistics';
 
 const AMOUNT_WORDS = 20;
@@ -43,15 +43,17 @@ const htmlCodeSprint = `
     </div>
 `;
 
-export class Sprint {
+export class Sprint implements ISprint {
   private timer: Timer;
 
   private controlGame: SprintGameControl;
 
   private score: Score;
 
+  private keyPressListener?: (e:KeyboardEvent) => void;
+
   constructor() {
-    this.timer = new Timer();
+    this.timer = new Timer(this);
     this.controlGame = new SprintGameControl();
     this.score = new Score();
   }
@@ -73,7 +75,7 @@ export class Sprint {
     falseAnswers = currentStatistics.sprint[currentStatistics.sprint.length - 1].falseAnswers || 0;
 
     await this.generateWord(group);
-    this.showNextWord(group);
+    this.addUserAnswerListeners(group);
     this.timer.startTimer(answers);
     this.controlGame.controlGame();
     this.score.createScoreWrap();
@@ -113,28 +115,36 @@ export class Sprint {
     trueAnswer = trueTranslate === word;
   };
 
-  showNextWord(group: number): void {
-    const answerFalse = document.querySelector('.answer-false') as HTMLElement;
-    const answerTrue = document.querySelector('.answer-true') as HTMLElement;
+  addUserAnswerListeners(group: number): void {
+    const answerIncorrectButton = document.querySelector('.answer-false') as HTMLElement;
+    const answerCorrectButton = document.querySelector('.answer-true') as HTMLElement;
 
-    const clickAnswer = (button: HTMLElement) => {
+    const addAnswerButtonClickListener = (button: HTMLElement) => {
       button.addEventListener('click', async () => {
         await this.switchWord(button, group);
       });
     };
 
-    this.keyPress(group);
-    clickAnswer(answerTrue);
-    clickAnswer(answerFalse);
+    this.addKeyPressListener(group);
+    addAnswerButtonClickListener(answerCorrectButton);
+    addAnswerButtonClickListener(answerIncorrectButton);
   }
 
-  keyPress(group: number) {
+  addKeyPressListener(group: number) {
     const answerFalse = document.querySelector('.answer-false') as HTMLElement;
     const answerTrue = document.querySelector('.answer-true') as HTMLElement;
-    document.addEventListener('keydown', async (e) => {
-      if (e.code === 'ArrowLeft' || e.code === 'KeyA') await this.switchWord(answerFalse, group);
-      if (e.code === 'ArrowRight' || e.code === 'KeyD') await this.switchWord(answerTrue, group);
-    });
+    this.keyPressListener = (e) => {
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.switchWord(answerFalse, group);
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') this.switchWord(answerTrue, group);
+    };
+    this.keyPressListener = this.keyPressListener.bind(this);
+    document.addEventListener('keydown', this.keyPressListener);
+  }
+
+  removeKeyPressListeners() {
+    if (this.keyPressListener) {
+      document.removeEventListener('keydown', this.keyPressListener);
+    }
   }
 
   switchWord = async (button: HTMLElement, group: number) => {
