@@ -1,6 +1,8 @@
 import './authorization.scss';
 import { signin } from './services';
-import { htmlCodeAuthorization } from './createFieldAuthorization';
+import { htmlCodeAuthorization, htmlCodeLogout } from './createFieldAuthorization';
+import { getStat, saveStat } from '../statistic/services';
+import { statistics, SaveStatistics } from '../statistic/saveStatistics';
 
 const path = {
   user: 'https://rs-learnwords.herokuapp.com/users',
@@ -10,40 +12,64 @@ const path = {
 let userAuthorized = localStorage.getItem('userAuthorized') || false;
 
 export class Authorization {
-  createFieldAuthorization(): void {
+  private saveStatistics: SaveStatistics;
+
+  constructor() {
+    this.saveStatistics = new SaveStatistics();
+  }
+
+  async createFieldAuthorization(): Promise<void> {
     const main = document.querySelector('main') as HTMLElement;
+    const login = document.querySelector('.login') as HTMLElement;
+    const authorizationTitle = document.createElement('div');
     const authorizationWrap = document.createElement('div');
     const authorizationElement = document.createElement('div');
-    const overlay = document.createElement('div');
-    overlay.classList.add('overlay');
+
+    authorizationTitle.classList.add('title');
     authorizationWrap.classList.add('authorization-container');
     authorizationElement.classList.add('authorization-wrap');
-    authorizationElement.innerHTML = htmlCodeAuthorization;
-
-    authorizationWrap.append(overlay, authorizationElement);
+    authorizationTitle.innerHTML = 'Авторизация';
+    authorizationElement.innerHTML = !userAuthorized ? htmlCodeAuthorization : htmlCodeLogout;
+    authorizationWrap.append(authorizationTitle, authorizationElement);
     main.append(authorizationWrap);
-    this.checkIfUserIsLoggedIn();
+
+    this.logOut();
+    await this.checkIfUserIsLoggedIn();
+    if (userAuthorized) {
+      login.classList.add('logout');
+      return;
+    }
+
     this.showFieldAuthorization();
     this.switchForm();
     this.createUser();
     this.loginUser();
-    this.logOut();
   }
 
-  checkIfUserIsLoggedIn(): void {
+  showUserStatistics = async (): Promise<void> => {
+    const { userId } = JSON.parse(<string>localStorage.getItem('user'));
+    const statistic = await getStat(userId);
+    localStorage.setItem('statistics', JSON.stringify(statistic.optional.statistics));
+    await this.saveStatistics.addTodayDate();
+  };
+
+  createUserStatistics = async (): Promise<void> => {
+    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
+    return saveStat(userId, { learnedWords: 0, optional: { statistics } });
+  };
+
+  async checkIfUserIsLoggedIn(): Promise<void> {
     const name = localStorage.getItem('user name') as string;
     if (JSON.parse(<string>localStorage.getItem('userAuthorized'))) {
-      this.showUserName(name);
+      await this.showUserName(name, 'login');
     }
   }
 
   showFieldAuthorization = (): void => {
     const loginIcon = document.querySelector('.login') as HTMLElement;
-    const overlay = document.querySelector('.overlay') as HTMLElement;
     const authorization = document.querySelector('.authorization-wrap') as HTMLElement;
 
     loginIcon.addEventListener('click', () => {
-      overlay.classList.add('active-signin');
       authorization.classList.add('active-signin');
     });
   };
@@ -87,7 +113,11 @@ export class Authorization {
 
       if (!userName || !userEmail || !userPassword) return;
       await signin({ name: userName, email: userEmail, password: userPassword }, path.user);
-      await this.logIn(userEmail, userPassword);
+      await this.logIn(userEmail, userPassword, 'createUser')
+        .then(async () => {
+          await this.createUserStatistics();
+          await this.showUserStatistics();
+        });
       name.value = ''; email.value = ''; password.value = '';
     });
   }
@@ -105,29 +135,37 @@ export class Authorization {
     });
   }
 
-  logIn = async (userEmail: string, userPassword: string): Promise<void> => {
+  logIn = async (userEmail: string, userPassword: string, state = 'login'): Promise<void> => {
     if (!userEmail || !userPassword) return;
-    const user = await signin({ email: userEmail, password: userPassword }, path.signin);
-    this.showUserName(`${user.name}`);
-    userAuthorized = true;
-    localStorage.setItem('userAuthorized', JSON.stringify(userAuthorized));
-    localStorage.setItem('user', JSON.stringify(user));
+    await signin({ email: userEmail, password: userPassword }, path.signin)
+      .then((res) => {
+        const login = document.querySelector('.login') as HTMLElement;
+        userAuthorized = true;
+        login.classList.add('logout');
+        localStorage.setItem('userAuthorized', JSON.stringify(userAuthorized));
+        localStorage.setItem('user', JSON.stringify(res));
+        this.showUserName(`${res.name}`, state);
+      });
   };
 
   logOut = (): void => {
     if (!userAuthorized) return;
     const logout = document.querySelector('.button-logout') as HTMLElement;
+    const login = document.querySelector('.login') as HTMLElement;
+
     logout.addEventListener('click', () => {
       const lastUser = document.querySelector('.user-name') as HTMLElement;
       lastUser.innerHTML = '';
-      ['user', 'user name', 'userAuthorized'].forEach((item) => localStorage.removeItem(item));
+      ['user', 'user name', 'userAuthorized', 'statistics'].forEach((item) => localStorage.removeItem(item));
       userAuthorized = false;
+      login.classList.remove('logout');
     });
   };
 
-  showUserName = (name: string): void => {
+  showUserName = async (name: string, state: string): Promise<void> => {
     const userName = document.querySelector('.user-name') as HTMLElement;
     userName.innerHTML = name;
     localStorage.setItem('user name', name);
+    if (state === 'login') await this.showUserStatistics();
   };
 }

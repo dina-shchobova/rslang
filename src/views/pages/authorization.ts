@@ -1,9 +1,10 @@
 import { Authorization } from '../../authorization/authorization';
+import { PageComponentThunk } from '../../services/types';
 
-export const AuthorizationPage = async (): Promise<string> => {
-  const main = document.body.querySelector('main') as HTMLElement;
-  main.innerHTML = '';
+export const AuthorizationPage: PageComponentThunk = async () => {
   const showAuthorization = new Authorization();
-  showAuthorization.createFieldAuthorization();
-  return '';
+  return {
+    html: '',
+    mount: () => showAuthorization.createFieldAuthorization(),
+  };
 };

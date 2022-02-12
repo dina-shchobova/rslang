@@ -1,1 +1,3 @@
-export const TextBook = async () => '';
+import { PageComponentThunk } from '../../services/types';
+
+export const TextBook: PageComponentThunk = async () => ({ html: '' });

@@ -1,5 +1,6 @@
-export type PageContentThunk = () => Promise<string>;
-export type PageContentRoutes = { [Key in string]: PageContentThunk };
+export type PageComponent = Promise<{ html: string, mount?: () => void, unmount?: () => void }>;
+export type PageComponentThunk = (...pageParams: Record<string, string>[]) => PageComponent;
+export type PageRoutes = { [Key in string]: PageComponentThunk };
 export interface IWordObject {
   id: string,
   group: number,

@@ -1,4 +1,10 @@
-export const Statistics = async (): Promise<string> => {
-  const view = '<div id="garage-view">Стата</div>';
-  return view;
+import { StatisticsPage } from '../../statistic/statistics';
+import { PageComponentThunk } from '../../services/types';
+
+export const Statistics: PageComponentThunk = async () => {
+  const statisticsPage = new StatisticsPage();
+  return {
+    html: '',
+    mount: () => statisticsPage.createFieldStatistics(),
+  };
 };

@@ -32,6 +32,9 @@ export const htmlCodeAuthorization = `
     ${createInput('password', 'Пароль', 'Пароль должен содержать не менее 8 символов',
     passwordVerification, 'signin-password')}
     <a href="#/"><button class="button-login">Войти</button></a>
-    <a href="#/"><button class="button-logout">Выйти</button></a>
   </div>
+`;
+
+export const htmlCodeLogout = `
+    <a href="#/"><button class="button-logout">Выйти</button></a>
 `;

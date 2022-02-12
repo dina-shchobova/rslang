@@ -1,8 +1,10 @@
+import { PageComponentThunk } from '../../services/types';
 import { Main } from '../../mainPage/main';
 
-export const Home = async (): Promise<string> => {
+export const Home: PageComponentThunk = async () => {
   const mainPage = new Main();
-  mainPage.createMainPage();
-
-  return '';
+  return {
+    html: '',
+    mount: () => mainPage.createMainPage(),
+  };
 };

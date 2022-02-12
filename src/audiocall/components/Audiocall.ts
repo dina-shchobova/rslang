@@ -1,7 +1,7 @@
 import { Levels } from './Levels';
 import { Quiz } from './Quiz';
 import { Results } from './Results';
-import { SubPages, IGameCallComponent } from '../scripts/audiocallTypes';
+import { SubPages, IGameCallComponent, ICallComponent } from '../scripts/audiocallTypes';
 import { gameCallState } from '../scripts/audiocallState';
 
 const htmlCodeAudiocall = `
@@ -24,10 +24,13 @@ class Audiocall implements IGameCallComponent {
 
   subPages: SubPages;
 
+  childPage?: ICallComponent;
+
   constructor() {
     this.subPage = 'levels';
     this.rootElement = undefined;
     this.contentContainer = undefined;
+    this.childPage = undefined;
     this.subPages = {
       levels: Levels,
       quiz: Quiz,
@@ -54,9 +57,15 @@ class Audiocall implements IGameCallComponent {
     this.addFullscreenButtonListener();
   }
 
+  unmount(): void {
+    if (this.childPage && this.childPage.unmount) {
+      this.childPage.unmount();
+    }
+  }
+
   mountSubPage(): void {
-    const childPage = new this.subPages[this.subPage](this);
-    childPage.mount(this.getContentContainer());
+    this.childPage = new this.subPages[this.subPage](this);
+    this.childPage.mount(this.getContentContainer());
   }
 
   getContentContainer(): HTMLElement {

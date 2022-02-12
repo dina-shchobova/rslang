@@ -1,5 +1,7 @@
 import { Answer } from './dataTypes';
 import { exitGame } from './sprintGameControl';
+import { SaveStatistics, statistics } from '../../statistic/saveStatistics';
+import { amountTrueAnswers } from './score';
 
 const htmlCodeResult = `
   <div class="sprint-result">
@@ -20,6 +22,12 @@ const htmlCodeResult = `
 `;
 
 export class SprintResult {
+  private saveStatistics: SaveStatistics;
+
+  constructor() {
+    this.saveStatistics = new SaveStatistics();
+  }
+
   createResult(answers: (string | boolean)[][]): void {
     const resultTrue = document.querySelector('.result-true') as HTMLElement;
     const resultFalse = document.querySelector('.result-false') as HTMLElement;
@@ -76,6 +84,7 @@ export class SprintResult {
   };
 
   showResult(answers: (string | boolean)[][]): void {
+    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
     if (exitGame.isExit) return;
 
     const main = document.querySelector('main') as HTMLElement;
@@ -88,5 +97,13 @@ export class SprintResult {
     sprintWrap.remove();
     if (document.fullscreenElement) document.exitFullscreen();
     this.createResult(answers);
+
+    if (userId) {
+      const currentStatistics = JSON.parse(<string>localStorage.getItem('statistics'));
+      const maxSeries = currentStatistics.sprint[currentStatistics.sprint.length - 1].series || 0;
+      const compareSeries = amountTrueAnswers.maxCount > +maxSeries || amountTrueAnswers.maxCount === +maxSeries;
+      Object(statistics.sprint[0]).series = compareSeries ? amountTrueAnswers.maxCount : maxSeries;
+      this.saveStatistics.saveStatistics('sprint');
+    }
   }
 }

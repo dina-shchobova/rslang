@@ -1,18 +1,24 @@
 import '../style/sprint.scss';
-import { getWord } from './services';
+import { getWord, createUserWord } from './services';
 import { Timer } from './timer';
-import { SprintGameControl, exitGame } from './sprintGameControl';
-import { Score, amountTrueAnswers } from './score';
-import { sound } from './dataTypes';
+import { exitGame, SprintGameControl } from './sprintGameControl';
+import { amountTrueAnswers, Score } from './score';
+import { ISprint, sound } from './dataTypes';
+import { statistics } from '../../statistic/saveStatistics';
 
 const AMOUNT_WORDS = 20;
+const AMOUNT_PAGE = 30;
+const HALF_SECOND = 500;
 let amountWords = 0;
 let currentPage = 0;
 let currentWord = 0;
 let trueAnswer = false;
-const answers: (string | boolean)[][] = [];
-const HALF_SECOND = 500;
+let answers: (string | boolean)[][] = [];
 const VOLUME = 0.4;
+let userId = '';
+let trueAnswers = 0;
+let falseAnswers = 0;
+let currentStatistics = JSON.parse(<string>localStorage.getItem('statistics'));
 
 const htmlCodeSprint = `
     <div class="sprint">
@@ -37,39 +43,46 @@ const htmlCodeSprint = `
     </div>
 `;
 
-export class Sprint {
+export class Sprint implements ISprint {
   private timer: Timer;
 
   private controlGame: SprintGameControl;
 
   private score: Score;
 
+  private keyPressListener?: (e:KeyboardEvent) => void;
+
   constructor() {
-    this.timer = new Timer();
+    this.timer = new Timer(this);
     this.controlGame = new SprintGameControl();
     this.score = new Score();
   }
 
   async createPageGameSprint(group: number): Promise<void> {
+    answers = [];
+    userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
     exitGame.isExit = false;
     const main = document.querySelector('main') as HTMLElement;
     const chooseLevels = document.querySelector('.choose-levels') as HTMLElement;
     const sprintPage = document.createElement('div');
-
+    currentStatistics = JSON.parse(<string>localStorage.getItem('statistics'));
     sprintPage.innerHTML = htmlCodeSprint;
     sprintPage.classList.add('sprint-wrap');
     main.appendChild(sprintPage);
     chooseLevels.remove();
 
+    trueAnswers = currentStatistics.sprint[currentStatistics.sprint.length - 1].trueAnswers || 0;
+    falseAnswers = currentStatistics.sprint[currentStatistics.sprint.length - 1].falseAnswers || 0;
+
     await this.generateWord(group);
-    this.showNextWord(group);
+    this.addUserAnswerListeners(group);
     this.timer.startTimer(answers);
     this.controlGame.controlGame();
     this.score.createScoreWrap();
   }
 
   randomGeneratePage = (): void => {
-    currentPage = Math.floor(Math.random() * AMOUNT_WORDS);
+    currentPage = Math.floor(Math.random() * AMOUNT_PAGE);
   };
 
   async generateWord(group: number): Promise<void> {
@@ -81,6 +94,12 @@ export class Sprint {
     await this.generateWordTranslate(group, words[currentWord].wordTranslate)
       .then(() => {
         word.innerHTML = words[currentWord].word;
+        if (userId) {
+          createUserWord(userId, words[currentWord].id, {
+            difficulty: words[currentWord].word,
+            optional: { testFieldString: 'test', testFieldBoolean: true },
+          });
+        }
       });
   }
 
@@ -96,28 +115,36 @@ export class Sprint {
     trueAnswer = trueTranslate === word;
   };
 
-  showNextWord(group: number): void {
-    const answerFalse = document.querySelector('.answer-false') as HTMLElement;
-    const answerTrue = document.querySelector('.answer-true') as HTMLElement;
+  addUserAnswerListeners(group: number): void {
+    const answerIncorrectButton = document.querySelector('.answer-false') as HTMLElement;
+    const answerCorrectButton = document.querySelector('.answer-true') as HTMLElement;
 
-    const clickAnswer = (button: HTMLElement) => {
+    const addAnswerButtonClickListener = (button: HTMLElement) => {
       button.addEventListener('click', async () => {
         await this.switchWord(button, group);
       });
     };
 
-    this.keyPress(group);
-    clickAnswer(answerTrue);
-    clickAnswer(answerFalse);
+    this.addKeyPressListener(group);
+    addAnswerButtonClickListener(answerCorrectButton);
+    addAnswerButtonClickListener(answerIncorrectButton);
   }
 
-  keyPress(group: number) {
+  addKeyPressListener(group: number) {
     const answerFalse = document.querySelector('.answer-false') as HTMLElement;
     const answerTrue = document.querySelector('.answer-true') as HTMLElement;
-    document.addEventListener('keydown', async (e) => {
-      if (e.code === 'ArrowLeft' || e.code === 'KeyA') await this.switchWord(answerFalse, group);
-      if (e.code === 'ArrowRight' || e.code === 'KeyD') await this.switchWord(answerTrue, group);
-    });
+    this.keyPressListener = (e) => {
+      if (e.code === 'ArrowLeft' || e.code === 'KeyA') this.switchWord(answerFalse, group);
+      if (e.code === 'ArrowRight' || e.code === 'KeyD') this.switchWord(answerTrue, group);
+    };
+    this.keyPressListener = this.keyPressListener.bind(this);
+    document.addEventListener('keydown', this.keyPressListener);
+  }
+
+  removeKeyPressListeners() {
+    if (this.keyPressListener) {
+      document.removeEventListener('keydown', this.keyPressListener);
+    }
   }
 
   switchWord = async (button: HTMLElement, group: number) => {
@@ -142,10 +169,18 @@ export class Sprint {
 
     if (String(trueAnswer) === typeAnswer) {
       amountTrueAnswers.count++;
+      if (amountTrueAnswers.count > amountTrueAnswers.maxCount) amountTrueAnswers.maxCount = amountTrueAnswers.count;
       amountTrueAnswers.numberBulb = amountTrueAnswers.numberBulb === 2 ? 0 : amountTrueAnswers.numberBulb + 1;
+      trueAnswers++;
     } else {
       amountTrueAnswers.count = 0;
       amountTrueAnswers.numberBulb = -1;
+      falseAnswers++;
+    }
+
+    if (userId) {
+      Object(statistics.sprint[0]).trueAnswers = trueAnswers;
+      Object(statistics.sprint[0]).falseAnswers = falseAnswers;
     }
     this.score.countAnswers();
 
