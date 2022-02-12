@@ -71,8 +71,8 @@ export class Sprint implements ISprint {
     main.appendChild(sprintPage);
     chooseLevels.remove();
 
-    trueAnswers = currentStatistics.sprint[currentStatistics.sprint.length - 1].trueAnswers || 0;
-    falseAnswers = currentStatistics.sprint[currentStatistics.sprint.length - 1].falseAnswers || 0;
+    trueAnswers = currentStatistics?.sprint[currentStatistics.sprint.length - 1].trueAnswers || 0;
+    falseAnswers = currentStatistics?.sprint[currentStatistics.sprint.length - 1].falseAnswers || 0;
 
     await this.generateWord(group);
     this.addUserAnswerListeners(group);
