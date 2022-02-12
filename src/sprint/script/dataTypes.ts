@@ -15,6 +15,16 @@ export interface DataWords {
   textExampleTranslate: string,
 }
 
+export interface UserWords {
+  id: string,
+  difficulty: string,
+  optional:{
+    testFieldString: string,
+    testFieldBoolean: boolean
+  },
+  wordId: string
+}
+
 export interface ISprint{
   removeKeyPressListeners: () => void;
 }

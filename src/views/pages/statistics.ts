@@ -1,6 +1,10 @@
+import { StatisticsPage } from '../../statistic/statistics';
 import { PageComponentThunk } from '../../services/types';
 
 export const Statistics: PageComponentThunk = async () => {
-  const view = '<div id="garage-view">Стата</div>';
-  return { html: view };
+  const statisticsPage = new StatisticsPage();
+  return {
+    html: '',
+    mount: () => statisticsPage.createFieldStatistics(),
+  };
 };

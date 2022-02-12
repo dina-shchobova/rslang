@@ -3,6 +3,7 @@ import { Points, MaxPoints } from './dataTypes';
 const AMOUNT_BULBS = 3;
 
 export const amountTrueAnswers = {
+  maxCount: 0,
   count: 0,
   numberBulb: -1,
 };
