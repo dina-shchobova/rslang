@@ -36,8 +36,11 @@ const AudioCallBinder: PageComponentThunk = async () => {
   const main = document.body.querySelector('main') as HTMLElement;
   main.innerHTML = '';
   const audiocall = new Audiocall();
-  audiocall.mount(main);
-  return { html: '' };
+  return {
+    html: '',
+    mount: () => audiocall.mount(main),
+    unmount: () => audiocall.unmount(),
+  };
 };
 
 const routes = {
