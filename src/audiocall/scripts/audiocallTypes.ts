@@ -5,6 +5,7 @@ type SubPages = {
 interface ICallComponent {
   rootElement?: HTMLElement;
   mount:(elem: HTMLElement) => void;
+  unmount?:() => void;
   getElementBySelector:(selector: string) => HTMLElement;
 }
 

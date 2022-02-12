@@ -11,33 +11,29 @@ import { Games } from './views/pages/games';
 import { Statistics } from './views/pages/statistics';
 import './audiocall/styles/audiocallStyle.scss';
 import { Audiocall } from './audiocall/components/Audiocall';
+import { PageComponentThunk } from './services/types';
 
 const authorization = new Authorization();
 authorization.createFieldAuthorization();
 
+const main = document.body.querySelector('main') as HTMLElement;
 
-const pageContainer = document.createElement('div');
-
-pageContainer.classList.add('container');
-pageContainer.id = 'page_container';
-document.body.appendChild(pageContainer);
-
-const content = document.getElementById('page_container') as HTMLDivElement;
-
-const SprintBinder = async (): Promise<string> => {
-  const main = document.body.querySelector('main') as HTMLElement;
-  main.innerHTML = '';
+const SprintBinder: PageComponentThunk = async () => {
   const startSprint = new StartGameSprint();
-  startSprint.start();
-  return '';
+  return {
+    html: '',
+    mount: () => startSprint.start(),
+    unmount: () => startSprint.stop(),
+  };
 };
 
-const AudioCallBinder = async (): Promise<string> => {
-  const main = document.body.querySelector('main') as HTMLElement;
-  main.innerHTML = '';
+const AudioCallBinder: PageComponentThunk = async () => {
   const audiocall = new Audiocall();
-  audiocall.mount(main);
-  return '';
+  return {
+    html: '',
+    mount: () => audiocall.mount(main),
+    unmount: () => audiocall.unmount(),
+  };
 };
 
 const routes = {
@@ -51,7 +47,7 @@ const routes = {
 };
 
 const notFound = async () => ({ html: '<div>Not Found</div>' });
-const app = new ApplicationRoute(content, routes, notFound);
+const app = new ApplicationRoute(main, routes, notFound);
 app.listen();
 
 const burger = document.querySelector('.menu') as HTMLElement;

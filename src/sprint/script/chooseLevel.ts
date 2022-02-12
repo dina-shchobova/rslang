@@ -18,6 +18,10 @@ export class ChooseLevel {
     this.sprint = new Sprint();
   }
 
+  unmount() {
+    this.sprint.removeKeyPressListeners();
+  }
+
   createFieldChoose(): void {
     exitGame.isExit = true;
     const levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -55,7 +59,7 @@ export class ChooseLevel {
     });
 
     buttonChoose.addEventListener('click', async () => {
-      await new Sprint().createPageGameSprint(selectLevel);
+      await this.sprint.createPageGameSprint(selectLevel);
     });
   };
 }
