@@ -23,6 +23,7 @@ const SprintBinder: PageComponentThunk = async () => {
   return {
     html: '',
     mount: () => startSprint.start(),
+    unmount: () => startSprint.stop(),
   };
 };
 

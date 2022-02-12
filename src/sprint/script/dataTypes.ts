@@ -15,6 +15,10 @@ export interface DataWords {
   textExampleTranslate: string,
 }
 
+export interface ISprint{
+  removeKeyPressListeners: () => void;
+}
+
 export enum Answer {
   word,
   wordTranslate,
