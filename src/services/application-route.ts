@@ -27,7 +27,6 @@ export class ApplicationRoute {
     const resource = url.split('/')[1];
     const request = { resource };
     const parsedURL = request.resource ? `/${request.resource}` : '/';
-    this.unmount();
     const route = this.routes[parsedURL] ?? this.notFound;
     const { html, mount, unmount } = await route(query);
     this.unmount = unmount || (() => { });

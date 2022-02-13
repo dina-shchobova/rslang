@@ -1,22 +1,8 @@
-import { BASE_URL } from '../../services/constants';
 import { IWordObject } from '../../services/types';
 import { speakImage } from '../../textbook/speak';
+import { BASE_URL } from '../../services/constants';
 
 const PLAY_BUTTON_ROLE_NAME = 'play-button';
-
-let isEventListenerAdded = false;
-if (!isEventListenerAdded) {
-  document.body.addEventListener('click', (e: MouseEvent) => {
-    isEventListenerAdded = true;
-    const target = e.target as HTMLElement;
-    const button = target.closest('.play-button') as HTMLButtonElement;
-    if (button && button.dataset.role === PLAY_BUTTON_ROLE_NAME) {
-      const player = button.nextElementSibling as HTMLAudioElement;
-      player.src = BASE_URL + player.dataset.audio;
-      player.play();
-    }
-  });
-}
 
 export function createOneWordDiv(wordObject: IWordObject): string {
   return `
@@ -36,3 +22,26 @@ export function createOneWordDiv(wordObject: IWordObject): string {
     </div>
   `;
 }
+
+export const createHandler = (d: HTMLElement) => {
+  const wordsContainerClickHandler = (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const button = target.closest(`.${PLAY_BUTTON_ROLE_NAME}`) as HTMLButtonElement;
+    if (button && button.dataset.role === PLAY_BUTTON_ROLE_NAME) {
+      const player = button.nextElementSibling as HTMLAudioElement;
+      const files = Object.values(player.dataset);
+      const playerHandler = () => {
+        if (files) {
+          player.src = BASE_URL + files.shift();
+          player.play().catch(() => { });
+        } else {
+          player.removeEventListener('ended', playerHandler);
+        }
+      };
+      player.addEventListener('ended', playerHandler);
+      playerHandler();
+    }
+  };
+  d.addEventListener('click', wordsContainerClickHandler);
+  return () => d.removeEventListener('click', wordsContainerClickHandler);
+};

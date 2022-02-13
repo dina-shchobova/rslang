@@ -1,12 +1,12 @@
 import axios from 'axios';
+import { BASE_URL } from '../../services/constants';
 import { IWordObject, PageComponentThunk } from '../../services/types';
-import { createOneWordDiv } from '../components/play-word';
+import { createOneWordDiv, createHandler as createAudioHandler } from '../components/play-word';
 
-export const BASE_URL = 'https://rs-learnwords.herokuapp.com/';
-const MAX_PAGE = 29;
-const MAX_GROUP = 6;
-const ZERO_PAGE = 0;
-const PAGINATION_BUTTONS_QUANITY = 7;
+const MAX_PAGE = 30;
+const MAX_GROUP = 7;
+const ZERO_PAGE = 1;
+const PAGINATION_BTNS_QUANITY = 7;
 
 const BUTTON_PREV_ROLE = 'text-book-prev-page';
 const BUTTON_NEXT_ROLE = 'text-book-next-button';
@@ -32,72 +32,129 @@ class TextBookClass {
     this.wordComponent = wordComponent;
   }
 
-  private formatHash(group?: number, page?: number) {
-    return `/text-book?group=${group || this.group}&page=${page}`;
+  formatHash(group?: number, page?: number) {
+    return `/text-book?group=${group || this.group}&page=${page || this.page}`;
   }
 
-  private async updateUI() {
-    window.location.hash = this.formatHash();
-    this.container.innerHTML = await this.getWordsConainer();
-  }
-
-  private getButton(currentPage: number) {
+  private getButton(page: number) {
     let current = '';
-    if (currentPage - 1 === +window.location.hash.split('=')[2]) {
+    if (page === this.page) {
       current = 'current-page';
     }
     return `
-      <button class="btn ${current}" data-href="${this.formatHash(this.group, currentPage - 1)}">
-        ${currentPage}
+      <button class="btn ${current}" data-href="${this.formatHash(this.group, page)}">
+        ${page}
       </button>
     `;
   }
 
-  private getButtonsArray(paginationArray: number []) {
-    if (paginationArray[0] < 2) return paginationArray.map((x) => this.getButton(x + this.page - 2)).join('');
-    return paginationArray.map((x) => this.getButton(x)).join('');
+  private createPagerButton(
+    btnRole: string,
+    btnHrefNum: number,
+    btnContent: string,
+    btnClass = '',
+    btnID = '',
+    btnAble = '',
+  ) {
+    return `
+      <button
+        id="${btnID}"
+        class="btn ${btnClass}"
+        data-role="${btnRole}"
+        data-href="${this.formatHash(this.group, btnHrefNum)}"
+        ${btnAble}
+      >
+        ${btnContent}
+      </button>
+    `;
+  }
+
+  private createButtonsArray(paginationArray: number[]) {
+    const middle = Math.floor(PAGINATION_BTNS_QUANITY / 2);
+    const fn = paginationArray[0] === 0
+      ? (x: number) => this.getButton(x + this.page - middle)
+      : (x: number) => this.getButton(x);
+    return paginationArray.map(fn).join('');
   }
 
   getView(words: IWordObject[]) {
     let pager;
-    let currentOne = '';
-    let currentLast = '';
-    if (this.page < PAGINATION_BUTTONS_QUANITY - 2) pager = this.getButtonsArray([2, 3, 4, 5, 6, 7, 8]);
-    else if (this.page > MAX_PAGE - (PAGINATION_BUTTONS_QUANITY - 2)) {
-      pager = this.getButtonsArray([23, 24, 25, 26, 27, 28, 29]);
+    let isZeroPageCurrent = '';
+    let isLastPageCurrent = '';
+    const pageOffSet = 2;
+
+    const arrayStartsFromTwo = [...Array(PAGINATION_BTNS_QUANITY).keys()]
+      .map((x) => x + pageOffSet);
+    const arrayStartsFromTwentyThree = [...Array(PAGINATION_BTNS_QUANITY).keys()]
+      .map((x) => x + MAX_PAGE - PAGINATION_BTNS_QUANITY);
+    const arrayFromSeven = [...Array(PAGINATION_BTNS_QUANITY).keys()];
+
+    const middleWhenLeftElementIsTwo = PAGINATION_BTNS_QUANITY - pageOffSet;
+    const middleWhenMaxElementisTwentyNine = MAX_PAGE - (PAGINATION_BTNS_QUANITY - pageOffSet);
+    const previousPage = this.page - 1;
+    const nextPage = this.page + 1;
+
+    if (this.page < middleWhenLeftElementIsTwo) {
+      pager = this.createButtonsArray(arrayStartsFromTwo);
+    } else if (this.page > middleWhenMaxElementisTwentyNine) {
+      pager = this.createButtonsArray(arrayStartsFromTwentyThree);
     } else {
-      pager = this.getButtonsArray([...Array(PAGINATION_BUTTONS_QUANITY).keys()]);
+      pager = this.createButtonsArray(arrayFromSeven);
     }
-    if (window.location.hash === '#/text-book' || this.page === 0) {
-      currentOne = 'current-page';
+    if (this.page === ZERO_PAGE) {
+      isZeroPageCurrent = 'current-page';
     }
-    if (this.page === 29) {
-      currentLast = 'current-page';
+    if (this.page === MAX_PAGE) {
+      isLastPageCurrent = 'current-page';
     }
-    return `<div id="pagination-buttons" class="pagination-buttons">
-        <button class="btn" id="prev-button" data-role="${BUTTON_PREV_ROLE}"${this.page === 0 ? ' disabled' : ''}
-        data-href="${this.formatHash(this.group, this.page - 1)}"${this.page === 0 ? ' disabled' : ''}>&#9664;</button>
-        <button class="btn ${currentOne}" data-href="${this.formatHash(this.group, 0)}">1</button>
-        <button class="btn"
-          data-href="${this.formatHash(this.group, this.page - 7)}"${this.page < 7 ? ' disabled' : ''}>
-          ...
-        </button>
-        ${pager}
-        <button class="btn"
-          data-href="${this.formatHash(this.group, this.page + 7)}"${this.page > 22 ? ' disabled' : ''}>
-          ...
-        </button>
-        <button class="btn ${currentLast}" data-href="${this.formatHash(this.group, MAX_PAGE)}">${MAX_PAGE + 1}</button>
-        <button class="btn" id="next-button" data-role="${BUTTON_NEXT_ROLE}"${this.page === MAX_PAGE ? ' disabled' : ''}
-        data-href="${this.formatHash(this.group, this.page + 1)}">&#9654;</button>
-      </div>
-      <div class="word-cards-container">
-        ${words.map((wordObject: IWordObject) => this.wordComponent(wordObject)).join('')}
-      </div>`;
+
+    return `
+    <div id="pagination-buttons" class="pagination-buttons">
+    ${this.createPagerButton(
+    BUTTON_PREV_ROLE, previousPage, '&#9664', '', 'prev-button', this.page === ZERO_PAGE ? ' disabled' : '',
+  )}
+    ${this.createPagerButton(
+    '', ZERO_PAGE, ZERO_PAGE.toString(), isZeroPageCurrent,
+  )}
+    ${this.createPagerButton(
+    '', this.page - PAGINATION_BTNS_QUANITY, '...', '',
+    this.page <= PAGINATION_BTNS_QUANITY ? ' disabled' : '',
+    // title=`${this.page > PAGINATION_BTNS_QUANITY ? this.page - PAGINATION_BTNS_QUANITY : ''}`
+
+  )}
+
+    ${pager}
+    <button
+      class="btn"
+      data-href="${this.formatHash(this.group, this.page + PAGINATION_BTNS_QUANITY)}"
+      title="${this.page <= MAX_PAGE - PAGINATION_BTNS_QUANITY ? `to page ${this.page + PAGINATION_BTNS_QUANITY}` : ''}"
+      ${this.page > MAX_PAGE - PAGINATION_BTNS_QUANITY ? ' disabled' : ''}
+    >
+      ...
+    </button>
+    <button
+      class="btn ${isLastPageCurrent}"
+      data-href="${this.formatHash(this.group, MAX_PAGE)}"
+    >
+      ${MAX_PAGE}
+    </button>
+    <button
+      class="btn"
+      id="next-button"
+      data-role="${BUTTON_NEXT_ROLE}"
+      data-href="${this.formatHash(this.group, nextPage)}"
+      ${this.page === MAX_PAGE ? ' disabled' : ''}
+    >
+      &#9654;
+    </button>
+  </div>
+  <div class="word-cards-container" id="words-container">
+    ${words.map((wordObject: IWordObject) => this.wordComponent(wordObject)).join('')}
+  </div>`;
   }
 
   async getWords() {
-    const url = `${this.baseUrl}words?group=${this.group}&page=${this.page}`;
+    const url = `${this.baseUrl}words?group=${this.group - 1}&page=${this.page - 1}`;
     return axios.get(url).then((d) => d.data);
   }
 
@@ -116,7 +173,9 @@ class TextBookClass {
   }
 }
 
-let textbook: TextBookClass;
+let textbook: TextBookClass | null;
+let pager: HTMLDivElement | null;
+let removeAudioListener: () => void;
 
 const cardDescription = (wordObject: IWordObject) => `
   <p class="word-translate">${wordObject.wordTranslate}</p>
@@ -134,29 +193,36 @@ const createCard = (wordObject: IWordObject) => `
   </div>
   `;
 
-const clickHandler = async (e: MouseEvent): Promise<void> => {
+const pagerClickHandler = async (e: MouseEvent): Promise<void> => {
   const target = e.target as HTMLElement;
   if (target.dataset.href) window.location.hash = target.dataset.href;
 };
 
 const mount = () => {
-  const el = document.getElementById('pagination-buttons') as HTMLDivElement;
-  el.addEventListener('click', clickHandler);
+  pager = document.getElementById('pagination-buttons') as HTMLDivElement;
+  pager.addEventListener('click', pagerClickHandler);
+  removeAudioListener = createAudioHandler(document.getElementById('words-container') as HTMLDivElement);
 };
 
 const unmount = () => {
-  const el = document.getElementById('pagination-buttons') as HTMLDivElement;
-  if (el) el.removeEventListener('click', clickHandler);
+  if (pager) pager.removeEventListener('click', pagerClickHandler);
+  removeAudioListener();
+  pager = null;
 };
 
 export const TextBook: PageComponentThunk = async (params) => {
-  textbook = new TextBookClass(BASE_URL, document.querySelector('#page_container') || document.body, createCard);
+  textbook = new TextBookClass(BASE_URL, document.querySelector('#page_container') || document.body, createCard, 1, 1);
   const args = params as { group: string, page: string };
   const group = +args.group;
   const page = +args.page;
 
-  if (!Number.isNaN(group)) { textbook.setGroup(group); }
-  if (!Number.isNaN(page)) { textbook.setPage(page); }
+  if (Number.isNaN(group) || Number.isNaN(page)) {
+    window.location.hash = textbook.formatHash();
+    return { html: '' };
+  }
+
+  textbook.setGroup(group);
+  textbook.setPage(page);
 
   return { html: await textbook.getWordsConainer(), mount, unmount };
 };
