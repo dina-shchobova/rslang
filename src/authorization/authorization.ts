@@ -54,17 +54,17 @@ export class Authorization {
   };
 
   createUserStatistics = async (): Promise<void> => {
-    const keysStatistics = Object.keys(statistics);
-    keysStatistics.forEach((stat) => {
-      const keys = Object.keys(statistics[stat][0]);
-      keys.forEach((key) => {
-        // @ts-ignore
-        if (typeof statistics[stat][0][key] !== 'string') {
-          // @ts-ignore
-          statistics[stat][0][key] = 0;
-        }
-      });
-    });
+    // const keysStatistics = Object.keys(statistics);
+    // keysStatistics.forEach((stat) => {
+    //   const keys = Object.keys(statistics[stat][0]);
+    //   keys.forEach((key) => {
+    //     // @ts-ignore
+    //     if (typeof statistics[stat][0][key] !== 'string') {
+    //       // @ts-ignore
+    //       statistics[stat][0][key] = 0;
+    //     }
+    //   });
+    // });
 
     const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
     return saveStat(userId, { learnedWords: 0, optional: { statistics } });
