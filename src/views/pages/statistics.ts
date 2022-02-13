@@ -1,4 +1,6 @@
-export const Statistics = async (): Promise<{ html:string, unmount: () => void }> => {
+import { PageComponentThunk } from '../../services/types';
+
+export const Statistics: PageComponentThunk = async () => {
   const view = '<div id="garage-view">Стата</div>';
-  return { html: view, unmount: () => {} };
+  return { html: view };
 };

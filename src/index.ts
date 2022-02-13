@@ -1,5 +1,6 @@
 import './style.scss';
 import { Authorization } from './authorization/authorization';
+
 import { ApplicationRoute } from './services/application-route';
 import { Home } from './views/pages/home';
 import { Games } from './views/pages/games';
@@ -18,9 +19,8 @@ const routes = {
   '/statistics': Statistics,
 };
 
-const notFound = async () => ({ html: '<div>Not Found</div>', unmount: () => {} });
+const notFound = async () => ({ html: '<div>Not Found</div>' });
 const app = new ApplicationRoute(content, routes, notFound);
-
 app.listen();
 
 const burger = document.querySelector('.menu') as HTMLElement;

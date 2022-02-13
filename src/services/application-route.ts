@@ -1,15 +1,15 @@
-import { PageContentRoutes, PageContentThunk } from './types';
+import { PageRoutes, PageComponentThunk } from './types';
 
 export class ApplicationRoute {
-  content: HTMLDivElement;
+  private content: HTMLDivElement;
 
-  routes: PageContentRoutes;
+  private routes: PageRoutes;
 
-  notFound: PageContentThunk;
+  private notFound: PageComponentThunk;
 
-  unmount: () => void;
+  private unmount: () => void;
 
-  constructor(content: HTMLDivElement, routes: PageContentRoutes, notFound: PageContentThunk) {
+  constructor(content: HTMLDivElement, routes: PageRoutes, notFound: PageComponentThunk) {
     this.content = content;
     this.routes = routes;
     this.notFound = notFound;
@@ -17,11 +17,11 @@ export class ApplicationRoute {
   }
 
   async router() {
-    const url1 = (window.location.hash.slice(1).toLowerCase() || '/').split('?');
-    const url = url1[0];
+    const urlWithQuery = (window.location.hash.slice(1).toLowerCase() || '/').split('?');
+    const url = urlWithQuery[0];
     let query = {};
-    if (url1[1]) {
-      const params = url1[1].split('&').map((p) => p.split('='));
+    if (urlWithQuery[1]) {
+      const params = urlWithQuery[1].split('&').map((p) => p.split('='));
       query = Object.fromEntries(params);
     }
     const resource = url.split('/')[1];
@@ -29,17 +29,14 @@ export class ApplicationRoute {
     const parsedURL = request.resource ? `/${request.resource}` : '/';
     this.unmount();
     const route = this.routes[parsedURL] ?? this.notFound;
-    const { html, unmount } = await route(query);
-    this.unmount = unmount;
-    return html;
+    const { html, mount, unmount } = await route(query);
+    this.unmount = unmount || (() => { });
+    this.content.innerHTML = html;
+    if (mount) mount();
   }
 
   async listen() {
-    window.addEventListener('hashchange', async () => this.setHTML());
-    window.addEventListener('load', async () => this.setHTML());
-  }
-
-  private async setHTML() {
-    this.content.innerHTML = await this.router();
+    window.addEventListener('hashchange', async () => this.router());
+    window.addEventListener('load', async () => this.router());
   }
 }

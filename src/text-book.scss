@@ -1,0 +1,104 @@
+.page-container {
+  padding: 0 10%;
+}
+
+.word-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  margin-top: 2em;
+  padding: 0 2em;
+}
+
+.word-description {
+  width: 100%;
+}
+
+.word-card {
+  display: flex;
+  gap: 1em;
+  padding: 2em;
+  background-color: rgba(241,241,241,0.7);
+  box-shadow: 0 0 0.5em #000;
+  border-radius: 0.5em;
+}
+
+.word-image {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.word-name {
+  text-transform: capitalize;
+  font-size: 2em;
+  line-height: 2em;
+  font-weight: bold;
+}
+
+.word-transcription {
+  margin-left:1em;
+  font-size: 1.7em;
+}
+
+.word-translate {
+  font-size: 2em;
+  padding-bottom: 0.5em;
+}
+
+.line {
+  height: 1px;
+  background-color: #000400;
+  margin: 1em 0;
+}
+
+.word-translate,
+.text-meaning-translate,
+.text-example-translate {
+  color: #6a544c;
+}
+
+.play-button {
+  margin-left: auto;
+  border: none;
+  background-color: inherit;
+  vertical-align: sub;
+}
+
+.play-button:hover {
+  filter: invert(0.5);
+}
+
+.one-word-container {
+  display: flex;
+  align-items: baseline;
+}
+
+.pagination-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5em;
+}
+
+.btn {
+  width: 1.5em;
+  background-color: #fff;
+  font-size: 2em;
+  border: none;
+  border-radius: 10px;
+  box-shadow: rgba(0,0,7,0.4) 0px 0px 10px;
+  transition: color 0.3s ease 0s;
+}
+
+.btn:hover {
+  box-shadow: #f44336 0px 0px 10px;
+}
+
+.current-page.btn{
+  box-shadow: #f44336 0px 0px 10px;
+}
+
+@media (max-width: 992px) {
+  .word-card {
+    flex-direction: column;
+  }
+}
