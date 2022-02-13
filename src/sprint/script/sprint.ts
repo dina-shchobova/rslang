@@ -1,10 +1,12 @@
 import '../style/sprint.scss';
-import { getWord, createUserWord } from './services';
+import { getWord } from './services';
 import { Timer } from './timer';
 import { exitGame, SprintGameControl } from './sprintGameControl';
 import { amountTrueAnswers, Score } from './score';
-import { ISprint, sound } from './dataTypes';
+import { DataWords, ISprint, sound } from './dataTypes';
 import { statistics } from '../../statistic/saveStatistics';
+import { CountNewWords } from '../../countNewWords/countNewWords';
+import { createUserWord } from '../../countNewWords/services';
 
 const AMOUNT_WORDS = 20;
 const AMOUNT_PAGE = 30;
@@ -19,6 +21,7 @@ let userId = '';
 let trueAnswers = 0;
 let falseAnswers = 0;
 let currentStatistics = JSON.parse(<string>localStorage.getItem('statistics'));
+let words: [DataWords] | [];
 
 const htmlCodeSprint = `
     <div class="sprint">
@@ -52,15 +55,19 @@ export class Sprint implements ISprint {
 
   private keyPressListener?: (e:KeyboardEvent) => void;
 
+  private countCurrentWords: CountNewWords;
+
   constructor() {
     this.timer = new Timer(this);
     this.controlGame = new SprintGameControl();
     this.score = new Score();
+    this.countCurrentWords = new CountNewWords();
   }
 
   async createPageGameSprint(group: number): Promise<void> {
     answers = [];
     userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
+    if (userId) await this.countCurrentWords.countCurrentWords();
     exitGame.isExit = false;
     const main = document.querySelector('main') as HTMLElement;
     const chooseLevels = document.querySelector('.choose-levels') as HTMLElement;
@@ -71,8 +78,8 @@ export class Sprint implements ISprint {
     main.appendChild(sprintPage);
     chooseLevels.remove();
 
-    trueAnswers = currentStatistics.sprint[currentStatistics.sprint.length - 1].trueAnswers || 0;
-    falseAnswers = currentStatistics.sprint[currentStatistics.sprint.length - 1].falseAnswers || 0;
+    trueAnswers = currentStatistics?.sprint[currentStatistics.sprint.length - 1].trueAnswers || 0;
+    falseAnswers = currentStatistics?.sprint[currentStatistics.sprint.length - 1].falseAnswers || 0;
 
     await this.generateWord(group);
     this.addUserAnswerListeners(group);
@@ -86,22 +93,25 @@ export class Sprint implements ISprint {
   };
 
   async generateWord(group: number): Promise<void> {
+    words = [];
     this.randomGeneratePage();
     const word = document.querySelector('.word') as HTMLElement;
-    const words = await getWord(group, currentPage);
+    words = await getWord(group, currentPage);
 
-    answers[amountWords] = [words[currentWord].word, words[currentWord].wordTranslate, words[currentWord].audio];
     await this.generateWordTranslate(group, words[currentWord].wordTranslate)
       .then(() => {
-        word.innerHTML = words[currentWord].word;
-        if (userId) {
-          createUserWord(userId, words[currentWord].id, {
-            difficulty: words[currentWord].word,
-            optional: { testFieldString: 'test', testFieldBoolean: true },
-          });
-        }
+        word.innerHTML = words[currentWord]?.word;
       });
   }
+
+  addUserWords = async () => {
+    if (userId) {
+      await createUserWord(userId, words[currentWord]?.id, {
+        difficulty: words[currentWord]?.word,
+        optional: { testFieldString: 'test', testFieldBoolean: true },
+      });
+    }
+  };
 
   generateWordTranslate = async (group: number, trueTranslate: string): Promise<void> => {
     const wordTranslate = document.querySelector('.translate');
@@ -162,9 +172,13 @@ export class Sprint implements ISprint {
     const sprintGame = document.querySelector('.sprint-game') as HTMLElement;
     sound.src = String(trueAnswer) === typeAnswer ? '/assets/true.mp3' : '/assets/false.mp3';
     sound.volume = VOLUME;
-    sound.play();
+    sound.play()
+      .catch(() => {
+
+      });
 
     sprintGame.classList.add(String(trueAnswer) === typeAnswer ? 'true' : 'false');
+    answers[amountWords] = [words[currentWord]?.word, words[currentWord]?.wordTranslate, words[currentWord]?.audio];
     answers[amountWords]?.push(String(trueAnswer) === typeAnswer);
 
     if (String(trueAnswer) === typeAnswer) {
@@ -181,6 +195,7 @@ export class Sprint implements ISprint {
     if (userId) {
       Object(statistics.sprint[0]).trueAnswers = trueAnswers;
       Object(statistics.sprint[0]).falseAnswers = falseAnswers;
+      this.addUserWords();
     }
     this.score.countAnswers();
 
