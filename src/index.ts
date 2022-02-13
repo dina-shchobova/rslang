@@ -12,7 +12,6 @@ import { Statistics } from './views/pages/statistics';
 import './audiocall/styles/audiocallStyle.scss';
 import { Audiocall } from './audiocall/components/Audiocall';
 import { PageComponentThunk } from './services/types';
-import { ChartLearnedWordsByDays } from './charts/chartByDay';
 
 const authorization = new Authorization();
 authorization.createFieldAuthorization();
@@ -57,7 +56,3 @@ const burger = document.querySelector('.menu') as HTMLElement;
     burger.classList.toggle('burger_active');
   });
 }());
-
-const chart = new ChartLearnedWordsByDays();
-const main = document.querySelector('main');
-chart.mount(main as HTMLElement);

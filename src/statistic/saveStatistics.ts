@@ -32,7 +32,7 @@ export const statistics: Stat = {
   }],
 };
 
-const stat = {
+export const stat = {
   audiocall: 'Аудиовызов',
   sprint: 'Спринт',
   words: 'Слова',
@@ -62,28 +62,5 @@ export class SaveStatistics {
     }
 
     await saveStat(userId, { learnedWords: 0, optional: { statistics: currentStat } });
-  };
-
-  showStatistics = (typeStat: string): void => {
-    const typeGame = Object.entries(stat);
-    let typeStatistics = '';
-    const currentStat = JSON.parse(<string>localStorage.getItem('statistics'));
-    const amountStat = document.querySelectorAll('.amount-stat') as unknown as HTMLElement[];
-
-    typeGame.forEach((arr) => {
-      arr.forEach((item) => {
-        if (item === typeStat) typeStatistics = `${arr[0]}`;
-      });
-    });
-
-    const lastStat = currentStat[typeStatistics].length - 1;
-    const { trueAnswers } = currentStat[typeStatistics][lastStat];
-    const { falseAnswers } = currentStat[typeStatistics][lastStat];
-    const amountWords = trueAnswers + falseAnswers;
-    const percent = Math.round((currentStat[typeStatistics][lastStat].trueAnswers * 100) / amountWords) || 0;
-
-    amountStat[0].innerHTML = currentStat[typeStatistics][lastStat].newWords;
-    amountStat[1].innerHTML = currentStat[typeStatistics][lastStat].series;
-    amountStat[2].innerHTML = `${percent}%`;
   };
 }

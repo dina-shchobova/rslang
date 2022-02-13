@@ -1,28 +1,35 @@
-import Chart, { ChartItem } from 'chart.js/auto';
+import './charts.scss';
+import Chart, {
+  ChartData, ChartItem, ChartTypeRegistry,
+} from 'chart.js/auto';
 import { ChartConfiguration, Chart as IChart } from 'chart.js';
 
 const htmlCodeChartDay = `
-  <h2 class="title">Статистика за все время</h2>
   <div>
      <canvas id="chart-by-day" class="chart-field"></canvas>
   </div>
 `;
 
-class ChartLearnedWordsByDays {
+class StatsChart {
   rootElement?: HTMLElement;
 
-  levelButtons?: NodeList;
+  chartType: keyof ChartTypeRegistry;
 
   myChart?: IChart;
 
-  constructor() {
+  data: ChartData;
+
+  options: object;
+
+  constructor(type: keyof ChartTypeRegistry, data: ChartData, options = {}) {
     this.rootElement = undefined;
-    this.levelButtons = undefined;
+    this.chartType = type;
+    this.data = data;
+    this.options = options;
   }
 
   createRootElement(): HTMLElement {
     const rootElement = document.createElement('div');
-    rootElement.id = 'chart-by-days';
     rootElement.classList.add('chart-field');
     rootElement.innerHTML = htmlCodeChartDay;
     this.rootElement = rootElement;
@@ -45,30 +52,38 @@ class ChartLearnedWordsByDays {
   insertChart(): void {
     this.myChart = new Chart(
       document.getElementById('chart-by-day') as ChartItem,
-      ChartLearnedWordsByDays
-        .getChartConfiguration(
-          ['January', 'February', 'March', 'April', 'May', 'June'],
-          [0, 10, 5, 2, 20, 30, 45],
-        ),
+      StatsChart.getChartConfiguration(this.data, this.chartType, this.options),
     );
   }
 
-  static getChartConfiguration(dates: string[], countWords: number[]): ChartConfiguration {
-    const data = {
-      labels: dates,
-      datasets: [{
-        label: 'My First dataset',
-        backgroundColor: 'rgb(255, 99, 132)',
-        borderColor: 'rgb(255, 99, 132)',
-        data: countWords,
-      }],
-    };
+  static getChartConfiguration(
+    data: ChartData,
+    chartType: keyof ChartTypeRegistry,
+    options: object,
+  ): ChartConfiguration {
     return {
-      type: 'line',
+      type: chartType,
       data,
-      options: {},
+      options,
     };
+  }
+
+  addData(label: string, data: number[]) {
+    // ((this.myChart as Chart).data.labels as string[]).push(label);
+    (this.myChart as Chart).data.datasets.forEach((dataset) => {
+      dataset.label = label;
+      dataset.data = data;
+    });
+    (this.myChart as Chart).update();
+  }
+
+  removeData() {
+    // ((this.myChart as Chart).data.labels as string[]).pop();
+    (this.myChart as Chart).data.datasets.forEach((dataset) => {
+      dataset.data.pop();
+    });
+    (this.myChart as Chart).update();
   }
 }
 
-export { ChartLearnedWordsByDays };
+export { StatsChart };
