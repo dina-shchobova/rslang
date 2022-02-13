@@ -262,13 +262,13 @@ class Quiz {
       }
     }
     let answeredCorrectly = false;
-    if (gameCallState.soundEffectOn) {
-      if (this.answersOnPage[answerNum] === this.correctAnswerOnPage) {
-        answeredCorrectly = true;
+    if (this.answersOnPage[answerNum] === this.correctAnswerOnPage) {
+      answeredCorrectly = true;
+      if (gameCallState.soundEffectOn) {
         this.playYahoo();
-      } else {
-        this.playOops();
       }
+    } else if (gameCallState.soundEffectOn) {
+      this.playOops();
     }
 
     if (answeredCorrectly) {
