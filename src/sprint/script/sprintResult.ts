@@ -2,7 +2,7 @@ import { Answer } from './dataTypes';
 import { exitGame } from './sprintGameControl';
 import { SaveStatistics, statistics } from '../../statistic/saveStatistics';
 import { amountTrueAnswers } from './score';
-import { CountNewWords } from '../../countNewWords/countNewWords';
+import { CountNewAndLearnWords } from '../../countNewAndLearnWords/countNewAndLearnWords';
 
 const htmlCodeResult = `
   <div class="sprint-result">
@@ -25,11 +25,11 @@ const htmlCodeResult = `
 export class SprintResult {
   private saveStatistics: SaveStatistics;
 
-  private countNewWords: CountNewWords;
+  private countNewWords: CountNewAndLearnWords;
 
   constructor() {
     this.saveStatistics = new SaveStatistics();
-    this.countNewWords = new CountNewWords();
+    this.countNewWords = new CountNewAndLearnWords();
   }
 
   createResult(answers: (string | boolean)[][]): void {
@@ -103,12 +103,16 @@ export class SprintResult {
     this.createResult(answers);
 
     if (userId) {
+      const sprintStat = JSON.parse(<string>localStorage.getItem('statistics')).sprint;
+      const lastDay = sprintStat.length - 1;
+      const amountNewWords = sprintStat[lastDay].newWords;
       const currentStatistics = JSON.parse(<string>localStorage.getItem('statistics'));
       const maxSeries = currentStatistics.sprint[currentStatistics.sprint.length - 1].series || 0;
       const compareSeries = amountTrueAnswers.maxCount > +maxSeries || amountTrueAnswers.maxCount === +maxSeries;
       Object(statistics.sprint[0]).series = compareSeries ? amountTrueAnswers.maxCount : maxSeries;
-      Object(statistics.sprint[0]).newWords += await this.countNewWords.countNewWords();
+      Object(statistics.sprint[0]).newWords = amountNewWords + await this.countNewWords.countNewWords();
       await this.saveStatistics.saveStatistics('sprint');
+      await this.saveStatistics.saveStatistics('words');
     }
   }
 }
