@@ -28,7 +28,7 @@ export const statistics: Stat = {
     newWords: 0,
     trueAnswers: 0,
     falseAnswers: 0,
-    learnWords: 0,
+    learnedWords: 0,
   }],
 };
 
@@ -40,7 +40,7 @@ export const stat = {
 
 export class SaveStatistics {
   saveStatistics = async (typeStat: string): Promise<void> => {
-    const currentStat = JSON.parse(<string>localStorage.getItem('statistics'));
+    const currentStat = JSON.parse(<string>localStorage?.getItem('statistics'));
     [currentStat[typeStat][currentStat[typeStat].length - 1]] = [statistics[typeStat][0]];
     localStorage.setItem('statistics', JSON.stringify(currentStat));
 
@@ -81,7 +81,7 @@ export class SaveStatistics {
     const amountWords = trueAnswers + falseAnswers;
     const percent = Math.round((currentStat[typeStatistics][lastStat].trueAnswers * 100) / amountWords) || 0;
     const seriesOrLearnWords = currentStat[typeStatistics][lastStat].series === undefined
-      ? currentStat[typeStatistics][lastStat].learnWords
+      ? currentStat[typeStatistics][lastStat].learnedWords
       : currentStat[typeStatistics][lastStat].series;
 
     amountStat[0].innerHTML = currentStat[typeStatistics][lastStat].newWords;

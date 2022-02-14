@@ -18,9 +18,9 @@ export interface DataWords {
 export interface UserWords {
   id: string,
   difficulty: string,
-  optional:{
-    testFieldString: string,
-    testFieldBoolean: boolean
+  optional: {
+    isTest: boolean,
+    countRightAnswers: number,
   },
   wordId: string
 }

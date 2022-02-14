@@ -54,6 +54,18 @@ export class Authorization {
   };
 
   createUserStatistics = async (): Promise<void> => {
+    // const keysStatistics = Object.keys(statistics);
+    // keysStatistics.forEach((stat) => {
+    //   const keys = Object.keys(statistics[stat][0]);
+    //   keys.forEach((key) => {
+    //     // @ts-ignore
+    //     if (typeof statistics[stat][0][key] !== 'string') {
+    //       // @ts-ignore
+    //       statistics[stat][0][key] = 0;
+    //     }
+    //   });
+    // });
+
     const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
     return saveStat(userId, { learnedWords: 0, optional: { statistics } });
   };
@@ -81,7 +93,7 @@ export class Authorization {
     const titleLogin = document.querySelector('.title-login') as HTMLElement;
 
     const toggleForm = (element: HTMLElement) => {
-      element.addEventListener('click', () => {
+      element?.addEventListener('click', () => {
         element.classList.add('title-active');
 
         if (element === titleAuthorization) {
@@ -106,7 +118,7 @@ export class Authorization {
     const email = document.getElementById('email') as HTMLInputElement;
     const password = document.getElementById('password') as HTMLInputElement;
 
-    buttonCreate.addEventListener('click', async () => {
+    buttonCreate?.addEventListener('click', async () => {
       const userName = name.value;
       const userEmail = email.value;
       const userPassword = password.value;
