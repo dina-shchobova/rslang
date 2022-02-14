@@ -2,14 +2,14 @@ import wordsStatsResource from './wordsStatsResource';
 import { GameName, MiniGameStats } from '../sprint/script/dataTypes';
 
 function getFormattedTodayDate() {
-  const d = new Date(2010, 7, 5);
+  const d = new Date();
   const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
-  const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(d);
+  const month = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d);
   const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
   return `${year}.${month}.${day}`; // для облегчения сортировки
 }
 
-const WordStatToday = {
+const wordStatToday = {
   async updateTodayGameStatOnGameFinish(
     gameName: GameName,
     maxSeries: number,
@@ -20,7 +20,13 @@ const WordStatToday = {
     // 1) подтягиваем статистику пользователя
     // 2) проверяем есть ли сегодняшний день, если нет то создаем с нулями
     // 3) обновляем данные по игре
-    const usersStat = await wordsStatsResource.getUsersStat();
+    const usersStat = await wordsStatsResource.getOrCreateUsersStat();
+    if ('id' in usersStat) {
+      delete usersStat.id;
+    }
+    if (!usersStat.optional) {
+      usersStat.optional = {};
+    }
     if (!usersStat.optional.miniGames) {
       usersStat.optional.miniGames = {};
     }
@@ -52,7 +58,7 @@ const WordStatToday = {
   },
 };
 
-const WordsStatLongTerm = {
+const wordsStatLongTerm = {
   async wordAnsweredCorrectlyInGame(wordId: string): Promise<boolean> {
     // 1) проверяем есть ли слово в списке пользовательских
     // 2) если да, то
@@ -108,3 +114,5 @@ const WordsStatLongTerm = {
     // маркируем как сложное.
   },
 };
+
+export { wordsStatLongTerm, wordStatToday };

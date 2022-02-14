@@ -127,8 +127,8 @@ export class Authorization {
       await signin({ name: userName, email: userEmail, password: userPassword }, path.user);
       await this.logIn(userEmail, userPassword, 'createUser')
         .then(async () => {
-          await this.createUserStatistics();
-          await this.showUserStatistics();
+          // await this.createUserStatistics();
+          // await this.showUserStatistics();
         });
       name.value = ''; email.value = ''; password.value = '';
     });
@@ -178,6 +178,6 @@ export class Authorization {
     const userName = document.querySelector('.user-name') as HTMLElement;
     userName.innerHTML = name;
     localStorage.setItem('user name', name);
-    if (state === 'login') await this.showUserStatistics();
+    // if (state === 'login') await this.showUserStatistics();
   };
 }

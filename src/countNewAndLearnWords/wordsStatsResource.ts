@@ -6,7 +6,7 @@ const wordsStatsResource = {
   // проверка есть ли слово в списке пользователя
   async checkWordIsInUserWordsList(wordId: string): Promise<UserWord | undefined> {
     const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.id;
+    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
     const rawResponse = await fetch(`${BASE_URL}users/${userId}/words/${wordId}`, {
       method: 'GET',
       headers: {
@@ -26,7 +26,7 @@ const wordsStatsResource = {
   // обновить кол-во правильных ответов на слове в долгосрочной статитстике
   async updateWordInUsersWordsList(word: UserWord) {
     const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.id;
+    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
     const rawResponse = await fetch(`${BASE_URL}users/${userId}/words/${word.id}`, {
       method: 'PUT',
       headers: {
@@ -42,7 +42,7 @@ const wordsStatsResource = {
   // добавляем слов
   async addWordToUsersList(wordId: string, countRightAnswersInRow = 0): Promise<UserWord> {
     const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.id;
+    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
 
     const rawResponse = await fetch(`${BASE_URL}users/${userId}/words/${wordId}`, {
       method: 'POST',
@@ -62,9 +62,26 @@ const wordsStatsResource = {
     return rawResponse.json();
   },
 
-  async getUsersStat(): Promise<IUsersStats> {
+  async createUsersStat(): Promise<void> {
     const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.id;
+    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
+    await fetch(`${BASE_URL}users/${userId}/statistics`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        learnedWords: 0,
+        optional: {},
+      }),
+    });
+  },
+
+  async getOrCreateUsersStat(): Promise<IUsersStats> {
+    const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
+    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
     const rawResponse = await fetch(`${BASE_URL}users/${userId}/statistics`, {
       method: 'GET',
       headers: {
@@ -73,12 +90,17 @@ const wordsStatsResource = {
         'Content-Type': 'application/json',
       },
     });
+    if (rawResponse.status === 404) {
+      await this.createUsersStat();
+      const stats = await this.getOrCreateUsersStat();
+      return stats;
+    }
     return rawResponse.json();
   },
 
   async setUsersStat(stats: IUsersStats): Promise<void> {
     const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.id;
+    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
     const rawResponse = await fetch(`${BASE_URL}users/${userId}/statistics`, {
       method: 'PUT',
       headers: {

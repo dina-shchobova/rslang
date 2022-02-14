@@ -3,6 +3,7 @@ import {
   IGameCallComponent, ICallLevelsComponent, IWordData,
 } from '../scripts/audiocallTypes';
 import { BACKEND_URL } from './Quiz';
+import { wordStatToday } from '../../countNewAndLearnWords/wordsStat';
 
 const htmlCodeResult = `
       <h2 class="title">Результаты</h2>
@@ -62,11 +63,25 @@ class Results implements ICallLevelsComponent {
     this.insertAnswerGroups();
     this.insertNumberAnswer();
     this.addSoundIconsListener();
+    Results.sendGameFinishedStats();
   }
 
   insertAnswerGroups(): void {
     this.insertAnswer('.game-call__right-answers', gameCallState.correctAnswers, 'correct-answer');
     this.insertAnswer('.game-call__wrong-answers', gameCallState.wrongAnswers, 'wrong-answer');
+  }
+
+  static async sendGameFinishedStats(): Promise<void> {
+    Promise.all(gameCallState.newWordsPromises).then((newWordsMarks: boolean[]) => {
+      const newWordsCount = newWordsMarks.filter((m) => m).length;
+      wordStatToday.updateTodayGameStatOnGameFinish(
+        'audiocall',
+        gameCallState.maxSeries,
+        gameCallState.correctAnswers.length,
+        gameCallState.wrongAnswers.length,
+        newWordsCount,
+      );
+    });
   }
 
   getElementBySelector(selector: string): HTMLElement {
@@ -143,6 +158,7 @@ class Results implements ICallLevelsComponent {
     gameCallState.level = 1;
     gameCallState.correctAnswers = [];
     gameCallState.wrongAnswers = [];
+    gameCallState.newWordsPromises = [];
   }
 
   async closeGame(): Promise<void> {

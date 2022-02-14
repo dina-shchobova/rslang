@@ -52,8 +52,9 @@ type MiniGamesStats = {
 };
 
 export interface IUsersStats {
+  id?: string,
   learnedWords: number,
-  optional: {
+  optional?: {
     miniGames?: MiniGamesStats;
   }
 }
