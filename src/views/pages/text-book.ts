@@ -42,7 +42,7 @@ class TextBookClass {
       current = 'current-page';
     }
     return `
-      <button class="btn ${current}" data-href="${this.formatHash(this.group, page)}">
+      <button class="btn num ${current}" data-href="${this.formatHash(this.group, page)}">
         ${page}
       </button>
     `;
@@ -80,6 +80,16 @@ class TextBookClass {
   }
 
   private getArrayFromNum = (num: number) => [...Array(PAGINATION_BTNS_QUANITY).keys()].map((x) => x + num);
+
+  private getGroupButton = (): string => `
+    <div class="dropdown-groups">
+    <button class="dropdown-menu color${this.group}">${this.group}</button>
+    <div class="dropdown-child">
+      ${[...Array(6).keys()].map((n: number) => `
+      <a class="color${n + 1}" href="#/text-book?group=${n + 1}&page=1">Группа ${n + 1}</a>`).join('')}
+    </div>
+  </div>
+  `;
 
   getView(words: IWordObject[]) {
     let pager;
@@ -124,18 +134,22 @@ class TextBookClass {
     const disableMoreThan23 = this.page > MAX_PAGE - PAGINATION_BTNS_QUANITY ? ' disabled' : '';
 
     return `
-    <div id="pagination-buttons" class="pagination-buttons">
-    ${this.createPagerButton(BTN_PREV_ROLE, previousPage, '&#9664', disabledIfZero, '', 'prev-button')}
-    ${this.createPagerButton('', ZERO_PAGE, ZERO_PAGE, '', isZeroPageCurrent)}
-    ${this.createPagerButton('', pageMinusSeven, '...', disableLowThan7, '', '', disableLowThanZero)}
-    ${pager}
-    ${this.createPagerButton('', pagePlusSeven, '...', disableMoreThan23, '', '', disableMoreThanMaxPage)}
-    ${this.createPagerButton('', MAX_PAGE, MAX_PAGE, '', isLastPageCurrent)}
-    ${this.createPagerButton(BTN_NEXT_ROLE, nextPage, '&#9654;', disabledIfMaxPage)}
+    <div class="pages-groups-container">
+      ${this.getGroupButton()}
+      <div id="pagination-buttons" class="pagination-buttons">
+      ${this.createPagerButton(BTN_PREV_ROLE, previousPage, '&#9664', disabledIfZero, '', 'prev-button')}
+      ${this.createPagerButton('', ZERO_PAGE, ZERO_PAGE, '', `num ${isZeroPageCurrent}`)}
+      ${this.createPagerButton('', pageMinusSeven, '...', disableLowThan7, 'num', '', disableLowThanZero)}
+      ${pager}
+      ${this.createPagerButton('', pagePlusSeven, '...', disableMoreThan23, 'num', '', disableMoreThanMaxPage)}
+      ${this.createPagerButton('', MAX_PAGE, MAX_PAGE, '', `num ${isLastPageCurrent}`)}
+      ${this.createPagerButton(BTN_NEXT_ROLE, nextPage, '&#9654;', disabledIfMaxPage)}
+    </div>
   </div>
-  <div class="word-cards-container" id="words-container">
+  <div class="word-cards-container color${this.group}" id="words-container">
     ${words.map((wordObject: IWordObject) => this.wordComponent(wordObject)).join('')}
-  </div>`;
+  </div>
+  `;
   }
 
   async getWords() {
