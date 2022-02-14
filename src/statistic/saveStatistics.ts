@@ -125,8 +125,8 @@ export class SaveStatistics {
     const learnWords: object[] = [];
 
     words.forEach((item: { date: string, newWords: number; learnWords: number }) => {
-      newWords.push({date: item.date, countWords: item.newWords});
-      learnWords.push({date: item.date, countWords: item.learnWords});
+      newWords.push({ date: item.date, countWords: item.newWords });
+      learnWords.push({ date: item.date, countWords: item.learnWords });
     });
   };
 }
