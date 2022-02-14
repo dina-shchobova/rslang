@@ -1,6 +1,9 @@
 import './statistics.scss';
 import { SaveStatistics, stat } from './saveStatistics';
 import { StatsChart } from '../charts/chartByDay';
+import wordsStatsResource from '../countNewAndLearnWords/wordsStatsResource';
+import { GameName, IUsersStats, MiniGameStats } from '../sprint/script/dataTypes';
+import { getFormattedTodayDate } from '../countNewAndLearnWords/wordsStat';
 
 const htmlCodeStatistic = `
   <div class="statistics">
@@ -50,14 +53,14 @@ const statisticsWords = {
 };
 
 export class StatisticsPage {
-  private saveStatistics: SaveStatistics;
+  // private saveStatistics: SaveStatistics;
 
   private rootElement?: HTMLElement;
 
   shortStatsChart?: StatsChart;
 
   constructor() {
-    this.saveStatistics = new SaveStatistics();
+    // this.saveStatistics = new SaveStatistics();
     this.rootElement = undefined;
     this.shortStatsChart = undefined;
   }
@@ -144,10 +147,11 @@ export class StatisticsPage {
     });
   };
 
-  showStatistics = (typeStat: string): void => {
+  showStatistics = async (typeStat: string): Promise<void> => {
     const typeGame = Object.entries(stat);
     let typeStatistics = '';
-    const currentStat = JSON.parse(<string>localStorage.getItem('statistics'));
+    let validTypeStatistics: GameName;
+    const currentStat :IUsersStats = await wordsStatsResource.getOrCreateUsersStat();
     const amountStat = document.querySelectorAll('.amount-stat') as unknown as HTMLElement[];
 
     typeGame.forEach((arr) => {
@@ -155,22 +159,44 @@ export class StatisticsPage {
         if (item === typeStat) typeStatistics = `${arr[0]}`;
       });
     });
+    validTypeStatistics = 'audiocall';
+    if (typeStat === 'Спринт') {
+      validTypeStatistics = 'sprint';
+    }
+    if (validTypeStatistics) {
+      const gameStatsRecords: MiniGameStats[] = currentStat.optional?.miniGames?.[validTypeStatistics] || [];
+      let todayRecord: MiniGameStats = {
+        date: getFormattedTodayDate(),
+        newWords: 0,
+        correctAnswers: 0,
+        incorrectAnswers: 0,
+        maxSeries: 0,
+      };
+      gameStatsRecords.forEach((record) => {
+        if (record.date === getFormattedTodayDate()) {
+          todayRecord = record;
+        }
+      });
 
-    const lastStat = currentStat[typeStatistics].length - 1;
-    const { trueAnswers } = currentStat[typeStatistics][lastStat];
-    const { falseAnswers } = currentStat[typeStatistics][lastStat];
-    const amountWords = trueAnswers + falseAnswers;
-    const percent = Math.round((currentStat[typeStatistics][lastStat].trueAnswers * 100) / amountWords) || 0;
-
-    amountStat[0].innerHTML = currentStat[typeStatistics][lastStat].newWords;
-    amountStat[1].innerHTML = currentStat[typeStatistics][lastStat].series;
-    amountStat[2].innerHTML = `${percent}%`;
-    const { newWords, series } = currentStat[typeStatistics][lastStat];
-    if (this.shortStatsChart) {
-      this.shortStatsChart.removeData();
-      this.shortStatsChart.addData(typeStatistics, [newWords, series, trueAnswers]);
-    } else {
-      this.shortStatsChart = this.addChartShortStat(typeStatistics, [newWords, series, trueAnswers]);
+      amountStat[0].innerHTML = `${todayRecord.newWords}`;
+      amountStat[1].innerHTML = `${todayRecord.maxSeries}`;
+      amountStat[2].innerHTML = (
+        todayRecord.correctAnswers + todayRecord.incorrectAnswers > 0
+      ) ? `${
+          Math.ceil((100 * todayRecord.correctAnswers) / (todayRecord.correctAnswers + todayRecord.incorrectAnswers))
+        }%` : '0';
+      if (this.shortStatsChart) {
+        this.shortStatsChart.removeData();
+        this.shortStatsChart.addData(
+          typeStat,
+          [todayRecord.newWords, todayRecord.maxSeries, todayRecord.correctAnswers],
+        );
+      } else {
+        this.shortStatsChart = this.addChartShortStat(
+          typeStat,
+          [todayRecord.newWords, todayRecord.maxSeries, todayRecord.correctAnswers],
+        );
+      }
     }
   };
 

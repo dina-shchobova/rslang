@@ -20,6 +20,9 @@ const wordStatToday = {
     // 1) подтягиваем статистику пользователя
     // 2) проверяем есть ли сегодняшний день, если нет то создаем с нулями
     // 3) обновляем данные по игре
+    if (localStorage.getItem('userAuthorized') !== 'true') {
+      return;
+    }
     const usersStat = await wordsStatsResource.getOrCreateUsersStat();
     if ('id' in usersStat) {
       delete usersStat.id;
@@ -54,7 +57,7 @@ const wordStatToday = {
     currentDayRecord.incorrectAnswers += incorrectAnswers;
     currentDayRecord.correctAnswers += correctAnswers;
     currentDayRecord.maxSeries = Math.max(currentDayRecord.maxSeries, maxSeries);
-    return wordsStatsResource.setUsersStat(usersStat);
+    wordsStatsResource.setUsersStat(usersStat);
   },
 };
 
@@ -69,6 +72,10 @@ const wordsStatLongTerm = {
     // 3.1) в долгосрочной статистике:
     // 3.1.1) добавляем слово
     // 3.1.2) количество правильных ответов ставим 1
+    // Метод возвращает true если слово новое
+    if (localStorage.getItem('userAuthorized') !== 'true') {
+      return false;
+    }
     const wordInList = await wordsStatsResource.checkWordIsInUserWordsList(wordId);
     if (wordInList) {
       wordInList.optional.countRightAnswersInRow += 1;
@@ -92,6 +99,10 @@ const wordsStatLongTerm = {
     // 3) если нет, то
     // 3.1) в долгосрочной статистике:
     // 3.1.1) добавляем слово с колв-ом правильных = 0
+    // Метод возвращает true если слово новое
+    if (localStorage.getItem('userAuthorized') !== 'true') {
+      return false;
+    }
     const wordInList = await wordsStatsResource.checkWordIsInUserWordsList(wordId);
     if (wordInList) {
       wordInList.optional.countRightAnswersInRow = 0;
@@ -115,4 +126,4 @@ const wordsStatLongTerm = {
   },
 };
 
-export { wordsStatLongTerm, wordStatToday };
+export { wordsStatLongTerm, wordStatToday, getFormattedTodayDate };

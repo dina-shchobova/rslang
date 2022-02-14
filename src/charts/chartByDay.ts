@@ -69,7 +69,6 @@ class StatsChart {
   }
 
   addData(label: string, data: number[]) {
-    // ((this.myChart as Chart).data.labels as string[]).push(label);
     (this.myChart as Chart).data.datasets.forEach((dataset) => {
       dataset.label = label;
       dataset.data = data;
@@ -78,7 +77,6 @@ class StatsChart {
   }
 
   removeData() {
-    // ((this.myChart as Chart).data.labels as string[]).pop();
     (this.myChart as Chart).data.datasets.forEach((dataset) => {
       dataset.data.pop();
     });
