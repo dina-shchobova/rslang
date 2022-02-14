@@ -1,5 +1,6 @@
 import { IAnswerOnPage, IGameCallComponent, IWordData } from '../scripts/audiocallTypes';
 import { gameCallState } from '../scripts/audiocallState';
+import { wordsStatLongTerm } from '../../countNewAndLearnWords/wordsStat';
 
 function shuffleAnswers(array: IAnswerOnPage[]): IAnswerOnPage[] {
   let currentIndex = array.length;
@@ -280,6 +281,15 @@ class Quiz {
       this.currentSeriesLength = 0;
     }
     this.saveToResults(answeredCorrectly);
+    if (answeredCorrectly) {
+      gameCallState.newWordsPromises.push(
+        wordsStatLongTerm.wordAnsweredCorrectlyInGame((this.correctAnswerOnPage as IAnswerOnPage).answerData.id),
+      );
+    } else {
+      gameCallState.newWordsPromises.push(
+        wordsStatLongTerm.wordAnsweredIncorrectlyInGame((this.correctAnswerOnPage as IAnswerOnPage).answerData.id),
+      );
+    }
     this.answersOnPage.forEach((answerOnPage) => {
       if (answerOnPage === this.correctAnswerOnPage) {
         answerOnPage.correct = true;
@@ -420,6 +430,8 @@ class Quiz {
       document.removeEventListener('keydown', this.keyDownListener);
     }
   }
+
+  // add user word
 }
 
 export { Quiz, BACKEND_URL };

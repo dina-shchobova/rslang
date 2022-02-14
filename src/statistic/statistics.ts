@@ -1,5 +1,9 @@
 import './statistics.scss';
-import { SaveStatistics } from './saveStatistics';
+import { SaveStatistics, stat } from './saveStatistics';
+import { StatsChart } from '../charts/chartByDay';
+import wordsStatsResource from '../countNewAndLearnWords/wordsStatsResource';
+import { GameName, IUsersStats, MiniGameStats } from '../sprint/script/dataTypes';
+import { getFormattedTodayDate } from '../countNewAndLearnWords/wordsStat';
 
 const htmlCodeStatistic = `
   <div class="statistics">
@@ -8,6 +12,7 @@ const htmlCodeStatistic = `
       <div class="subtitle subtitle-short-term"></div>
       <div class="statistics-container">
         <div class="statistics-info"></div>
+        <div class="statistics-container_short"></div>
         <div class="icon-game">
           <div class="statistics-audiocall game button active"></div>
           <div class="statistics-sprint game button"></div>
@@ -18,7 +23,7 @@ const htmlCodeStatistic = `
     <div class="long-term-statistics">
       <div class="title">Ваш прогресс за все время:</div>
       <div class="subtitle subtitle-long-term">Количества новых слов за весь период обучения</div>
-      <div class="statistics-container">
+      <div class="statistics-container statistics-container_long">
         <div class="icon-game">
           <div class="statistics-new-words words button active">Новые слова</div>
           <div class="statistics-learn-words words button">Изученные слова</div>
@@ -48,17 +53,24 @@ const statisticsWords = {
 };
 
 export class StatisticsPage {
-  private saveStatistics: SaveStatistics;
+  // private saveStatistics: SaveStatistics;
+
+  private rootElement?: HTMLElement;
+
+  shortStatsChart?: StatsChart;
 
   constructor() {
-    this.saveStatistics = new SaveStatistics();
+    // this.saveStatistics = new SaveStatistics();
+    this.rootElement = undefined;
+    this.shortStatsChart = undefined;
   }
 
   createFieldStatistics = (): void => {
     const main = document.querySelector('main') as HTMLElement;
     const statisticsWrap = document.createElement('div');
-    const isAuthorized = JSON.parse(<string>localStorage.getItem('userAuthorized')) || false;
+    this.rootElement = statisticsWrap;
 
+    const isAuthorized = JSON.parse(<string>localStorage.getItem('userAuthorized')) || false;
     statisticsWrap.innerHTML = isAuthorized ? htmlCodeStatistic : dontShowStatistics;
     statisticsWrap.classList.add('statistics-wrap');
     main.appendChild(statisticsWrap);
@@ -66,8 +78,8 @@ export class StatisticsPage {
       statisticsWrap.classList.add('no-authorization');
       return;
     }
-    statisticsWrap.classList.remove('no-authorization');
 
+    statisticsWrap.classList.remove('no-authorization');
     this.createStatisticsShortTerm('Аудиовызов');
     this.toggleStatistics();
     this.addListenerToLongTermStatistics();
@@ -97,7 +109,7 @@ export class StatisticsPage {
       });
     };
     getStatistics(typeInfo === 'Аудиовызов' || typeInfo === 'Спринт' ? statisticsGames : statisticsWords);
-    this.saveStatistics.showStatistics(typeInfo);
+    this.showStatistics(typeInfo);
   };
 
   toggleStatistics() {
@@ -134,4 +146,107 @@ export class StatisticsPage {
         : this.showSubtitleStatisticsLongTerm(typeInfo);
     });
   };
+
+  showStatistics = async (typeStat: string): Promise<void> => {
+    const typeGame = Object.entries(stat);
+    let typeStatistics = '';
+    let validTypeStatistics: GameName;
+    const currentStat :IUsersStats = await wordsStatsResource.getOrCreateUsersStat();
+    const amountStat = document.querySelectorAll('.amount-stat') as unknown as HTMLElement[];
+
+    typeGame.forEach((arr) => {
+      arr.forEach((item) => {
+        if (item === typeStat) typeStatistics = `${arr[0]}`;
+      });
+    });
+    validTypeStatistics = 'audiocall';
+    if (typeStat === 'Спринт') {
+      validTypeStatistics = 'sprint';
+    }
+    if (validTypeStatistics) {
+      const gameStatsRecords: MiniGameStats[] = currentStat.optional?.miniGames?.[validTypeStatistics] || [];
+      let todayRecord: MiniGameStats = {
+        date: getFormattedTodayDate(),
+        newWords: 0,
+        correctAnswers: 0,
+        incorrectAnswers: 0,
+        maxSeries: 0,
+      };
+      gameStatsRecords.forEach((record) => {
+        if (record.date === getFormattedTodayDate()) {
+          todayRecord = record;
+        }
+      });
+
+      amountStat[0].innerHTML = `${todayRecord.newWords}`;
+      amountStat[1].innerHTML = `${todayRecord.maxSeries}`;
+      amountStat[2].innerHTML = (
+        todayRecord.correctAnswers + todayRecord.incorrectAnswers > 0
+      ) ? `${
+          Math.ceil((100 * todayRecord.correctAnswers) / (todayRecord.correctAnswers + todayRecord.incorrectAnswers))
+        }%` : '0';
+      if (this.shortStatsChart) {
+        this.shortStatsChart.removeData();
+        this.shortStatsChart.addData(
+          typeStat,
+          [todayRecord.newWords, todayRecord.maxSeries, todayRecord.correctAnswers],
+        );
+      } else {
+        this.shortStatsChart = this.addChartShortStat(
+          typeStat,
+          [todayRecord.newWords, todayRecord.maxSeries, todayRecord.correctAnswers],
+        );
+      }
+    }
+  };
+
+  // addChartLong(): void {
+  //   const chartContainer = (this.rootElement as HTMLElement)
+  //   .querySelector('.statistics-container_long') as HTMLElement;
+  //   const chart = new StatsChart('line', {
+  //     labels: ['янв', 'февр', 'март'],
+  //     datasets: [{
+  //       label: 'Новые слова',
+  //       backgroundColor: 'rgb(255, 99, 132)',
+  //       borderColor: 'rgb(255, 99, 132)',
+  //       data: [10, 20, 15],
+  //     }],
+  //   });
+  //   chart.mount(chartContainer);
+  // }
+
+  addChartShortStat(label: string, data: number[]): StatsChart {
+    const shortContainer = (this.rootElement as HTMLElement).querySelector('.statistics-container_short');
+    const chart = new StatsChart('bar', {
+      labels: ['Новые слова', 'Серия слов', 'Правильные ответы'],
+      datasets: [{
+        label,
+        barPercentage: 0.8,
+        barThickness: 45,
+        maxBarThickness: 50,
+        minBarLength: 2,
+        data,
+        backgroundColor: [
+          'rgba(255, 159, 64, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+        ],
+        borderColor: [
+          'rgb(255, 159, 64)',
+          'rgb(75, 192, 192)',
+          'rgb(153, 102, 255)',
+        ],
+        borderWidth: 1,
+      }],
+    },
+    {
+      scales: {
+        y: {
+          beginAtZero: true,
+        },
+      },
+    });
+    chart.mount(shortContainer as HTMLElement);
+    return chart;
+  }
 }

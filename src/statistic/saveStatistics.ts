@@ -32,7 +32,7 @@ export const statistics: Stat = {
   }],
 };
 
-const stat = {
+export const stat = {
   audiocall: 'Аудиовызов',
   sprint: 'Спринт',
   words: 'Слова',

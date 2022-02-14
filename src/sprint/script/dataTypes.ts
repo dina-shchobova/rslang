@@ -1,4 +1,4 @@
-export interface DataWords {
+export interface WordData {
   id: string,
   group: number,
   page: number,
@@ -15,6 +15,9 @@ export interface DataWords {
   textExampleTranslate: string,
 }
 
+export type Difficulty = 'weak' | 'hard';
+export type GameName = 'sprint' | 'audiocall';
+
 export interface UserWords {
   id: string,
   difficulty: string,
@@ -25,7 +28,38 @@ export interface UserWords {
   wordId: string
 }
 
-export interface ISprint{
+export interface UserWord {
+  id: string,
+  difficulty: Difficulty,
+  optional: {
+    countRightAnswersInRow: number,
+    isLearned: boolean,
+    dateLearned?: string,
+  },
+  wordId: string
+}
+
+export interface MiniGameStats {
+  date: string,
+  newWords: number,
+  correctAnswers: number,
+  incorrectAnswers: number,
+  maxSeries: number
+}
+
+type MiniGamesStats = {
+  [Key in GameName]?: MiniGameStats[];
+};
+
+export interface IUsersStats {
+  id?: string,
+  learnedWords: number,
+  optional?: {
+    miniGames?: MiniGamesStats;
+  }
+}
+
+export interface ISprint {
   removeKeyPressListeners: () => void;
 }
 

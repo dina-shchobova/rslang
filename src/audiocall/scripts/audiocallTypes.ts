@@ -51,9 +51,8 @@ interface IGameCallState {
   correctAnswers: IWordData[];
   wrongAnswers: IWordData[];
   maxSeries: number;
-  percentCorrectAnswer: number;
+  newWordsPromises: Promise<boolean>[];
   soundEffectOn: boolean;
-  getPercentCorrectAnswer: () => number;
 }
 
 export {
