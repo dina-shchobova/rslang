@@ -53,7 +53,7 @@ export class Score {
       if (amountTrueAnswers.numberBulb === -1) pointsWrap.innerHTML = '+10';
 
       for (let i = 0; i <= amountTrueAnswers.numberBulb; i++) {
-        bulbs[i].classList.add('active-light');
+        bulbs[i]?.classList.add('active-light');
       }
     } else {
       bulbs.forEach((el) => el.classList.add('active-light'));

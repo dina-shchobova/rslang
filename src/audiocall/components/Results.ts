@@ -15,6 +15,7 @@ const htmlCodeResult = `
         <div class="game-call__right-answers">
 
         </div>
+        <hr>
         <div class="results-subtitle">
           <span class="text-advantages">Вы не знаете</span>
           <span class="count-answer count-wrong-answer"></span>
@@ -25,7 +26,7 @@ const htmlCodeResult = `
         </div>
       </div>
 
-      <button class="game-call__close-result">Закрыть</button>
+      <div class="game-call__close-result">Закрыть</div>
 `;
 
 class Results implements ICallLevelsComponent {
