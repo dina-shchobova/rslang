@@ -8,8 +8,8 @@ const MAX_GROUP = 7;
 const ZERO_PAGE = 1;
 const PAGINATION_BTNS_QUANITY = 7;
 
-const BUTTON_PREV_ROLE = 'text-book-prev-page';
-const BUTTON_NEXT_ROLE = 'text-book-next-button';
+const BTN_PREV_ROLE = 'text-book-prev-page';
+const BTN_NEXT_ROLE = 'text-book-next-button';
 
 class TextBookClass {
   private group: number;
@@ -51,20 +51,22 @@ class TextBookClass {
   private createPagerButton(
     btnRole: string,
     btnHrefNum: number,
-    btnContent: string,
+    btnContent: number | string,
+    btnAble = '',
     btnClass = '',
     btnID = '',
-    btnAble = '',
+    btnTitle = '',
   ) {
     return `
       <button
-        id="${btnID}"
-        class="btn ${btnClass}"
         data-role="${btnRole}"
         data-href="${this.formatHash(this.group, btnHrefNum)}"
         ${btnAble}
+        class="btn ${btnClass}"
+        id="${btnID}"
+        title = "${btnTitle.toString()}",
       >
-        ${btnContent}
+        ${btnContent.toString()}
       </button>
     `;
   }
@@ -77,22 +79,24 @@ class TextBookClass {
     return paginationArray.map(fn).join('');
   }
 
+  private getArrayFromNum = (num: number) => [...Array(PAGINATION_BTNS_QUANITY).keys()].map((x) => x + num);
+
   getView(words: IWordObject[]) {
     let pager;
     let isZeroPageCurrent = '';
     let isLastPageCurrent = '';
     const pageOffSet = 2;
 
-    const arrayStartsFromTwo = [...Array(PAGINATION_BTNS_QUANITY).keys()]
-      .map((x) => x + pageOffSet);
-    const arrayStartsFromTwentyThree = [...Array(PAGINATION_BTNS_QUANITY).keys()]
-      .map((x) => x + MAX_PAGE - PAGINATION_BTNS_QUANITY);
-    const arrayFromSeven = [...Array(PAGINATION_BTNS_QUANITY).keys()];
+    const arrayStartsFromTwo = this.getArrayFromNum(pageOffSet);
+    const arrayStartsFromTwentyThree = this.getArrayFromNum(MAX_PAGE - PAGINATION_BTNS_QUANITY);
+    const arrayFromSeven = this.getArrayFromNum(0);
 
     const middleWhenLeftElementIsTwo = PAGINATION_BTNS_QUANITY - pageOffSet;
     const middleWhenMaxElementisTwentyNine = MAX_PAGE - (PAGINATION_BTNS_QUANITY - pageOffSet);
     const previousPage = this.page - 1;
     const nextPage = this.page + 1;
+    const pageMinusSeven = this.page - PAGINATION_BTNS_QUANITY;
+    const pagePlusSeven = this.page + PAGINATION_BTNS_QUANITY;
 
     if (this.page < middleWhenLeftElementIsTwo) {
       pager = this.createButtonsArray(arrayStartsFromTwo);
@@ -108,45 +112,26 @@ class TextBookClass {
       isLastPageCurrent = 'current-page';
     }
 
+    const disableLowThanZero = this.page <= PAGINATION_BTNS_QUANITY
+      ? ''
+      : `to page ${this.page - PAGINATION_BTNS_QUANITY}`;
+    const disableMoreThanMaxPage = this.page > MAX_PAGE - PAGINATION_BTNS_QUANITY
+      ? ''
+      : `to page ${this.page + PAGINATION_BTNS_QUANITY}`;
+    const disabledIfZero = this.page === ZERO_PAGE ? ' disabled' : '';
+    const disabledIfMaxPage = this.page === MAX_PAGE ? ' disabled' : '';
+    const disableLowThan7 = this.page <= PAGINATION_BTNS_QUANITY ? ' disabled' : '';
+    const disableMoreThan23 = this.page > MAX_PAGE - PAGINATION_BTNS_QUANITY ? ' disabled' : '';
+
     return `
     <div id="pagination-buttons" class="pagination-buttons">
-    ${this.createPagerButton(
-    BUTTON_PREV_ROLE, previousPage, '&#9664', '', 'prev-button', this.page === ZERO_PAGE ? ' disabled' : '',
-  )}
-    ${this.createPagerButton(
-    '', ZERO_PAGE, ZERO_PAGE.toString(), isZeroPageCurrent,
-  )}
-    ${this.createPagerButton(
-    '', this.page - PAGINATION_BTNS_QUANITY, '...', '',
-    this.page <= PAGINATION_BTNS_QUANITY ? ' disabled' : '',
-    // title=`${this.page > PAGINATION_BTNS_QUANITY ? this.page - PAGINATION_BTNS_QUANITY : ''}`
-
-  )}
-
+    ${this.createPagerButton(BTN_PREV_ROLE, previousPage, '&#9664', disabledIfZero, '', 'prev-button')}
+    ${this.createPagerButton('', ZERO_PAGE, ZERO_PAGE, '', isZeroPageCurrent)}
+    ${this.createPagerButton('', pageMinusSeven, '...', disableLowThan7, '', '', disableLowThanZero)}
     ${pager}
-    <button
-      class="btn"
-      data-href="${this.formatHash(this.group, this.page + PAGINATION_BTNS_QUANITY)}"
-      title="${this.page <= MAX_PAGE - PAGINATION_BTNS_QUANITY ? `to page ${this.page + PAGINATION_BTNS_QUANITY}` : ''}"
-      ${this.page > MAX_PAGE - PAGINATION_BTNS_QUANITY ? ' disabled' : ''}
-    >
-      ...
-    </button>
-    <button
-      class="btn ${isLastPageCurrent}"
-      data-href="${this.formatHash(this.group, MAX_PAGE)}"
-    >
-      ${MAX_PAGE}
-    </button>
-    <button
-      class="btn"
-      id="next-button"
-      data-role="${BUTTON_NEXT_ROLE}"
-      data-href="${this.formatHash(this.group, nextPage)}"
-      ${this.page === MAX_PAGE ? ' disabled' : ''}
-    >
-      &#9654;
-    </button>
+    ${this.createPagerButton('', pagePlusSeven, '...', disableMoreThan23, '', '', disableMoreThanMaxPage)}
+    ${this.createPagerButton('', MAX_PAGE, MAX_PAGE, '', isLastPageCurrent)}
+    ${this.createPagerButton(BTN_NEXT_ROLE, nextPage, '&#9654;', disabledIfMaxPage)}
   </div>
   <div class="word-cards-container" id="words-container">
     ${words.map((wordObject: IWordObject) => this.wordComponent(wordObject)).join('')}
