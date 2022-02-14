@@ -3,7 +3,7 @@ import { getWord } from './services';
 import { Timer } from './timer';
 import { exitGame, SprintGameControl } from './sprintGameControl';
 import { amountTrueAnswers, Score } from './score';
-import { DataWords, ISprint, sound } from './dataTypes';
+import { WordData, ISprint, sound } from './dataTypes';
 import { SaveStatistics, statistics } from '../../statistic/saveStatistics';
 import { CountNewAndLearnWords } from '../../countNewAndLearnWords/countNewAndLearnWords';
 import { AddOrUpdateUserWords } from '../../countNewAndLearnWords/addOrUpdateUserWords';
@@ -21,7 +21,7 @@ let userId = '';
 let trueAnswers = 0;
 let falseAnswers = 0;
 let currentStatistics = JSON.parse(<string>localStorage.getItem('statistics'));
-let words: [DataWords] | [];
+let words: [WordData] | [];
 let wordId = '';
 let learnedWords = 0;
 

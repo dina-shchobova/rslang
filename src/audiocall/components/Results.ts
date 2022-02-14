@@ -3,8 +3,6 @@ import {
   IGameCallComponent, ICallLevelsComponent, IWordData,
 } from '../scripts/audiocallTypes';
 import { BACKEND_URL } from './Quiz';
-import { SaveStatistics, statistics } from '../../statistic/saveStatistics';
-import { CountNewWords } from '../../countNewWords/countNewWords';
 
 const htmlCodeResult = `
       <h2 class="title">Результаты</h2>
@@ -38,17 +36,11 @@ class Results implements ICallLevelsComponent {
 
   currentWord?: IWordData;
 
-  private saveStatistics: SaveStatistics;
-
-  countNewWords: CountNewWords;
-
   constructor(game: IGameCallComponent) {
     this.game = game;
     this.rootElement = undefined;
     this.sound = undefined;
     this.currentWord = undefined;
-    this.saveStatistics = new SaveStatistics();
-    this.countNewWords = new CountNewWords();
   }
 
   createRootElement(): HTMLElement {
@@ -63,7 +55,6 @@ class Results implements ICallLevelsComponent {
   mount(elem: HTMLElement): void {
     elem.appendChild(this.createRootElement());
     this.mounted();
-    this.saveStatistics.addTodayDate();
   }
 
   mounted(): void {
@@ -155,20 +146,6 @@ class Results implements ICallLevelsComponent {
   }
 
   async closeGame(): Promise<void> {
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
-    if (userId) {
-      const currentStatistics = JSON.parse(<string>localStorage.getItem('statistics'));
-      console.log(currentStatistics);
-      const lastStatIndex = Math.max(0, statistics.audiocall.length - 1);
-      Object(statistics.audiocall[lastStatIndex]).series = Math.max(currentStatistics.audiocall[lastStatIndex].series, gameCallState.maxSeries);
-      Object(statistics.audiocall[lastStatIndex])
-        .trueAnswers = currentStatistics.audiocall[lastStatIndex].trueAnswers + gameCallState.correctAnswers.length;
-      Object(statistics.audiocall[lastStatIndex])
-        .falseAnswers = currentStatistics.audiocall[lastStatIndex].falseAnswers + gameCallState.wrongAnswers.length;
-      Object(statistics.audiocall[lastStatIndex])
-        .newWords = await this.countNewWords.countCurrentWords();
-      this.saveStatistics.saveStatistics('audiocall');
-    }
     Results.clearStateResults();
     this.game.chooseLevel();
   }

@@ -1,7 +1,5 @@
 import { IAnswerOnPage, IGameCallComponent, IWordData } from '../scripts/audiocallTypes';
 import { gameCallState } from '../scripts/audiocallState';
-import { CountNewWords } from '../../countNewWords/countNewWords';
-import { createUserWord } from '../../countNewWords/services';
 
 function shuffleAnswers(array: IAnswerOnPage[]): IAnswerOnPage[] {
   let currentIndex = array.length;
@@ -76,8 +74,6 @@ class Quiz {
 
   currentSeriesLength: number;
 
-  countCurrentWords: CountNewWords;
-
   constructor(game: IGameCallComponent) {
     this.game = game;
     this.rootElement = undefined;
@@ -93,7 +89,6 @@ class Quiz {
     this.answerSelected = false;
     this.longestSeriesLength = 0;
     this.currentSeriesLength = 0;
-    this.countCurrentWords = new CountNewWords();
   }
 
   createRootElement(): HTMLElement {
@@ -351,7 +346,6 @@ class Quiz {
     } else {
       this.processAnswer(-1);
     }
-    this.addUserWord();
   }
 
   // show answer
@@ -428,16 +422,6 @@ class Quiz {
   }
 
   // add user word
-
-  async addUserWord(): Promise<void> {
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
-    if (userId) {
-      await createUserWord(userId, (this.correctAnswerOnPage as IAnswerOnPage).answerData.id, {
-        difficulty: 'weak',
-        optional: { },
-      });
-    }
-  }
 }
 
 export { Quiz, BACKEND_URL };

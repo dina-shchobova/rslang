@@ -1,8 +1,8 @@
-import { DataWords } from './dataTypes';
+import { WordData } from './dataTypes';
 
 const path = 'https://rs-learnwords.herokuapp.com/';
 
-export const getWord = async (group: number, page: number): Promise<[DataWords]> => {
+export const getWord = async (group: number, page: number): Promise<[WordData]> => {
   const response = await fetch(`${path}words?group=${group}&page=${page}`, {
     method: 'GET',
     headers: {
