@@ -3,6 +3,7 @@ import {
   IGameCallComponent, ICallLevelsComponent, IWordData,
 } from '../scripts/audiocallTypes';
 import { BACKEND_URL } from './Quiz';
+import { SaveStatistics, statistics } from '../../statistic/saveStatistics';
 
 const htmlCodeResult = `
       <h2 class="title">Результаты</h2>
@@ -36,11 +37,14 @@ class Results implements ICallLevelsComponent {
 
   currentWord?: IWordData;
 
+  private saveStatistics: SaveStatistics;
+
   constructor(game: IGameCallComponent) {
     this.game = game;
     this.rootElement = undefined;
     this.sound = undefined;
     this.currentWord = undefined;
+    this.saveStatistics = new SaveStatistics();
   }
 
   createRootElement(): HTMLElement {
@@ -146,6 +150,16 @@ class Results implements ICallLevelsComponent {
   }
 
   closeGame(): void {
+    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
+    if (userId) {
+      const currentStatistics = JSON.parse(<string>localStorage.getItem('statistics'));
+      Object(statistics.audiocall[0]).series = Math.max(currentStatistics.audiocall[0].series, gameCallState.maxSeries);
+      Object(statistics.audiocall[0])
+        .trueAnswers = currentStatistics.audiocall[0].trueAnswers + gameCallState.correctAnswers.length;
+      Object(statistics.audiocall[0])
+        .falseAnswers = currentStatistics.audiocall[0].falseAnswers + gameCallState.wrongAnswers.length;
+      this.saveStatistics.saveStatistics('audiocall');
+    }
     Results.clearStateResults();
     this.game.chooseLevel();
   }
