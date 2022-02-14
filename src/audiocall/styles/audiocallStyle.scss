@@ -124,6 +124,7 @@ $colorWrongAnswer: #ff1e00;
     background-color: white;
     border-radius: 50%;
     cursor: pointer;
+    transition: 0.3s;
     &_active{
       box-shadow: 0 0 20px $firstAccent;
       color: $firstAccent;
@@ -196,6 +197,7 @@ $colorWrongAnswer: #ff1e00;
     background-color: white;
     border-radius: 0.5rem;
     border: 3px solid $firstAccent;
+    transition: 0.3s;
 
     &.game-call__answer-button_active {
       border-color: $colorWrongAnswer;
