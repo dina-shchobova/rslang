@@ -1,7 +1,7 @@
 import '../style/sprint.scss';
 import { getWord } from './services';
 import { Timer } from './timer';
-import { exitGame, SprintGameControl } from './sprintGameControl';
+import { exitGame } from './sprintGameControl';
 import { amountTrueAnswers, Score } from './score';
 import { DataWords, ISprint, sound } from './dataTypes';
 import { SaveStatistics, statistics } from '../../statistic/saveStatistics';
@@ -26,32 +26,25 @@ let wordId = '';
 let learnedWords = 0;
 
 const htmlCodeSprint = `
-    <div class="sprint">
-      <div class="game-header">
-          <div class="sound button"></div>
-          <div class="zoom button"></div>
-          <a href="#/"><div class="close button"></div></a>
+  <div class="sprint">
+    <div class="game-wrap">
+      <div class="current-state">
+        <div class="timer">10</div>
       </div>
-      <div class="game-wrap">
-        <div class="current-state">
-          <div class="timer">60</div>
-        </div>
-        <div class="sprint-game">
-            <div class="word"></div>
-            <div class="translate"></div>
-            <div class="response-type">
-                <div class="answer-false button" id="false">Неверно</div>
-                <div class="answer-true button" id="true">Верно</div>
-            </div>
-        </div>
+      <div class="sprint-game">
+          <div class="word"></div>
+          <div class="translate"></div>
+          <div class="response-type">
+              <div class="answer-false button" id="false">Неверно</div>
+              <div class="answer-true button" id="true">Верно</div>
+          </div>
       </div>
     </div>
+  </div>
 `;
 
 export class Sprint implements ISprint {
   private timer: Timer;
-
-  private controlGame: SprintGameControl;
 
   private score: Score;
 
@@ -65,7 +58,6 @@ export class Sprint implements ISprint {
 
   constructor() {
     this.timer = new Timer(this);
-    this.controlGame = new SprintGameControl();
     this.score = new Score();
     this.countCurrentWords = new CountNewAndLearnWords();
     this.saveStatistics = new SaveStatistics();
@@ -86,13 +78,13 @@ export class Sprint implements ISprint {
     }
 
     exitGame.isExit = false;
-    const main = document.querySelector('main') as HTMLElement;
-    const chooseLevels = document.querySelector('.choose-levels') as HTMLElement;
+    const gameSprint = document.querySelector('.game-sprint') as HTMLElement;
+    const chooseLevels = document.querySelector('.choose-wrap') as HTMLElement;
     const sprintPage = document.createElement('div');
     currentStatistics = JSON.parse(<string>localStorage.getItem('statistics'));
     sprintPage.innerHTML = htmlCodeSprint;
     sprintPage.classList.add('sprint-wrap');
-    main.appendChild(sprintPage);
+    gameSprint.appendChild(sprintPage);
     chooseLevels?.remove();
 
     trueAnswers = currentStatistics?.sprint[currentStatistics.sprint.length - 1].trueAnswers || 0;
@@ -101,7 +93,6 @@ export class Sprint implements ISprint {
     await this.generateWord(group);
     this.addUserAnswerListeners(group);
     this.timer.startTimer(answers);
-    this.controlGame.controlGame();
     this.score.createScoreWrap();
   }
 
@@ -180,7 +171,7 @@ export class Sprint implements ISprint {
 
   async checkAnswer(typeAnswer: string | null): Promise<void> {
     const sprintGame = document.querySelector('.sprint-game') as HTMLElement;
-    sound.src = String(trueAnswer) === typeAnswer ? '/assets/true.mp3' : '/assets/false.mp3';
+    sound.src = String(trueAnswer) === typeAnswer ? '/call_correct.mp3' : '/call_wrong.wav';
     sound.volume = VOLUME;
     sound.play();
 

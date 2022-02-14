@@ -1,5 +1,5 @@
 const htmlCodeMainPage = `
-  <div>
+  <div class="application-description">
     <div class="text-advantages">RSLang - отличное приложение для изучения новых слов.</div>
     <div class="title">Наши преимущества</div>
     <div class="advantages"></div>

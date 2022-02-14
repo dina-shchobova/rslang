@@ -68,6 +68,21 @@ header {
     transition: 0.3s;
   }
 
+  .overlay {
+    position: fixed;
+    display: flex;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .hide-overlay {
+    display: none;
+  }
+
   .navigation {
     display: flex;
     align-items: center;
@@ -161,9 +176,13 @@ main {
     text-shadow: 0 0 25px white;
   }
 
+  .application-description {
+    margin: 110px 50px 50px;
+    text-align: center;
+  }
+
   .text-advantages {
     font-size: 26px;
-    margin: 110px 10px 50px;
   }
 
   .advantage {
@@ -260,8 +279,10 @@ main {
 .game-header {
   position: relative;
   width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
   height: 50px;
-  margin: 80px 0 20px 0;
+  padding: 80px 0 20px 0;
   display: flex;
   justify-content: end;
   z-index: 10;

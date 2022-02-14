@@ -5,21 +5,23 @@ import { amountTrueAnswers } from './score';
 import { CountNewAndLearnWords } from '../../countNewAndLearnWords/countNewAndLearnWords';
 
 const htmlCodeResult = `
+<div>
   <div class="sprint-result">
-    <div class="title">Результаты</div>
-    <div class="result-wrap">
+    <h2 class="title">Результаты</h2>
+    <div class="field_white field_scroll field_words">
       <div class="result-true">
-          <div class="title-true">Знаю:</div>
+          <div class="title-true">Вы знаете</div>
       </div>
       <hr>
        <div class="result-false">
-          <div class="title-false">Ошибок:</div>
-      </div>
-      <div class="result-navigation">
-        <a href="#/"><div class="close-game">Выход</div></a>
+          <div class="title-false">Вы не знаете</div>
       </div>
     </div>
+    <div class="result-navigation">
+      <a href="#/"><div class="close-game">Закрыть</div></a>
+    </div>
   </div>
+</div>
 `;
 
 export class SprintResult {
@@ -91,13 +93,13 @@ export class SprintResult {
     const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
     if (exitGame.isExit) return;
 
-    const main = document.querySelector('main') as HTMLElement;
+    const gameSprint = document.querySelector('.game-sprint') as HTMLElement;
     const sprintWrap = document.querySelector('.sprint-wrap') as HTMLElement;
     const result = document.createElement('div');
 
     result.innerHTML = htmlCodeResult;
     result.classList.add('result');
-    main.appendChild(result);
+    gameSprint.appendChild(result);
     sprintWrap.remove();
     if (document.fullscreenElement) document.exitFullscreen();
     this.createResult(answers);
