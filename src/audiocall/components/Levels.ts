@@ -6,14 +6,14 @@ const htmlCodeLevels = `
       <p class="game-call__game-description">Выбрать правильный перевод озвученного слова</p>
       <h3 class="text-advantages instructions">Выберите уровень</h3>
       <div class="game-call__levels-buttons">
-        <div class="game-call__level-button button_shadow" data-level="0">A1</div>
-        <div class="game-call__level-button button_shadow" data-level="1">A2</div>
-        <div class="game-call__level-button button_shadow" data-level="2">B1</div>
-        <div class="game-call__level-button button_shadow" data-level="3">B2</div>
-        <div class="game-call__level-button button_shadow" data-level="4">C1</div>
-        <div class="game-call__level-button button_shadow" data-level="5">C2</div>
+        <div class="game-call__level-button button_shadow button" data-level="0">A1</div>
+        <div class="game-call__level-button button_shadow button" data-level="1">A2</div>
+        <div class="game-call__level-button button_shadow button" data-level="2">B1</div>
+        <div class="game-call__level-button button_shadow button" data-level="3">B2</div>
+        <div class="game-call__level-button button_shadow button" data-level="4">C1</div>
+        <div class="game-call__level-button button_shadow button" data-level="5">C2</div>
       </div>
-      <div class="game-call__start">Старт</div>
+      <div class="game-call__start button">Старт</div>
 `;
 
 class Levels implements ICallLevelsComponent {

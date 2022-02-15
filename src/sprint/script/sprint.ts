@@ -1,12 +1,12 @@
 import '../style/sprint.scss';
 import { getWord } from './services';
 import { Timer } from './timer';
-import { exitGame, SprintGameControl } from './sprintGameControl';
+import { exitGame } from './sprintGameControl';
 import { amountTrueAnswers, Score } from './score';
-import { WordData, ISprint, sound } from './dataTypes';
-import { SaveStatistics, statistics } from '../../statistic/saveStatistics';
-import { CountNewAndLearnWords } from '../../countNewAndLearnWords/countNewAndLearnWords';
-import { AddOrUpdateUserWords } from '../../countNewAndLearnWords/addOrUpdateUserWords';
+import {
+  WordData, ISprint, sound, gameCallState,
+} from './dataTypes';
+import { wordsStatLongTerm } from '../../countNewAndLearnWords/wordsStat';
 
 const AMOUNT_WORDS = 20;
 const AMOUNT_PAGE = 30;
@@ -17,90 +17,55 @@ let currentWord = 0;
 let trueAnswer = false;
 let answers: (string | boolean)[][] = [];
 const VOLUME = 0.4;
-let userId = '';
-let trueAnswers = 0;
-let falseAnswers = 0;
 let words: [WordData] | [];
 let wordId = '';
-let learnedWords = 0;
+let currentSeriesLength = 0;
 
 const htmlCodeSprint = `
-    <div class="sprint">
-      <div class="game-header">
-          <div class="sound button"></div>
-          <div class="zoom button"></div>
-          <a href="#/"><div class="close button"></div></a>
+  <div class="sprint">
+    <div class="game-wrap">
+      <div class="current-state">
+        <div class="timer">60</div>
       </div>
-      <div class="game-wrap">
-        <div class="current-state">
-          <div class="timer">60</div>
-        </div>
-        <div class="sprint-game">
-            <div class="word"></div>
-            <div class="translate"></div>
-            <div class="response-type">
-                <div class="answer-false button" id="false">Неверно</div>
-                <div class="answer-true button" id="true">Верно</div>
-            </div>
-        </div>
+      <div class="sprint-game">
+          <div class="word"></div>
+          <div class="translate"></div>
+          <div class="response-type">
+              <div class="answer-false button" id="false">Неверно</div>
+              <div class="answer-true button" id="true">Верно</div>
+          </div>
       </div>
     </div>
+  </div>
 `;
 
 export class Sprint implements ISprint {
   private timer: Timer;
 
-  private controlGame: SprintGameControl;
-
   private score: Score;
 
   private keyPressListener?: (e:KeyboardEvent) => void;
 
-  private countCurrentWords: CountNewAndLearnWords;
-
-  private saveStatistics: SaveStatistics;
-
-  private userWords: AddOrUpdateUserWords;
-
   constructor() {
     this.timer = new Timer(this);
-    this.controlGame = new SprintGameControl();
     this.score = new Score();
-    this.countCurrentWords = new CountNewAndLearnWords();
-    this.saveStatistics = new SaveStatistics();
-    this.userWords = new AddOrUpdateUserWords();
   }
 
   async createPageGameSprint(group: number): Promise<void> {
     answers = []; wordId = '';
-    userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
-
-    if (userId) {
-      const currentUserWords = await this.countCurrentWords.countCurrentWords();
-      learnedWords = 0;
-      currentUserWords.forEach((word) => {
-        if (word.optional.countRightAnswers === 3) learnedWords++;
-      });
-      // await this.saveStatistics.addTodayDate();
-    }
 
     exitGame.isExit = false;
-    const main = document.querySelector('main') as HTMLElement;
-    const chooseLevels = document.querySelector('.choose-levels') as HTMLElement;
+    const gameSprint = document.querySelector('.game-sprint') as HTMLElement;
+    const chooseLevels = document.querySelector('.choose-wrap') as HTMLElement;
     const sprintPage = document.createElement('div');
-    const currentStatistics = JSON.parse(<string>localStorage.getItem('statistics'));
     sprintPage.innerHTML = htmlCodeSprint;
     sprintPage.classList.add('sprint-wrap');
-    main.appendChild(sprintPage);
+    gameSprint.appendChild(sprintPage);
     chooseLevels?.remove();
-
-    trueAnswers = currentStatistics?.sprint[currentStatistics.sprint.length - 1].trueAnswers || 0;
-    falseAnswers = currentStatistics?.sprint[currentStatistics.sprint.length - 1].falseAnswers || 0;
 
     await this.generateWord(group);
     this.addUserAnswerListeners(group);
     this.timer.startTimer(answers);
-    this.controlGame.controlGame();
     this.score.createScoreWrap();
   }
 
@@ -114,7 +79,7 @@ export class Sprint implements ISprint {
     const word = document.querySelector('.word') as HTMLElement;
     words = await getWord(group, currentPage);
     wordId = words[currentWord].id;
-    await this.userWords.addUserWords(wordId);
+
     await this.generateWordTranslate(group, words[currentWord].wordTranslate)
       .then(() => {
         if (!words[currentWord].word) return;
@@ -125,9 +90,8 @@ export class Sprint implements ISprint {
   generateWordTranslate = async (group: number, trueTranslate: string): Promise<void> => {
     const wordTranslate = document.querySelector('.translate');
     const numberTranslateWord = Math.floor(Math.random() * AMOUNT_WORDS);
-    const translate = await getWord(group, currentPage);
-    if (!translate) return;
-    const translateWord = [translate[numberTranslateWord].wordTranslate, trueTranslate];
+    if (!words) return;
+    const translateWord = [words[numberTranslateWord].wordTranslate, trueTranslate];
     const word = translateWord[Math.floor(Math.random() * translateWord.length)];
 
     if (wordTranslate) wordTranslate.innerHTML = word;
@@ -179,7 +143,7 @@ export class Sprint implements ISprint {
 
   async checkAnswer(typeAnswer: string | null): Promise<void> {
     const sprintGame = document.querySelector('.sprint-game') as HTMLElement;
-    sound.src = String(trueAnswer) === typeAnswer ? '/assets/true.mp3' : '/assets/false.mp3';
+    sound.src = String(trueAnswer) === typeAnswer ? '/call_correct.mp3' : '/call_wrong.wav';
     sound.volume = VOLUME;
     sound.play();
 
@@ -191,20 +155,20 @@ export class Sprint implements ISprint {
       amountTrueAnswers.count++;
       if (amountTrueAnswers.count > amountTrueAnswers.maxCount) amountTrueAnswers.maxCount = amountTrueAnswers.count;
       amountTrueAnswers.numberBulb = amountTrueAnswers.numberBulb === 2 ? 0 : amountTrueAnswers.numberBulb + 1;
-      trueAnswers++;
-      await this.userWords.updateWords(wordId, true);
+      gameCallState.trueAnswers++;
+      gameCallState.newWordsPromises.push(await wordsStatLongTerm.wordAnsweredCorrectlyInGame(wordId));
+      currentSeriesLength++;
+      if (currentSeriesLength > gameCallState.maxSeries) {
+        gameCallState.maxSeries = currentSeriesLength;
+      }
     } else {
       amountTrueAnswers.count = 0;
       amountTrueAnswers.numberBulb = -1;
-      falseAnswers++;
-      await this.userWords.updateWords(wordId, false);
+      gameCallState.falseAnswers++;
+      gameCallState.newWordsPromises.push(await wordsStatLongTerm.wordAnsweredIncorrectlyInGame(wordId));
+      currentSeriesLength = 0;
     }
 
-    if (userId) {
-      Object(statistics.sprint[0]).trueAnswers = trueAnswers;
-      Object(statistics.sprint[0]).falseAnswers = falseAnswers;
-      Object(statistics.words[0]).learnedWords = await this.countCurrentWords.countLearnedWords(learnedWords);
-    }
     this.score.countAnswers();
 
     setTimeout(() => {

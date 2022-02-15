@@ -1,5 +1,4 @@
 import './statistics.scss';
-import { stat } from './saveStatistics';
 import { StatsChart } from '../charts/StatsChart';
 import wordsStatsResource from '../countNewAndLearnWords/wordsStatsResource';
 import { GameName, IUsersStats, MiniGameStats } from '../sprint/script/dataTypes';
@@ -53,14 +52,11 @@ const statisticsWords = {
 };
 
 export class StatisticsPage {
-  // private saveStatistics: SaveStatistics;
-
   private rootElement?: HTMLElement;
 
   shortStatsChart?: StatsChart;
 
   constructor() {
-    // this.saveStatistics = new SaveStatistics();
     this.rootElement = undefined;
     this.shortStatsChart = undefined;
   }
@@ -149,17 +145,10 @@ export class StatisticsPage {
   };
 
   showStatistics = async (typeStat: string): Promise<void> => {
-    const typeGame = Object.entries(stat);
-    let typeStatistics = '';
     let validTypeStatistics: GameName;
     const currentStat :IUsersStats = await wordsStatsResource.getOrCreateUsersStat();
     const amountStat = document.querySelectorAll('.amount-stat') as unknown as HTMLElement[];
 
-    typeGame.forEach((arr) => {
-      arr.forEach((item) => {
-        if (item === typeStat) typeStatistics = `${arr[0]}`;
-      });
-    });
     validTypeStatistics = 'audiocall';
     if (typeStat === 'Спринт') {
       validTypeStatistics = 'sprint';

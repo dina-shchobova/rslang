@@ -1,3 +1,4 @@
+import { getUser } from '../services/requests';
 import { AggregatedWordsResponse, IUsersStats, UserWord } from '../sprint/script/dataTypes';
 import { BASE_URL, getFormattedTodayDate } from '../services/constants';
 
@@ -5,12 +6,11 @@ const wordsStatsResource = {
 
   // проверка есть ли слово в списке пользователя
   async checkWordIsInUserWordsList(wordId: string): Promise<UserWord | undefined> {
-    const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
-    const rawResponse = await fetch(`${BASE_URL}users/${userId}/words/${wordId}`, {
+    const user = await getUser();
+    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words/${wordId}`, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${user?.token}`,
         Accept: 'application/json',
       },
     });
@@ -24,17 +24,16 @@ const wordsStatsResource = {
   },
 
   // обновить кол-во правильных ответов на слове в долгосрочной статитстике
-  async updateWordInUsersWordsList(word: UserWord) {
-    const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
+  async updateWordInUsersWordsList(word: UserWord): Promise<UserWord> {
+    const user = await getUser();
     const wordDataToPost = {
       optional: word.optional,
       difficulty: word.difficulty,
     };
-    const rawResponse = await fetch(`${BASE_URL}users/${userId}/words/${word.wordId}`, {
+    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words/${word.id}`, {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${user?.token}`,
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
@@ -44,14 +43,12 @@ const wordsStatsResource = {
   },
 
   // добавляем слов
-  async addWordToUsersList(wordId: string, countRightAnswersInRow = 0): Promise<UserWord> {
-    const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
-
-    const rawResponse = await fetch(`${BASE_URL}users/${userId}/words/${wordId}`, {
+  async addWordToUsersList(wordId: string, countRightAnswersInRow = 0): Promise<UserWord | undefined> {
+    const user = await getUser();
+    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words/${wordId}`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${user?.token}`,
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
@@ -68,12 +65,11 @@ const wordsStatsResource = {
   },
 
   async createUsersStat(): Promise<void> {
-    const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
-    await fetch(`${BASE_URL}users/${userId}/statistics`, {
+    const user = await getUser();
+    await fetch(`${BASE_URL}users/${user?.userId}/statistics`, {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${user?.token}`,
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
@@ -85,31 +81,28 @@ const wordsStatsResource = {
   },
 
   async getOrCreateUsersStat(): Promise<IUsersStats> {
-    const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
-    const rawResponse = await fetch(`${BASE_URL}users/${userId}/statistics`, {
+    const user = await getUser();
+    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/statistics`, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${user?.token}`,
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
     });
     if (rawResponse.status === 404) {
       await this.createUsersStat();
-      const stats = await this.getOrCreateUsersStat();
-      return stats;
+      return this.getOrCreateUsersStat();
     }
     return rawResponse.json();
   },
 
   async setUsersStat(stats: IUsersStats): Promise<void> {
-    const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
-    const rawResponse = await fetch(`${BASE_URL}users/${userId}/statistics`, {
+    const user = await getUser();
+    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/statistics`, {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${user?.token}`,
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },

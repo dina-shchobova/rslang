@@ -1,37 +1,28 @@
-import { Answer } from './dataTypes';
+import { Answer, gameCallState } from './dataTypes';
 import { exitGame } from './sprintGameControl';
-import { SaveStatistics, statistics } from '../../statistic/saveStatistics';
-import { amountTrueAnswers } from './score';
-import { CountNewAndLearnWords } from '../../countNewAndLearnWords/countNewAndLearnWords';
+import { wordStatToday } from '../../countNewAndLearnWords/wordsStat';
 
 const htmlCodeResult = `
+<div>
   <div class="sprint-result">
-    <div class="title">Результаты</div>
-    <div class="result-wrap">
+    <h2 class="title">Результаты</h2>
+    <div class="field_white field_scroll field_words">
       <div class="result-true">
-          <div class="title-true">Знаю:</div>
+          <div class="title-true">Вы знаете</div>
       </div>
       <hr>
        <div class="result-false">
-          <div class="title-false">Ошибок:</div>
-      </div>
-      <div class="result-navigation">
-        <a href="#/"><div class="close-game">Выход</div></a>
+          <div class="title-false">Вы не знаете</div>
       </div>
     </div>
+    <div class="result-navigation">
+      <a href="#/"><div class="close-game">Закрыть</div></a>
+    </div>
   </div>
+</div>
 `;
 
 export class SprintResult {
-  private saveStatistics: SaveStatistics;
-
-  private countNewWords: CountNewAndLearnWords;
-
-  constructor() {
-    this.saveStatistics = new SaveStatistics();
-    this.countNewWords = new CountNewAndLearnWords();
-  }
-
   createResult(answers: (string | boolean)[][]): void {
     const resultTrue = document.querySelector('.result-true') as HTMLElement;
     const resultFalse = document.querySelector('.result-false') as HTMLElement;
@@ -87,32 +78,33 @@ export class SprintResult {
     return typeAnswer ? titleTrue.appendChild(amountAnswers) : titleFalse.appendChild(amountAnswers);
   };
 
+  static async sendGameFinishedStats(): Promise<void> {
+    Promise.all(gameCallState.newWordsPromises).then((newWordsMarks: boolean[]) => {
+      const newWordsCount = newWordsMarks.filter((m) => m).length;
+      wordStatToday.updateTodayGameStatOnGameFinish(
+        'sprint',
+        gameCallState.maxSeries,
+        gameCallState.trueAnswers,
+        gameCallState.falseAnswers,
+        newWordsCount,
+      );
+    });
+  }
+
   async showResult(answers: (string | boolean)[][]): Promise<void> {
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
     if (exitGame.isExit) return;
 
-    const main = document.querySelector('main') as HTMLElement;
+    const gameSprint = document.querySelector('.game-sprint') as HTMLElement;
     const sprintWrap = document.querySelector('.sprint-wrap') as HTMLElement;
     const result = document.createElement('div');
 
     result.innerHTML = htmlCodeResult;
     result.classList.add('result');
-    main.appendChild(result);
+    gameSprint.appendChild(result);
     sprintWrap.remove();
     if (document.fullscreenElement) document.exitFullscreen();
     this.createResult(answers);
 
-    if (userId) {
-      const sprintStat = JSON.parse(<string>localStorage.getItem('statistics')).sprint;
-      const lastDay = sprintStat.length - 1;
-      const amountNewWords = sprintStat[lastDay].newWords;
-      const currentStatistics = JSON.parse(<string>localStorage.getItem('statistics'));
-      const maxSeries = currentStatistics.sprint[currentStatistics.sprint.length - 1].series || 0;
-      const compareSeries = amountTrueAnswers.maxCount > +maxSeries || amountTrueAnswers.maxCount === +maxSeries;
-      Object(statistics.sprint[0]).series = compareSeries ? amountTrueAnswers.maxCount : maxSeries;
-      Object(statistics.sprint[0]).newWords = amountNewWords + await this.countNewWords.countNewWords();
-      await this.saveStatistics.saveStatistics('sprint');
-      await this.saveStatistics.saveStatistics('words');
-    }
+    await SprintResult.sendGameFinishedStats();
   }
 }

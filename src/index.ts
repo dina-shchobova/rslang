@@ -51,8 +51,10 @@ const app = new ApplicationRoute(main, routes, notFound);
 app.listen();
 
 const burger = document.querySelector('.menu') as HTMLElement;
+const overlay = document.querySelector('.overlay') as HTMLElement;
 (function switchBurger() {
   burger.addEventListener('click', () => {
     burger.classList.toggle('burger_active');
+    overlay.classList.toggle('hide-overlay');
   });
 }());
