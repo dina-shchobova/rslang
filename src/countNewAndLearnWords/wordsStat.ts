@@ -1,13 +1,6 @@
 import wordsStatsResource from './wordsStatsResource';
 import { GameName, MiniGameStats } from '../sprint/script/dataTypes';
-
-function getFormattedTodayDate() {
-  const d = new Date();
-  const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
-  const month = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d);
-  const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
-  return `${year}.${month}.${day}`; // для облегчения сортировки
-}
+import { getFormattedTodayDate } from '../services/constants';
 
 const wordStatToday = {
   async updateTodayGameStatOnGameFinish(
@@ -63,16 +56,6 @@ const wordStatToday = {
 
 const wordsStatLongTerm = {
   async wordAnsweredCorrectlyInGame(wordId: string): Promise<boolean> {
-    // 1) проверяем есть ли слово в списке пользовательских
-    // 2) если да, то
-    // 2.1) в долгосрочной статистике:
-    // 2.1.1) обновляем кол-во правильных ответов на нем
-    // 2.1.2) если их больше 3, то помечаем как изученное и ставим difficulty = weak
-    // 3) если нет, то
-    // 3.1) в долгосрочной статистике:
-    // 3.1.1) добавляем слово
-    // 3.1.2) количество правильных ответов ставим 1
-    // Метод возвращает true если слово новое
     if (localStorage.getItem('userAuthorized') !== 'true') {
       return false;
     }
@@ -81,6 +64,7 @@ const wordsStatLongTerm = {
       wordInList.optional.countRightAnswersInRow += 1;
       if (wordInList.optional.countRightAnswersInRow >= 3) {
         wordInList.optional.isLearned = true;
+        wordInList.optional.dateLearned = getFormattedTodayDate();
         wordInList.difficulty = 'weak';
       }
       wordsStatsResource.updateWordInUsersWordsList(wordInList);
@@ -91,15 +75,6 @@ const wordsStatLongTerm = {
   },
 
   async wordAnsweredIncorrectlyInGame(wordId: string): Promise<boolean> {
-    // 1) проверяем есть ли слово в списке пользовательских
-    // 2) если да, то
-    // 2.1) в долгосрочной статистике:
-    // 2.1.1) обнуляем кол-во правильных ответов на нем
-    // 2.1.2) если маркировано выученным, размаркировываем
-    // 3) если нет, то
-    // 3.1) в долгосрочной статистике:
-    // 3.1.1) добавляем слово с колв-ом правильных = 0
-    // Метод возвращает true если слово новое
     if (localStorage.getItem('userAuthorized') !== 'true') {
       return false;
     }
@@ -126,4 +101,4 @@ const wordsStatLongTerm = {
   },
 };
 
-export { wordsStatLongTerm, wordStatToday, getFormattedTodayDate };
+export { wordsStatLongTerm, wordStatToday };
