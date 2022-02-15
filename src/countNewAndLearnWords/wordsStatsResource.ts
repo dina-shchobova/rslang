@@ -60,6 +60,7 @@ const wordsStatsResource = {
         optional: {
           countRightAnswersInRow,
           isLearned: false,
+          dateAdded: getFormattedTodayDate(),
         },
       }),
     });
