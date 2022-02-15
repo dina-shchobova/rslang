@@ -8,3 +8,11 @@ export interface UserData {
   token: string,
   userId: string
 }
+
+export interface User {
+  message: string,
+  name: string,
+  refreshToken: string,
+  token: string,
+  userId: string,
+}

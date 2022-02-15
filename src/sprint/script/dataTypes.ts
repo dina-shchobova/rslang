@@ -94,3 +94,10 @@ export enum Levels {
 }
 
 export const sound = new Audio();
+
+export const gameCallState = {
+  maxSeries: 0,
+  trueAnswers: 0,
+  falseAnswers: 0,
+  newWordsPromises: [] as boolean[],
+};

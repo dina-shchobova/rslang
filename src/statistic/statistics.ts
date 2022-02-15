@@ -1,5 +1,4 @@
 import './statistics.scss';
-import { SaveStatistics, stat } from './saveStatistics';
 import { StatsChart } from '../charts/chartByDay';
 import wordsStatsResource from '../countNewAndLearnWords/wordsStatsResource';
 import { GameName, IUsersStats, MiniGameStats } from '../sprint/script/dataTypes';
@@ -53,14 +52,11 @@ const statisticsWords = {
 };
 
 export class StatisticsPage {
-  // private saveStatistics: SaveStatistics;
-
   private rootElement?: HTMLElement;
 
   shortStatsChart?: StatsChart;
 
   constructor() {
-    // this.saveStatistics = new SaveStatistics();
     this.rootElement = undefined;
     this.shortStatsChart = undefined;
   }
@@ -148,17 +144,10 @@ export class StatisticsPage {
   };
 
   showStatistics = async (typeStat: string): Promise<void> => {
-    const typeGame = Object.entries(stat);
-    let typeStatistics = '';
     let validTypeStatistics: GameName;
     const currentStat :IUsersStats = await wordsStatsResource.getOrCreateUsersStat();
     const amountStat = document.querySelectorAll('.amount-stat') as unknown as HTMLElement[];
 
-    typeGame.forEach((arr) => {
-      arr.forEach((item) => {
-        if (item === typeStat) typeStatistics = `${arr[0]}`;
-      });
-    });
     validTypeStatistics = 'audiocall';
     if (typeStat === 'Спринт') {
       validTypeStatistics = 'sprint';
@@ -199,21 +188,6 @@ export class StatisticsPage {
       }
     }
   };
-
-  // addChartLong(): void {
-  //   const chartContainer = (this.rootElement as HTMLElement)
-  //   .querySelector('.statistics-container_long') as HTMLElement;
-  //   const chart = new StatsChart('line', {
-  //     labels: ['янв', 'февр', 'март'],
-  //     datasets: [{
-  //       label: 'Новые слова',
-  //       backgroundColor: 'rgb(255, 99, 132)',
-  //       borderColor: 'rgb(255, 99, 132)',
-  //       data: [10, 20, 15],
-  //     }],
-  //   });
-  //   chart.mount(chartContainer);
-  // }
 
   addChartShortStat(label: string, data: number[]): StatsChart {
     const shortContainer = (this.rootElement as HTMLElement).querySelector('.statistics-container_short');

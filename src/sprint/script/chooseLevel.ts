@@ -1,7 +1,6 @@
 import '../style/sprint.scss';
 import { Sprint } from './sprint';
-import { exitGame } from './sprintGameControl';
-import { SprintGameControl } from "./sprintGameControl";
+import { exitGame, SprintGameControl } from './sprintGameControl';
 
 const htmlCodeForChoose = `
 <div>
@@ -24,6 +23,7 @@ const htmlCodeForChoose = `
 
 export class ChooseLevel {
   private sprint: Sprint;
+
   private controlButtons: SprintGameControl;
 
   constructor() {
