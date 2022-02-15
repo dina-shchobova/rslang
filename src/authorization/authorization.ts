@@ -42,6 +42,9 @@ export class Authorization {
     const name = localStorage.getItem('user name') as string;
     if (JSON.parse(<string>localStorage.getItem('userAuthorized'))) {
       await this.showUserName(name);
+    } else {
+      const userName = document.querySelector('.user-name') as HTMLElement;
+      userName.innerHTML = '';
     }
   }
 

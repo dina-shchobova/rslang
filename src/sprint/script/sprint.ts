@@ -90,9 +90,8 @@ export class Sprint implements ISprint {
   generateWordTranslate = async (group: number, trueTranslate: string): Promise<void> => {
     const wordTranslate = document.querySelector('.translate');
     const numberTranslateWord = Math.floor(Math.random() * AMOUNT_WORDS);
-    const translate = await getWord(group, currentPage);
-    if (!translate) return;
-    const translateWord = [translate[numberTranslateWord].wordTranslate, trueTranslate];
+    if (!words) return;
+    const translateWord = [words[numberTranslateWord].wordTranslate, trueTranslate];
     const word = translateWord[Math.floor(Math.random() * translateWord.length)];
 
     if (wordTranslate) wordTranslate.innerHTML = word;
