@@ -1,6 +1,6 @@
 import './statistics.scss';
 import { SaveStatistics, stat } from './saveStatistics';
-import { StatsChart } from '../charts/chartByDay';
+import { StatsChart } from '../charts/StatsChart';
 import wordsStatsResource from '../countNewAndLearnWords/wordsStatsResource';
 import { GameName, IUsersStats, MiniGameStats } from '../sprint/script/dataTypes';
 import { getFormattedTodayDate } from '../countNewAndLearnWords/wordsStat';
@@ -83,6 +83,7 @@ export class StatisticsPage {
     this.createStatisticsShortTerm('Аудиовызов');
     this.toggleStatistics();
     this.addListenerToLongTermStatistics();
+    this.createLongTermChart();
   };
 
   createStatisticsShortTerm = (typeInfo: string): void => {
@@ -200,21 +201,6 @@ export class StatisticsPage {
     }
   };
 
-  // addChartLong(): void {
-  //   const chartContainer = (this.rootElement as HTMLElement)
-  //   .querySelector('.statistics-container_long') as HTMLElement;
-  //   const chart = new StatsChart('line', {
-  //     labels: ['янв', 'февр', 'март'],
-  //     datasets: [{
-  //       label: 'Новые слова',
-  //       backgroundColor: 'rgb(255, 99, 132)',
-  //       borderColor: 'rgb(255, 99, 132)',
-  //       data: [10, 20, 15],
-  //     }],
-  //   });
-  //   chart.mount(chartContainer);
-  // }
-
   addChartShortStat(label: string, data: number[]): StatsChart {
     const shortContainer = (this.rootElement as HTMLElement).querySelector('.statistics-container_short');
     const chart = new StatsChart('bar', {
@@ -248,5 +234,26 @@ export class StatisticsPage {
     });
     chart.mount(shortContainer as HTMLElement);
     return chart;
+  }
+
+  addChartLongStat(data: number[]): StatsChart {
+    const chartLongStatContainer = (this.rootElement as HTMLElement)
+      .querySelector('.statistics-container_long') as HTMLElement;
+    const chart = new StatsChart('line', {
+      labels: ['янв', 'февр', 'март'],
+      datasets: [{
+        label: 'Новые слова',
+        backgroundColor: 'rgb(75, 192, 192)',
+        borderColor: 'rgb(75, 192, 192)',
+        data,
+      }],
+    });
+    chart.mount(chartLongStatContainer as HTMLElement);
+    return chart;
+  }
+
+  async createLongTermChart(): Promise<void> {
+    const currentStat :IUsersStats = await wordsStatsResource.getOrCreateUsersStat();
+    this.addChartLongStat([10, 20, 15]);
   }
 }
