@@ -52,11 +52,12 @@ class StatsChart {
   insertChart(): void {
     this.myChart = new Chart(
       document.getElementById('chart-by-day') as ChartItem,
-      StatsChart.getChartConfiguration(this.data, this.chartType, this.options),
+      this.getChartConfiguration(this.data, this.chartType, this.options),
     );
   }
 
-  static getChartConfiguration(
+  // eslint-disable-next-line class-methods-use-this
+  getChartConfiguration(
     data: ChartData,
     chartType: keyof ChartTypeRegistry,
     options: object,

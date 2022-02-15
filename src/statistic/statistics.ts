@@ -1,8 +1,8 @@
 import './statistics.scss';
-import { StatsChart } from '../charts/chartByDay';
+import { StatsChart } from '../charts/StatsChart';
 import wordsStatsResource from '../countNewAndLearnWords/wordsStatsResource';
 import { GameName, IUsersStats, MiniGameStats } from '../sprint/script/dataTypes';
-import { getFormattedTodayDate } from '../countNewAndLearnWords/wordsStat';
+import { getFormattedTodayDate } from '../services/constants';
 
 const htmlCodeStatistic = `
   <div class="statistics">
@@ -79,6 +79,7 @@ export class StatisticsPage {
     this.createStatisticsShortTerm('Аудиовызов');
     this.toggleStatistics();
     this.addListenerToLongTermStatistics();
+    this.createLongTermChart();
   };
 
   createStatisticsShortTerm = (typeInfo: string): void => {
@@ -222,5 +223,27 @@ export class StatisticsPage {
     });
     chart.mount(shortContainer as HTMLElement);
     return chart;
+  }
+
+  addChartLongStat(data: number[]): StatsChart {
+    const chartLongStatContainer = (this.rootElement as HTMLElement)
+      .querySelector('.statistics-container_long') as HTMLElement;
+    const chart = new StatsChart('line', {
+      labels: ['янв', 'февр', 'март'],
+      datasets: [{
+        label: 'Новые слова',
+        backgroundColor: 'rgb(75, 192, 192)',
+        borderColor: 'rgb(75, 192, 192)',
+        data,
+      }],
+    });
+    chart.mount(chartLongStatContainer as HTMLElement);
+    return chart;
+  }
+
+  async createLongTermChart(): Promise<void> {
+    const wordCount = await wordsStatsResource.getCountOfTodayLearnedWords();
+    const currentStat :IUsersStats = await wordsStatsResource.getOrCreateUsersStat();
+    this.addChartLongStat([10, 20, 15]);
   }
 }

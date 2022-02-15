@@ -59,6 +59,13 @@ export interface IUsersStats {
   }
 }
 
+export interface AggregatedWordsResponseTotalCount {
+  count: number
+}
+export interface AggregatedWordsResponse {
+  totalCount: AggregatedWordsResponseTotalCount[]
+}
+
 export interface ISprint {
   removeKeyPressListeners: () => void;
 }

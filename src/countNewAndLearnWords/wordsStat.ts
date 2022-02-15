@@ -1,13 +1,6 @@
 import wordsStatsResource from './wordsStatsResource';
 import { GameName, MiniGameStats } from '../sprint/script/dataTypes';
-
-function getFormattedTodayDate() {
-  const d = new Date();
-  const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(d);
-  const month = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(d);
-  const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
-  return `${year}.${month}.${day}`; // для облегчения сортировки
-}
+import { getFormattedTodayDate } from '../services/constants';
 
 const wordStatToday = {
   async updateTodayGameStatOnGameFinish(
@@ -81,6 +74,7 @@ const wordsStatLongTerm = {
       wordInList.optional.countRightAnswersInRow += 1;
       if (wordInList.optional.countRightAnswersInRow >= 3) {
         wordInList.optional.isLearned = true;
+        wordInList.optional.dateLearned = getFormattedTodayDate();
         wordInList.difficulty = 'weak';
       }
       wordsStatsResource.updateWordInUsersWordsList(wordInList);
@@ -126,4 +120,4 @@ const wordsStatLongTerm = {
   },
 };
 
-export { wordsStatLongTerm, wordStatToday, getFormattedTodayDate };
+export { wordsStatLongTerm, wordStatToday };
