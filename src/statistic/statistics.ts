@@ -1,7 +1,9 @@
 import './statistics.scss';
 import { StatsChart } from '../charts/StatsChart';
 import wordsStatsResource from '../countNewAndLearnWords/wordsStatsResource';
-import { GameName, IUsersStats, MiniGameStats } from '../sprint/script/dataTypes';
+import {
+  GameName, IUsersStats, MiniGameStats, UserWord,
+} from '../sprint/script/dataTypes';
 import { getFormattedTodayDate } from '../services/constants';
 
 const htmlCodeStatistic = `
@@ -70,6 +72,10 @@ export class StatisticsPage {
 
   private todayLearnedWordCount: number | undefined;
 
+  private userWordsList: UserWord[] | undefined;
+
+  private learnedWordsList: UserWord[] | undefined;
+
   constructor() {
     this.rootElement = undefined;
     this.shortStatsChart = undefined;
@@ -93,9 +99,9 @@ export class StatisticsPage {
 
     statisticsWrap.classList.remove('no-authorization');
     this.createStatisticsShortTerm('Аудиовызов');
+    this.createStatisticsLongTerm('allNewWord');
     this.toggleStatistics();
     this.addListenerToLongTermStatistics();
-    // this.createLongTermChart();
   };
 
   createStatisticsShortTerm = (typeInfo: string): void => {
@@ -141,13 +147,19 @@ export class StatisticsPage {
     const learnWords = document.querySelector('.statistics-learn-words') as HTMLElement;
     const newWords = document.querySelector('.statistics-new-words') as HTMLElement;
 
-    this.toggle(learnWords, words, 'Количества изученных слов за весь период обучения', 'long');
-    this.toggle(newWords, words, 'Количества новых слов за весь период обучения', 'long');
+    this.toggle(learnWords, words, 'allLearnedWord', 'long');
+    this.toggle(newWords, words, 'allNewWord', 'long');
   }
 
   showSubtitleStatisticsLongTerm = (typeInfo: string): void => {
     const subtitle = document.querySelector('.subtitle-long-term') as HTMLElement;
-    subtitle.innerHTML = typeInfo;
+    let title = '';
+    if (typeInfo === 'allLearnedWord') {
+      title = 'Количества изученных слов за весь период обучения';
+    } else {
+      title = 'Количества новых слов за весь период обучения';
+    }
+    subtitle.innerHTML = title;
   };
 
   toggle = (button: HTMLElement, allButtons: HTMLElement[], typeInfo: string, typeStatistics: string): void => {
@@ -156,7 +168,7 @@ export class StatisticsPage {
       button.classList.add('active');
       return typeStatistics === 'short'
         ? this.createStatisticsShortTerm(typeInfo)
-        : this.showSubtitleStatisticsLongTerm(typeInfo);
+        : this.createStatisticsLongTerm(typeInfo);
     });
   };
 
@@ -197,8 +209,8 @@ export class StatisticsPage {
     return this.todayLearnedWordCount;
   }
 
-  async findTodayRecordInMiniGameStats(miniGameName:GameName): Promise<MiniGameStats> {
-    let currentStat :IUsersStats;
+  async findTodayRecordInMiniGameStats(miniGameName: GameName): Promise<MiniGameStats> {
+    let currentStat: IUsersStats;
     if (this.currentStat) {
       currentStat = this.currentStat;
     } else {
@@ -215,7 +227,7 @@ export class StatisticsPage {
     return todayRecord;
   }
 
-  async showStatisticsAudiocall():Promise<void> {
+  async showStatisticsAudiocall(): Promise<void> {
     const todayRecord = await this.findTodayRecordInMiniGameStats('audiocall');
     const correctAnswersPercentage = (
       todayRecord.correctAnswers + todayRecord.incorrectAnswers > 0
@@ -229,7 +241,7 @@ export class StatisticsPage {
     );
   }
 
-  async showStatisticsSprint():Promise<void> {
+  async showStatisticsSprint(): Promise<void> {
     const todayRecord = await this.findTodayRecordInMiniGameStats('sprint');
     const correctAnswersPercentage = (
       todayRecord.correctAnswers + todayRecord.incorrectAnswers > 0
@@ -243,7 +255,7 @@ export class StatisticsPage {
     );
   }
 
-  async showStatisticsWords():Promise<void> {
+  async showStatisticsWords(): Promise<void> {
     const todayRecordAudiocall = await this.findTodayRecordInMiniGameStats('audiocall');
     const todayRecordSprint = await this.findTodayRecordInMiniGameStats('sprint');
     const countLearnedWords = await this.getTodayLearnedWordCount();
@@ -312,32 +324,86 @@ export class StatisticsPage {
     return chart;
   }
 
-  // addChartLongStat(data: number[]): StatsChart {
-  //   const chartLongStatContainer = (this.rootElement as HTMLElement)
-  //     .querySelector('.statistics-container_long') as HTMLElement;
-  //   const chart = new StatsChart('line', {
-  //     labels: ['янв', 'февр', 'март'],
-  //     datasets: [{
-  //       label: 'Новые слова',
-  //       backgroundColor: 'rgb(75, 192, 192)',
-  //       borderColor: 'rgb(75, 192, 192)',
-  //       data,
-  //     }],
-  //   });
-  //   chart.mount(chartLongStatContainer as HTMLElement);
-  //   return chart;
-  // }
+  // long term
 
-  // async createLongTermChart(): Promise<void> {
-  //   const wordCount = await wordsStatsResource.getCountOfTodayLearnedWords();
-  //   console.log(wordCount);
-  //   const currentStat :IUsersStats = await wordsStatsResource.getOrCreateUsersStat();
-  //   console.log(currentStat);
-  //   if (this.longStatsChart) {
-  //     this.longStatsChart.removeData();
-  //     this.longStatsChart.addData('second', [30, 40, 90]);
-  //   } else {
-  //     this.longStatsChart = this.addChartLongStat([40, 10, 40]);
-  //   }
-  // }
+  createStatisticsLongTerm(typeInfo: string) {
+    this.showLongStatistics(typeInfo);
+  }
+
+  showLongStatistics = async (typeStat: string): Promise<void> => {
+    if (typeStat === 'allNewWord') {
+      this.showStatisticsNewWord();
+    } else {
+      this.showStatisticsLearnedWord();
+    }
+    this.showSubtitleStatisticsLongTerm(typeStat);
+  };
+
+  async showStatisticsNewWord() {
+    const wordsList = await this.getWordsList();
+    type DateCountDict = { [k: string]:number };
+    const availableDates: DateCountDict = wordsList.reduce(
+      (
+        availableDatesAccumulator: DateCountDict,
+        userWord:UserWord,
+      ): DateCountDict => {
+        if (userWord.optional.dateAdded) {
+          if (userWord.optional.dateAdded in availableDatesAccumulator) {
+            availableDatesAccumulator[userWord.optional.dateAdded] += 1;
+          } else {
+            availableDatesAccumulator[userWord.optional.dateAdded] = 1;
+          }
+        }
+        return availableDatesAccumulator;
+      }, {},
+    );
+    const labels:string[] = [];
+    const values:number[] = [];
+    Object.entries(availableDates).map(([key, value]): void => {
+      labels.push(key);
+      values.push(value);
+      return undefined;
+    });
+    if (this.longStatsChart) {
+      this.longStatsChart.addData('first', values, labels);
+    } else {
+      this.longStatsChart = this.addChartLongStat(values, labels);
+    }
+  }
+
+  showStatisticsLearnedWord() {
+    if (this.longStatsChart) {
+      this.longStatsChart.addData('second', [30, 40, 90], ['март', 'апрель', 'май']);
+    }
+  }
+
+  async getWordsList(): Promise<UserWord[]> {
+    if (this.userWordsList === undefined) {
+      this.userWordsList = await wordsStatsResource.getUserWordsList();
+    }
+    return this.userWordsList;
+  }
+
+  async getLearnedWordsList(): Promise<UserWord[]> {
+    if (this.learnedWordsList === undefined) {
+      this.learnedWordsList = await wordsStatsResource.getAllLearnedWords();
+    }
+    return this.learnedWordsList;
+  }
+
+  addChartLongStat(data: number[], labels: string[]): StatsChart {
+    const chartLongStatContainer = (this.rootElement as HTMLElement)
+      .querySelector('.statistics-container_long') as HTMLElement;
+    const chart = new StatsChart('line', {
+      labels,
+      datasets: [{
+        label: 'Новые слова',
+        backgroundColor: 'rgb(75, 192, 192)',
+        borderColor: 'rgb(75, 192, 192)',
+        data,
+      }],
+    });
+    chart.mount(chartLongStatContainer as HTMLElement);
+    return chart;
+  }
 }

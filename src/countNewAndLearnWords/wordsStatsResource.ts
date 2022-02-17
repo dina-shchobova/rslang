@@ -142,6 +142,51 @@ const wordsStatsResource = {
     }
     return 0;
   },
+
+  async getAllLearnedWords(): Promise<UserWord[]> {
+    const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
+    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
+
+    const url = new URL(`${BASE_URL}users/${userId}/aggregatedWords`);
+
+    const params = [['page', '1'],
+      ['wordsPerPage', '1'],
+      ['filter',
+        JSON.stringify({
+          'userWord.optional.isLearned': true,
+        }),
+      ],
+    ];
+    url.search = new URLSearchParams(params).toString();
+
+    const rawResponse = await fetch(`${url}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+    if (rawResponse.ok) {
+      return rawResponse.json();
+    }
+    return [];
+  },
+
+  async getUserWordsList(): Promise<UserWord[]> {
+    const user = await getUser();
+    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${user?.token}`,
+        Accept: 'application/json',
+      },
+    });
+    if (rawResponse.ok) {
+      return rawResponse.json();
+    }
+    return [];
+  },
 };
 
 export default wordsStatsResource;
