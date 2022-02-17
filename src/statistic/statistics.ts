@@ -51,17 +51,33 @@ const statisticsWords = {
   pointThree: ['true-answers', 'Процент правильных ответов за день:'],
 };
 
+const defaultTodayMiniGameZeroRecord: MiniGameStats = {
+  date: getFormattedTodayDate(),
+  newWords: 0,
+  correctAnswers: 0,
+  incorrectAnswers: 0,
+  maxSeries: 0,
+};
+
 export class StatisticsPage {
   private rootElement?: HTMLElement;
 
   shortStatsChart?: StatsChart;
 
+  longStatsChart?: StatsChart;
+
+  private currentStat: IUsersStats | undefined;
+
+  private todayLearnedWordCount: number | undefined;
+
   constructor() {
     this.rootElement = undefined;
     this.shortStatsChart = undefined;
+    this.longStatsChart = undefined;
   }
 
   createFieldStatistics = (): void => {
+    this.getTodayLearnedWordCount();
     const main = document.querySelector('main') as HTMLElement;
     const statisticsWrap = document.createElement('div');
     this.rootElement = statisticsWrap;
@@ -79,7 +95,7 @@ export class StatisticsPage {
     this.createStatisticsShortTerm('Аудиовызов');
     this.toggleStatistics();
     this.addListenerToLongTermStatistics();
-    this.createLongTermChart();
+    // this.createLongTermChart();
   };
 
   createStatisticsShortTerm = (typeInfo: string): void => {
@@ -144,56 +160,127 @@ export class StatisticsPage {
     });
   };
 
-  showStatistics = async (typeStat: string): Promise<void> => {
-    let validTypeStatistics: GameName;
-    const currentStat :IUsersStats = await wordsStatsResource.getOrCreateUsersStat();
-    const amountStat = document.querySelectorAll('.amount-stat') as unknown as HTMLElement[];
-
-    validTypeStatistics = 'audiocall';
-    if (typeStat === 'Спринт') {
-      validTypeStatistics = 'sprint';
+  showShorTermChart(
+    header: string,
+    column1Value: number,
+    column2Value: number,
+    column3Value: number,
+    labels: string[] = ['Новые слова', 'Максимальная серия', '% правильных ответов'],
+  ): void {
+    if (this.shortStatsChart) {
+      // this.shortStatsChart.removeData();
+      this.shortStatsChart.addData(
+        header,
+        [column1Value, column2Value, column3Value],
+        labels,
+      );
+    } else {
+      this.shortStatsChart = this.addChartShortStat(
+        header,
+        [column1Value, column2Value, column3Value],
+        labels,
+      );
     }
-    if (validTypeStatistics) {
-      const gameStatsRecords: MiniGameStats[] = currentStat.optional?.miniGames?.[validTypeStatistics] || [];
-      let todayRecord: MiniGameStats = {
-        date: getFormattedTodayDate(),
-        newWords: 0,
-        correctAnswers: 0,
-        incorrectAnswers: 0,
-        maxSeries: 0,
-      };
-      gameStatsRecords.forEach((record) => {
-        if (record.date === getFormattedTodayDate()) {
-          todayRecord = record;
-        }
-      });
+  }
 
-      amountStat[0].innerHTML = `${todayRecord.newWords}`;
-      amountStat[1].innerHTML = `${todayRecord.maxSeries}`;
-      amountStat[2].innerHTML = (
-        todayRecord.correctAnswers + todayRecord.incorrectAnswers > 0
-      ) ? `${
-          Math.ceil((100 * todayRecord.correctAnswers) / (todayRecord.correctAnswers + todayRecord.incorrectAnswers))
-        }%` : '0';
-      if (this.shortStatsChart) {
-        this.shortStatsChart.removeData();
-        this.shortStatsChart.addData(
-          typeStat,
-          [todayRecord.newWords, todayRecord.maxSeries, todayRecord.correctAnswers],
-        );
-      } else {
-        this.shortStatsChart = this.addChartShortStat(
-          typeStat,
-          [todayRecord.newWords, todayRecord.maxSeries, todayRecord.correctAnswers],
-        );
+  static showShortTermHeaderValues(value1: number, value2: number, value3: number): void {
+    const amountStat = document.querySelectorAll('.amount-stat') as unknown as HTMLElement[];
+    amountStat[0].innerHTML = `${value1}`;
+    amountStat[1].innerHTML = `${value2}`;
+    amountStat[2].innerHTML = `${value3}`;
+  }
+
+  async getTodayLearnedWordCount(): Promise<number> {
+    if (this.todayLearnedWordCount === undefined) {
+      this.todayLearnedWordCount = await wordsStatsResource.getCountOfTodayLearnedWords();
+    }
+    return this.todayLearnedWordCount;
+  }
+
+  async findTodayRecordInMiniGameStats(miniGameName:GameName): Promise<MiniGameStats> {
+    let currentStat :IUsersStats;
+    if (this.currentStat) {
+      currentStat = this.currentStat;
+    } else {
+      currentStat = await wordsStatsResource.getOrCreateUsersStat();
+      this.currentStat = currentStat;
+    }
+    const gameStatsRecords: MiniGameStats[] = currentStat.optional?.miniGames?.[miniGameName] || [];
+    let todayRecord: MiniGameStats = ({ ...defaultTodayMiniGameZeroRecord }) as MiniGameStats;
+    gameStatsRecords.forEach((record) => {
+      if (record.date === getFormattedTodayDate()) {
+        todayRecord = record;
       }
+    });
+    return todayRecord;
+  }
+
+  async showStatisticsAudiocall():Promise<void> {
+    const todayRecord = await this.findTodayRecordInMiniGameStats('audiocall');
+    const correctAnswersPercentage = (
+      todayRecord.correctAnswers + todayRecord.incorrectAnswers > 0
+    ) ? Math.ceil((100 * todayRecord.correctAnswers) / (todayRecord.correctAnswers + todayRecord.incorrectAnswers)) : 0;
+    StatisticsPage.showShortTermHeaderValues(todayRecord.newWords, todayRecord.maxSeries, correctAnswersPercentage);
+    this.showShorTermChart(
+      'Аудиовызов',
+      todayRecord.newWords,
+      todayRecord.maxSeries,
+      todayRecord.correctAnswers,
+    );
+  }
+
+  async showStatisticsSprint():Promise<void> {
+    const todayRecord = await this.findTodayRecordInMiniGameStats('sprint');
+    const correctAnswersPercentage = (
+      todayRecord.correctAnswers + todayRecord.incorrectAnswers > 0
+    ) ? Math.ceil((100 * todayRecord.correctAnswers) / (todayRecord.correctAnswers + todayRecord.incorrectAnswers)) : 0;
+    StatisticsPage.showShortTermHeaderValues(todayRecord.newWords, todayRecord.maxSeries, correctAnswersPercentage);
+    this.showShorTermChart(
+      'Спринт',
+      todayRecord.newWords,
+      todayRecord.maxSeries,
+      todayRecord.correctAnswers,
+    );
+  }
+
+  async showStatisticsWords():Promise<void> {
+    const todayRecordAudiocall = await this.findTodayRecordInMiniGameStats('audiocall');
+    const todayRecordSprint = await this.findTodayRecordInMiniGameStats('sprint');
+    const countLearnedWords = await this.getTodayLearnedWordCount();
+    const todayCorrectAnswer = todayRecordAudiocall.correctAnswers + todayRecordSprint.correctAnswers;
+    const todayIncorrectAnswer = todayRecordAudiocall.incorrectAnswers + todayRecordSprint.incorrectAnswers;
+    const newWords = todayRecordAudiocall.newWords + todayRecordSprint.newWords;
+    const correctAnswersPercentage = (
+      todayCorrectAnswer + todayIncorrectAnswer > 0
+    ) ? Math.ceil((100 * todayCorrectAnswer) / (todayCorrectAnswer + todayIncorrectAnswer)) : 0;
+    StatisticsPage.showShortTermHeaderValues(newWords, countLearnedWords, correctAnswersPercentage);
+    this.showShorTermChart(
+      'Слова',
+      newWords,
+      countLearnedWords,
+      correctAnswersPercentage,
+      ['Новые слова', 'Изученные слова', '% правильных ответов'],
+    );
+  }
+
+  showStatistics = async (typeStat: string): Promise<void> => {
+    if (typeStat === 'Аудиовызов') {
+      this.showStatisticsAudiocall();
+    } else if (typeStat === 'Спринт') {
+      this.showStatisticsSprint();
+    } else {
+      this.showStatisticsWords();
     }
   };
 
-  addChartShortStat(label: string, data: number[]): StatsChart {
+  addChartShortStat(
+    label: string,
+    data: number[],
+    dataLabels: string[] = [],
+  ): StatsChart {
     const shortContainer = (this.rootElement as HTMLElement).querySelector('.statistics-container_short');
     const chart = new StatsChart('bar', {
-      labels: ['Новые слова', 'Серия слов', 'Правильные ответы'],
+      labels: dataLabels,
       datasets: [{
         label,
         barPercentage: 0.8,
@@ -225,25 +312,32 @@ export class StatisticsPage {
     return chart;
   }
 
-  addChartLongStat(data: number[]): StatsChart {
-    const chartLongStatContainer = (this.rootElement as HTMLElement)
-      .querySelector('.statistics-container_long') as HTMLElement;
-    const chart = new StatsChart('line', {
-      labels: ['янв', 'февр', 'март'],
-      datasets: [{
-        label: 'Новые слова',
-        backgroundColor: 'rgb(75, 192, 192)',
-        borderColor: 'rgb(75, 192, 192)',
-        data,
-      }],
-    });
-    chart.mount(chartLongStatContainer as HTMLElement);
-    return chart;
-  }
+  // addChartLongStat(data: number[]): StatsChart {
+  //   const chartLongStatContainer = (this.rootElement as HTMLElement)
+  //     .querySelector('.statistics-container_long') as HTMLElement;
+  //   const chart = new StatsChart('line', {
+  //     labels: ['янв', 'февр', 'март'],
+  //     datasets: [{
+  //       label: 'Новые слова',
+  //       backgroundColor: 'rgb(75, 192, 192)',
+  //       borderColor: 'rgb(75, 192, 192)',
+  //       data,
+  //     }],
+  //   });
+  //   chart.mount(chartLongStatContainer as HTMLElement);
+  //   return chart;
+  // }
 
-  async createLongTermChart(): Promise<void> {
-    const wordCount = await wordsStatsResource.getCountOfTodayLearnedWords();
-    const currentStat :IUsersStats = await wordsStatsResource.getOrCreateUsersStat();
-    this.addChartLongStat([10, 20, 15]);
-  }
+  // async createLongTermChart(): Promise<void> {
+  //   const wordCount = await wordsStatsResource.getCountOfTodayLearnedWords();
+  //   console.log(wordCount);
+  //   const currentStat :IUsersStats = await wordsStatsResource.getOrCreateUsersStat();
+  //   console.log(currentStat);
+  //   if (this.longStatsChart) {
+  //     this.longStatsChart.removeData();
+  //     this.longStatsChart.addData('second', [30, 40, 90]);
+  //   } else {
+  //     this.longStatsChart = this.addChartLongStat([40, 10, 40]);
+  //   }
+  // }
 }

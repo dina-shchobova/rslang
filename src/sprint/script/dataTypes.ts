@@ -35,6 +35,7 @@ export interface UserWord {
     countRightAnswersInRow: number,
     isLearned: boolean,
     dateLearned?: string,
+    dateAdded?: string,
   },
   wordId: string
 }

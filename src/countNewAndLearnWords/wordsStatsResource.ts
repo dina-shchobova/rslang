@@ -138,7 +138,7 @@ const wordsStatsResource = {
     });
     if (rawResponse.ok) {
       const resp = await rawResponse.json() as AggregatedWordsResponse[];
-      return resp[0].totalCount[0].count as number;
+      return (resp[0].totalCount[0]?.count || 0) as number;
     }
     return 0;
   },
