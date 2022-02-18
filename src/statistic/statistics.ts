@@ -2,6 +2,7 @@ import './statistics.scss';
 import { StatsChart } from '../charts/StatsChart';
 import wordsStatsResource from '../countNewAndLearnWords/wordsStatsResource';
 import {
+  DateCountDict,
   GameName, IUsersStats, MiniGameStats, UserWord,
 } from '../sprint/script/dataTypes';
 import { getFormattedTodayDate } from '../services/constants';
@@ -24,7 +25,8 @@ const htmlCodeStatistic = `
     <div class="long-term-statistics">
       <div class="title">Ваш прогресс за все время:</div>
       <div class="subtitle subtitle-long-term">Количества новых слов за весь период обучения</div>
-      <div class="statistics-container statistics-container_long">
+      <div class="statistics-container">
+        <div class="statistics-container_long"></div>
         <div class="icon-game">
           <div class="statistics-new-words words button active">Новые слова</div>
           <div class="statistics-learn-words words button">Изученные слова</div>
@@ -73,8 +75,6 @@ export class StatisticsPage {
   private todayLearnedWordCount: number | undefined;
 
   private userWordsList: UserWord[] | undefined;
-
-  private learnedWordsList: UserWord[] | undefined;
 
   constructor() {
     this.rootElement = undefined;
@@ -341,7 +341,6 @@ export class StatisticsPage {
 
   async showStatisticsNewWord() {
     const wordsList = await this.getWordsList();
-    type DateCountDict = { [k: string]:number };
     const availableDates: DateCountDict = wordsList.reduce(
       (
         availableDatesAccumulator: DateCountDict,
@@ -365,15 +364,40 @@ export class StatisticsPage {
       return undefined;
     });
     if (this.longStatsChart) {
-      this.longStatsChart.addData('first', values, labels);
+      this.longStatsChart.addData('Новые слова', values, labels);
     } else {
       this.longStatsChart = this.addChartLongStat(values, labels);
     }
   }
 
-  showStatisticsLearnedWord() {
+  async showStatisticsLearnedWord() {
+    const wordsList = await this.getWordsList();
+    let countWord = 0;
+    const availableDates: DateCountDict = wordsList.reduce(
+      (
+        availableDatesAccumulator: DateCountDict,
+        userWord:UserWord,
+      ): DateCountDict => {
+        if (userWord.optional.dateLearned) {
+          countWord += 1;
+          if (userWord.optional.dateLearned in availableDatesAccumulator) {
+            availableDatesAccumulator[userWord.optional.dateLearned] = countWord;
+          } else {
+            availableDatesAccumulator[userWord.optional.dateLearned] = countWord;
+          }
+        }
+        return availableDatesAccumulator;
+      }, {},
+    );
+    const labels:string[] = [];
+    const values:number[] = [];
+    Object.entries(availableDates).map(([key, value]): void => {
+      labels.push(key);
+      values.push(value);
+      return undefined;
+    });
     if (this.longStatsChart) {
-      this.longStatsChart.addData('second', [30, 40, 90], ['март', 'апрель', 'май']);
+      this.longStatsChart.addData('Изученные слова', values, labels);
     }
   }
 
@@ -382,13 +406,6 @@ export class StatisticsPage {
       this.userWordsList = await wordsStatsResource.getUserWordsList();
     }
     return this.userWordsList;
-  }
-
-  async getLearnedWordsList(): Promise<UserWord[]> {
-    if (this.learnedWordsList === undefined) {
-      this.learnedWordsList = await wordsStatsResource.getAllLearnedWords();
-    }
-    return this.learnedWordsList;
   }
 
   addChartLongStat(data: number[], labels: string[]): StatsChart {

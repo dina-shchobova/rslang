@@ -30,7 +30,7 @@ const wordsStatsResource = {
       optional: word.optional,
       difficulty: word.difficulty,
     };
-    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words/${word.id}`, {
+    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words/${word.wordId}`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${user?.token}`,
@@ -141,36 +141,6 @@ const wordsStatsResource = {
       return (resp[0].totalCount[0]?.count || 0) as number;
     }
     return 0;
-  },
-
-  async getAllLearnedWords(): Promise<UserWord[]> {
-    const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
-
-    const url = new URL(`${BASE_URL}users/${userId}/aggregatedWords`);
-
-    const params = [['page', '1'],
-      ['wordsPerPage', '1'],
-      ['filter',
-        JSON.stringify({
-          'userWord.optional.isLearned': true,
-        }),
-      ],
-    ];
-    url.search = new URLSearchParams(params).toString();
-
-    const rawResponse = await fetch(`${url}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    });
-    if (rawResponse.ok) {
-      return rawResponse.json();
-    }
-    return [];
   },
 
   async getUserWordsList(): Promise<UserWord[]> {

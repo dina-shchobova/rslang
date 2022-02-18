@@ -109,3 +109,5 @@ export const gameCallState = {
   falseAnswers: 0,
   newWordsPromises: [] as boolean[],
 };
+
+export type DateCountDict = { [k: string]:number };
