@@ -30,7 +30,7 @@ const wordsStatsResource = {
       optional: word.optional,
       difficulty: word.difficulty,
     };
-    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words/${word.id}`, {
+    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words/${word.wordId}`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${user?.token}`,
@@ -43,7 +43,12 @@ const wordsStatsResource = {
   },
 
   // добавляем слов
-  async addWordToUsersList(wordId: string, countRightAnswersInRow = 0): Promise<UserWord | undefined> {
+  async addWordToUsersList(
+    wordId: string,
+    countRightAnswersInRow = 0,
+    isLearned = false,
+    difficulty = 'weak',
+  ): Promise<UserWord | undefined> {
     const user = await getUser();
     const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words/${wordId}`, {
       method: 'POST',
@@ -53,10 +58,10 @@ const wordsStatsResource = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        difficulty: 'weak',
+        difficulty,
         optional: {
           countRightAnswersInRow,
-          isLearned: false,
+          isLearned,
           dateAdded: getFormattedTodayDate(),
         },
       }),
@@ -112,10 +117,9 @@ const wordsStatsResource = {
   },
 
   async getCountOfTodayLearnedWords(): Promise<number> {
-    const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
+    const user = await getUser();
 
-    const url = new URL(`${BASE_URL}users/${userId}/aggregatedWords`);
+    const url = new URL(`${BASE_URL}users/${user?.userId}/aggregatedWords`);
 
     const params = [['page', '1'],
       ['wordsPerPage', '1'],
@@ -131,7 +135,7 @@ const wordsStatsResource = {
     const rawResponse = await fetch(`${url}`, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${user?.token}`,
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
