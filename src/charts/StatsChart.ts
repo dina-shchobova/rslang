@@ -6,7 +6,7 @@ import { ChartConfiguration, Chart as IChart } from 'chart.js';
 
 const htmlCodeChartDay = `
   <div>
-     <canvas id="chart-by-day" class="chart-field"></canvas>
+     <canvas class="chart-field"></canvas>
   </div>
 `;
 
@@ -51,7 +51,7 @@ class StatsChart {
 
   insertChart(): void {
     this.myChart = new Chart(
-      document.getElementById('chart-by-day') as ChartItem,
+      this.getElementBySelector('.chart-field') as ChartItem,
       this.getChartConfiguration(this.data, this.chartType, this.options),
     );
   }
@@ -69,11 +69,10 @@ class StatsChart {
     };
   }
 
-  addData(label: string, data: number[]) {
-    (this.myChart as Chart).data.datasets.forEach((dataset) => {
-      dataset.label = label;
-      dataset.data = data;
-    });
+  addData(label: string, data: number[], labels: string[]) {
+    (this.myChart as Chart).data.labels = labels;
+    (this.myChart as Chart).data.datasets[0].label = label;
+    (this.myChart as Chart).data.datasets[0].data = data;
     (this.myChart as Chart).update();
   }
 

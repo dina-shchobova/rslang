@@ -35,6 +35,7 @@ export interface UserWord {
     countRightAnswersInRow: number,
     isLearned: boolean,
     dateLearned?: string,
+    dateAdded?: string,
   },
   wordId: string
 }
@@ -108,3 +109,5 @@ export const gameCallState = {
   falseAnswers: 0,
   newWordsPromises: [] as boolean[],
 };
+
+export type DateCountDict = { [k: string]:number };

@@ -30,7 +30,7 @@ const wordsStatsResource = {
       optional: word.optional,
       difficulty: word.difficulty,
     };
-    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words/${word.id}`, {
+    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words/${word.wordId}`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${user?.token}`,
@@ -138,9 +138,24 @@ const wordsStatsResource = {
     });
     if (rawResponse.ok) {
       const resp = await rawResponse.json() as AggregatedWordsResponse[];
-      return resp[0].totalCount[0].count as number;
+      return (resp[0].totalCount[0]?.count || 0) as number;
     }
     return 0;
+  },
+
+  async getUserWordsList(): Promise<UserWord[]> {
+    const user = await getUser();
+    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${user?.token}`,
+        Accept: 'application/json',
+      },
+    });
+    if (rawResponse.ok) {
+      return rawResponse.json();
+    }
+    return [];
   },
 };
 
