@@ -1,5 +1,5 @@
 import { IWordObject } from '../../services/types';
-import { speakImage } from '../../textbook/speak-image';
+import { speakImage } from '../../textbook/speak';
 import { BASE_URL } from '../../services/constants';
 
 const PLAY_BUTTON_ROLE_NAME = 'play-button';
