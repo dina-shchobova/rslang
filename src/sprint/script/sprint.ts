@@ -70,6 +70,10 @@ export class Sprint implements ISprint {
   }
 
   randomGeneratePage = (): void => {
+    if (window.location.hash.includes('page=')) {
+      const indexNumberPage = window.location.hash.lastIndexOf('=') + 1;
+      currentPage = +window.location.hash[indexNumberPage];
+    }
     currentPage = Math.floor(Math.random() * AMOUNT_PAGE);
   };
 
