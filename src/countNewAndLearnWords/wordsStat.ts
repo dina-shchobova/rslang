@@ -138,6 +138,9 @@ const wordsStatLongTerm = {
       delete wordInList.optional.dateLearned;
       wordInList.difficulty = 'hard';
       wordsStatsResource.updateWordInUsersWordsList(wordInList);
+      // return;
+//     }
+//     wordsStatsResource.addWordToUsersList(wordId, 0);
     }
     wordsStatsResource.addWordToUsersList(wordId, 0, false, 'hard');
   },
