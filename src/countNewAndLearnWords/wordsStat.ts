@@ -114,9 +114,21 @@ const wordsStatLongTerm = {
     // маркируем как выученное. кол-во ответов игнорируем
   },
 
-  markWordAsHard(wordId: string) {
+  async markWordAsHard(wordId: string): Promise<void> {
     // только для явного вызова из словаря.
     // маркируем как сложное.
+    if (localStorage.getItem('userAuthorized') !== 'true') {
+      return;
+    }
+    const wordInList = await wordsStatsResource.checkWordIsInUserWordsList(wordId);
+    if (wordInList) {
+      wordInList.optional.isLearned = false;
+      delete wordInList.optional.dateLearned;
+      wordInList.difficulty = 'hard';
+      wordsStatsResource.updateWordInUsersWordsList(wordInList);
+      // return;
+    }
+    wordsStatsResource.addWordToUsersList(wordId, 0);
   },
 };
 
