@@ -7,7 +7,7 @@ const wordsStatsResource = {
   // проверка есть ли слово в списке пользователя
   async checkWordIsInUserWordsList(wordId: string): Promise<UserWord | undefined> {
     const user = await getUser();
-
+    if (!user) return undefined;
     const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words/${wordId}`, {
       method: 'GET',
       headers: {
@@ -38,17 +38,24 @@ const wordsStatsResource = {
   },
 
   // добавляем слов
-  async addWordToUsersList(wordId: string, countRightAnswersInRow = 0): Promise<UserWord | undefined> {
+  async addWordToUsersList(
+    wordId: string,
+    countRightAnswersInRow = 0,
+    isLearned = false,
+    difficulty = 'weak',
+  ): Promise<UserWord | undefined> {
     const user = JSON.parse(<string>localStorage.getItem('user'));
     const getParams = {
       wordId,
       countRightAnswersInRow,
+      isLearned,
+      difficulty,
     };
     const postParams = {
-      difficulty: 'weak',
+      difficulty,
       optional: {
         countRightAnswersInRow,
-        isLearned: false,
+        isLearned,
         dateAdded: getFormattedTodayDate(),
       },
     };
@@ -88,6 +95,7 @@ const wordsStatsResource = {
 
   async getCountOfTodayLearnedWords(): Promise<number> {
     const user = await getUser();
+    // if (!user) return undefined;
     const url = new URL(`${BASE_URL}users/${user?.userId}/aggregatedWords`);
 
     const params = [['page', '1'],
@@ -118,6 +126,7 @@ const wordsStatsResource = {
 
   async getUserWordsList(): Promise<UserWord[]> {
     const user = await getUser();
+    // if (!user) return;
     const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words`, {
       method: 'GET',
       headers: {

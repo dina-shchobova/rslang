@@ -146,7 +146,7 @@ class TextBookClass {
     </div>
     <div class="pages-groups-container">
       ${this.getGroupButton()}
-      
+
       <div id="pagination-buttons" class="pagination-buttons">
       ${this.createPagerButton(BTN_PREV_ROLE, previousPage, '&#9664', disabledIfZero, '', 'prev-button')}
       ${this.createPagerButton('', ZERO_PAGE, ZERO_PAGE, '', `num ${isZeroPageCurrent}`)}
