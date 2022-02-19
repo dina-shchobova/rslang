@@ -121,12 +121,28 @@ class Quiz {
   }
 
   // load words
+  static getNumberPage(): number {
+    if (window.location.hash.includes('page=')) {
+      const indexNumberPage = window.location.hash.lastIndexOf('=') + 1;
+      return +window.location.hash[indexNumberPage];
+    }
+    const amountPage = 29;
+    return Math.floor(Math.random() * amountPage);
+  }
+
+  static getNumberGroup(): number {
+    if (window.location.hash.includes('level=')) {
+      const indexNumberPage = window.location.hash.indexOf('=') + 1;
+      gameCallState.level = +window.location.hash[indexNumberPage];
+    }
+    return gameCallState.level;
+  }
 
   async loadWordsForTour(): Promise<void> {
-    const amountPage = 29;
     this.wordsForTour = [];
-    const page = Math.floor(Math.random() * amountPage);
-    const rawResponse = await fetch(`${BACKEND_URL}words?page=${page}&group=${gameCallState.level}`, {
+    const page = Quiz.getNumberPage();
+    const level = Quiz.getNumberGroup();
+    const rawResponse = await fetch(`${BACKEND_URL}words?page=${page}&group=${level}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

@@ -52,6 +52,9 @@ class Audiocall implements IGameCallComponent {
   }
 
   mounted(): void {
+    if (window.location.hash.includes('page=')) {
+      this.subPage = 'quiz';
+    }
     this.mountSubPage();
     this.addSoundButtonListener();
     this.addFullscreenButtonListener();
