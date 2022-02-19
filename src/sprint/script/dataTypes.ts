@@ -1,3 +1,5 @@
+import { IWordData } from '../../audiocall/scripts/audiocallTypes';
+
 export interface WordData {
   id: string,
   group: number,
@@ -63,8 +65,12 @@ export interface IUsersStats {
 export interface AggregatedWordsResponseTotalCount {
   count: number
 }
+
+export type AggregatedWordsResponsePaginatedResults = IWordData & UserWord;
+
 export interface AggregatedWordsResponse {
-  totalCount: AggregatedWordsResponseTotalCount[]
+  paginatedResults: AggregatedWordsResponsePaginatedResults[];
+  totalCount: AggregatedWordsResponseTotalCount[];
 }
 
 export interface ISprint {

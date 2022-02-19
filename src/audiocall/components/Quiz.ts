@@ -1,6 +1,8 @@
 import { IAnswerOnPage, IGameCallComponent, IWordData } from '../scripts/audiocallTypes';
 import { gameCallState } from '../scripts/audiocallState';
 import { wordsStatLongTerm } from '../../countNewAndLearnWords/wordsStat';
+import { getIsLearnedWordsList, getWords } from '../scripts/audiocallServices';
+import { AggregatedWordsResponsePaginatedResults } from '../../sprint/script/dataTypes';
 
 function shuffleAnswers(array: IAnswerOnPage[]): IAnswerOnPage[] {
   let currentIndex = array.length;
@@ -107,6 +109,7 @@ class Quiz {
   }
 
   async mounted(): Promise<void> {
+    Quiz.resetGameCallState();
     this.addAnswerButtonsListeners();
     this.addControlButtonListeners();
     await this.loadWordsForTour();
@@ -119,19 +122,27 @@ class Quiz {
   getElementBySelector(selector: string): HTMLElement {
     return (this.rootElement as HTMLElement).querySelector(selector) as HTMLElement;
   }
+  // reset previous gameState to default settings
+
+  static resetGameCallState(): void {
+    gameCallState.correctAnswers = [];
+    gameCallState.wrongAnswers = [];
+    gameCallState.maxSeries = 0;
+    gameCallState.newWordsPromises = [];
+  }
 
   // load words
   static getNumberPage(): number {
-    if (window.location.hash.includes('page=')) {
+    if (gameCallState.fromBook) {
       const indexNumberPage = window.location.hash.lastIndexOf('=') + 1;
       return +window.location.hash[indexNumberPage];
     }
-    const amountPage = 29;
+    const amountPage = 30;
     return Math.floor(Math.random() * amountPage);
   }
 
   static getNumberGroup(): number {
-    if (window.location.hash.includes('level=')) {
+    if (gameCallState.fromBook) {
       const indexNumberPage = window.location.hash.indexOf('=') + 1;
       gameCallState.level = +window.location.hash[indexNumberPage];
     }
@@ -140,20 +151,33 @@ class Quiz {
 
   async loadWordsForTour(): Promise<void> {
     this.wordsForTour = [];
-    const page = Quiz.getNumberPage();
+    let page = Quiz.getNumberPage();
     const level = Quiz.getNumberGroup();
-    const rawResponse = await fetch(`${BACKEND_URL}words?page=${page}&group=${level}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    if (rawResponse.ok) {
-      this.wordsForTour = await rawResponse.json();
-      return undefined;
+    let words = await getWords(level, page);
+    if (localStorage.getItem('userAuthorized') === 'true' && gameCallState.fromBook) {
+      let isLearnedWords = await getIsLearnedWordsList(words);
+      console.log('words', words);
+      console.log('isLearnedWords', isLearnedWords);
+      do {
+        const arr: string[] = [];
+        isLearnedWords.forEach((word: AggregatedWordsResponsePaginatedResults) => arr.push(word.word));
+        const filteredWords = words.filter((word) => !arr.includes(word.word));
+        filteredWords.map((word) => {
+          if (this.wordsForTour.length < 20) {
+            this.wordsForTour.push(word);
+          }
+          return true;
+        });
+        console.log('this.wordsForTour', this.wordsForTour);
+        page -= 1;
+        // eslint-disable-next-line no-await-in-loop
+        words = await getWords(level, page);
+        // eslint-disable-next-line no-await-in-loop
+        isLearnedWords = await getIsLearnedWordsList(words);
+      } while (this.wordsForTour.length < 20 && page > 0);
+    } else {
+      this.wordsForTour = words;
     }
-    this.error = (`Ошибка HTTP: ${rawResponse.status}`);
-    return undefined;
   }
 
   static wrapAnswer(answerData: IWordData): IAnswerOnPage {
@@ -446,8 +470,6 @@ class Quiz {
       document.removeEventListener('keydown', this.keyDownListener);
     }
   }
-
-  // add user word
 }
 
 export { Quiz, BACKEND_URL };

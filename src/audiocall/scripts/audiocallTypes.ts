@@ -48,6 +48,7 @@ interface IAnswerOnPage {
 
 interface IGameCallState {
   level: number;
+  fromBook: boolean;
   correctAnswers: IWordData[];
   wrongAnswers: IWordData[];
   maxSeries: number;
