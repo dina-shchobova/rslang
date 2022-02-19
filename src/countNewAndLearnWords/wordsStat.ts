@@ -1,5 +1,5 @@
 import wordsStatsResource from './wordsStatsResource';
-import { GameName, MiniGameStats } from '../sprint/script/dataTypes';
+import { GameName, MiniGameStats, UserWord } from '../sprint/script/dataTypes';
 import { getFormattedTodayDate } from '../services/constants';
 
 const wordStatToday = {
@@ -72,7 +72,8 @@ const wordsStatLongTerm = {
     const wordInList = await wordsStatsResource.checkWordIsInUserWordsList(wordId);
     if (wordInList) {
       wordInList.optional.countRightAnswersInRow += 1;
-      if (wordInList.optional.countRightAnswersInRow >= 3) {
+      if ((wordInList.difficulty === 'weak' && wordInList.optional.countRightAnswersInRow >= 3)
+        || (wordInList.difficulty === 'hard' && wordInList.optional.countRightAnswersInRow >= 5)) {
         wordInList.optional.isLearned = true;
         wordInList.optional.dateLearned = getFormattedTodayDate();
         wordInList.difficulty = 'weak';
@@ -109,9 +110,20 @@ const wordsStatLongTerm = {
     return true;
   },
 
-  markWordAsLearned(wordId: string) {
+  async markWordAsLearned(wordId: string): Promise<void> {
     // только для явного вызова из словаря.
     // маркируем как выученное. кол-во ответов игнорируем
+    if (localStorage.getItem('userAuthorized') !== 'true') {
+      return;
+    }
+    const wordInList = await wordsStatsResource.checkWordIsInUserWordsList(wordId);
+    if (wordInList) {
+      wordInList.optional.isLearned = true;
+      wordInList.optional.dateLearned = getFormattedTodayDate();
+      wordInList.difficulty = 'weak';
+      wordsStatsResource.updateWordInUsersWordsList(wordInList);
+    }
+    wordsStatsResource.addWordToUsersList(wordId, 0, true, 'weak');
   },
 
   async markWordAsHard(wordId: string): Promise<void> {
@@ -127,8 +139,21 @@ const wordsStatLongTerm = {
       wordInList.difficulty = 'hard';
       wordsStatsResource.updateWordInUsersWordsList(wordInList);
       // return;
+//     }
+//     wordsStatsResource.addWordToUsersList(wordId, 0);
     }
-    wordsStatsResource.addWordToUsersList(wordId, 0);
+    wordsStatsResource.addWordToUsersList(wordId, 0, false, 'hard');
+  },
+
+  async removeMarkWordAsHard(wordId: string): Promise<void> {
+    // только для явного вызова из страницы сложных слов.
+    // маркируем как легкое.
+    if (localStorage.getItem('userAuthorized') !== 'true') {
+      return;
+    }
+    const wordInList = await wordsStatsResource.checkWordIsInUserWordsList(wordId) as UserWord;
+    wordInList.difficulty = 'weak';
+    wordsStatsResource.updateWordInUsersWordsList(wordInList);
   },
 };
 
