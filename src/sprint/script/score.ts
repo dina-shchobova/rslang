@@ -39,18 +39,20 @@ export class Score {
   };
 
   countAnswers = (): void => {
-    const pointsWrap = document.querySelector('.points') as HTMLElement;
+    const pointsWrap = document.querySelector('.points');
     const bulbs = document.querySelectorAll('.light-bulb') as unknown as HTMLElement[];
-    const score = document.querySelector('.score') as HTMLElement;
+    const score = document.querySelector('.score');
 
     bulbs.forEach((el) => el.classList.remove('active-light'));
     const addPoints = (points: number) => {
       currentScore += points;
-      pointsWrap.innerHTML = `+${points}`;
+      if (pointsWrap) {
+        pointsWrap.innerHTML = `+${points}`;
+      }
     };
 
     if (amountTrueAnswers.count < MaxPoints.twelve) {
-      if (amountTrueAnswers.numberBulb === -1) pointsWrap.innerHTML = '+10';
+      if (amountTrueAnswers.numberBulb === -1 && pointsWrap) pointsWrap.innerHTML = '+10';
 
       for (let i = 0; i <= amountTrueAnswers.numberBulb; i++) {
         bulbs[i]?.classList.add('active-light');
@@ -69,7 +71,9 @@ export class Score {
       } else {
         addPoints(Points.eighty);
       }
-      score.innerHTML = `${currentScore}`;
+      if (score) {
+        score.innerHTML = `${currentScore}`;
+      }
     }
 
     if (maxTrueAnswer < amountTrueAnswers.count) maxTrueAnswer = amountTrueAnswers.count;

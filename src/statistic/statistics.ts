@@ -83,7 +83,6 @@ export class StatisticsPage {
   }
 
   createFieldStatistics = (): void => {
-    this.getTodayLearnedWordCount();
     const main = document.querySelector('main') as HTMLElement;
     const statisticsWrap = document.createElement('div');
     this.rootElement = statisticsWrap;
@@ -96,7 +95,7 @@ export class StatisticsPage {
       statisticsWrap.classList.add('no-authorization');
       return;
     }
-
+    this.getTodayLearnedWordCount();
     statisticsWrap.classList.remove('no-authorization');
     this.createStatisticsShortTerm('Аудиовызов');
     this.createStatisticsLongTerm('allNewWord');

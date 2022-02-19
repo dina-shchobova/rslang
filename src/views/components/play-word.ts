@@ -31,7 +31,7 @@ export const createHandler = (d: HTMLElement) => {
       const player = button.nextElementSibling as HTMLAudioElement;
       const files = Object.values(player.dataset);
       const playerHandler = () => {
-        if (files) {
+        if (files.length) {
           player.src = BASE_URL + files.shift();
           player.play().catch(() => { });
         } else {
