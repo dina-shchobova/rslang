@@ -7,11 +7,11 @@ import { Home } from './views/pages/home';
 
 import { TextBook } from './views/pages/text-book';
 import { AuthorizationPage } from './views/pages/authorization';
+import { Games } from './views/pages/games';
 import { Statistics } from './views/pages/statistics';
 import './audiocall/styles/audiocallStyle.scss';
 import { Audiocall } from './audiocall/components/Audiocall';
 import { PageComponentThunk } from './services/types';
-import { DifficultWords } from './views/pages/difficult-words';
 
 const authorization = new Authorization();
 authorization.createFieldAuthorization();
@@ -40,10 +40,10 @@ const routes = {
   '/': Home,
   '/text-book': TextBook,
   '/authorization': AuthorizationPage,
+  '/games': Games,
   '/audiocall': AudioCallBinder,
   '/sprint': SprintBinder,
   '/statistics': Statistics,
-  '/difficult-words': DifficultWords,
 };
 
 const notFound = async () => ({ html: '<div>Not Found</div>' });
