@@ -1,5 +1,4 @@
 import { ChooseLevel } from './chooseLevel';
-import { gameCallState } from '../../audiocall/scripts/audiocallState';
 import { Sprint } from './sprint';
 
 const deleteNode = (node: Element | undefined) => {
@@ -33,11 +32,10 @@ export class StartGameSprint {
   }
 
   static getNumberGroup(): number {
-    if (window.location.hash.includes('level=')) {
-      const indexNumberPage = window.location.hash.indexOf('=') + 1;
-      gameCallState.level = +window.location.hash[indexNumberPage];
-    }
-    return gameCallState.level;
+    const indexAmpersand = window.location.hash.indexOf('&');
+    const indexFirstEqual = window.location.hash.indexOf('=');
+    const group = window.location.hash.slice(indexFirstEqual + 1, indexAmpersand);
+    return +group - 1;
   }
 
   start = (): void => {

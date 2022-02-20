@@ -83,8 +83,9 @@ export class Sprint implements ISprint {
 
   static getNumberPageFromBook(): void {
     if (window.location.hash.includes('page=')) {
-      const indexNumberPage = window.location.hash.lastIndexOf('=') + 1;
-      currentPage = (+window.location.hash[indexNumberPage]) - 1;
+      const indexSecondEqual = window.location.hash.lastIndexOf('=');
+      const page = window.location.hash.slice(indexSecondEqual + 1);
+      currentPage = +page - 1;
     }
   }
 
