@@ -145,7 +145,7 @@ export class TextBookClass {
     <div class="textbook-container">
       <button id="scroll-up" class="scroll-up">&#187;</button>
       <div class="textbook-games">
-        <a class="textbook-games-link" href="#/sprint">Спринт</a>
+        <a class="textbook-games-link" href="#/sprint?level=${this.group}&page=${this.page}">Спринт</a>
         <a class="textbook-games-link" href="#/audiocall?level=${this.group}&page=${this.page}">Аудиовызов</a>
       </div>
       <div class="pages-groups-container">
