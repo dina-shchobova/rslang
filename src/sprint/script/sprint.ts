@@ -4,9 +4,11 @@ import { Timer } from './timer';
 import { exitGame } from './sprintGameControl';
 import { amountTrueAnswers, Score } from './score';
 import {
-  WordData, ISprint, sound, gameCallState,
+  AggregatedWordsResponsePaginatedResults, gameCallState, ISprint, sound, WordData,
 } from './dataTypes';
 import { wordsStatLongTerm } from '../../countNewAndLearnWords/wordsStat';
+import { getIsLearnedWordsList } from '../../audiocall/scripts/audiocallServices';
+import { IWordData } from '../../audiocall/scripts/audiocallTypes';
 
 const AMOUNT_WORDS = 20;
 const AMOUNT_PAGE = 30;
@@ -20,6 +22,7 @@ const VOLUME = 0.4;
 let words: [WordData] | [];
 let wordId = '';
 let currentSeriesLength = 0;
+let currentGroup: number;
 
 const htmlCodeSprint = `
   <div class="sprint">
@@ -46,13 +49,16 @@ export class Sprint implements ISprint {
 
   private keyPressListener?: (e:KeyboardEvent) => void;
 
+  noWords: boolean;
+
   constructor() {
     this.timer = new Timer(this);
     this.score = new Score();
+    this.noWords = false;
   }
 
   async createPageGameSprint(group: number): Promise<void> {
-    answers = []; wordId = '';
+    answers = []; wordId = ''; currentGroup = group;
 
     exitGame.isExit = false;
     const gameSprint = document.querySelector('.game-sprint') as HTMLElement;
@@ -63,20 +69,51 @@ export class Sprint implements ISprint {
     gameSprint.appendChild(sprintPage);
     chooseLevels?.remove();
 
-    await this.generateWord(group);
+    if (window.location.hash.includes('page=')) {
+      Sprint.getNumberPageFromBook();
+      await Sprint.generateWordsForTourFromBook(currentPage);
+      await this.generateWordFromBook();
+    } else {
+      await this.generateWord(group);
+    }
     this.addUserAnswerListeners(group);
     this.timer.startTimer(answers);
     this.score.createScoreWrap();
   }
 
-  randomGeneratePage = (): void => {
-    currentPage = Math.floor(Math.random() * AMOUNT_PAGE);
-  };
+  static getNumberPageFromBook(): void {
+    if (window.location.hash.includes('page=')) {
+      const indexSecondEqual = window.location.hash.lastIndexOf('=');
+      const page = window.location.hash.slice(indexSecondEqual + 1);
+      currentPage = +page - 1;
+    }
+  }
+
+  static async generateWordsForTourFromBook(page: number) {
+    words = await getWord(currentGroup, page);
+    if (localStorage.getItem('userAuthorized') === 'true' && window.location.hash.includes('page=')) {
+      const isLearnedWords = await getIsLearnedWordsList(words as IWordData[]);
+      const arr: string[] = [];
+      isLearnedWords.forEach((learnedWord: AggregatedWordsResponsePaginatedResults) => arr.push(learnedWord.word));
+      words = words.filter((wordForTour) => !arr.includes(wordForTour.word)) as [WordData] | [];
+    }
+  }
+
+  async generateWordFromBook(): Promise<void> {
+    const word = document.querySelector('.word') as HTMLElement;
+    wordId = words[currentWord]?.id as string;
+
+    await this.generateWordTranslate(currentGroup, words[currentWord].wordTranslate)
+      .then(() => {
+        if (!words[currentWord].word) return;
+        word.innerHTML = words[currentWord]?.word;
+      });
+  }
 
   async generateWord(group: number): Promise<void> {
     words = [];
-    this.randomGeneratePage();
-    const word = document.querySelector('.word');
+    currentPage = Math.floor(Math.random() * AMOUNT_PAGE);
+    const word = document.querySelector('.word') as HTMLElement;
     words = await getWord(group, currentPage);
     wordId = words[currentWord].id;
 
@@ -89,7 +126,7 @@ export class Sprint implements ISprint {
 
   generateWordTranslate = async (group: number, trueTranslate: string): Promise<void> => {
     const wordTranslate = document.querySelector('.translate');
-    const numberTranslateWord = Math.floor(Math.random() * AMOUNT_WORDS);
+    const numberTranslateWord = Math.floor(Math.random() * words.length);
     if (!words) return;
     const translateWord = [words[numberTranslateWord].wordTranslate, trueTranslate];
     const word = translateWord[Math.floor(Math.random() * translateWord.length)];
@@ -152,11 +189,27 @@ export class Sprint implements ISprint {
     await this.checkAnswer(button.getAttribute('id'));
     currentWord++;
     amountWords++;
-    if (amountWords % AMOUNT_WORDS === 0) {
-      currentPage++;
-      currentWord = 0;
+
+    if (window.location.hash.includes('page=')) {
+      if (amountWords % words.length === 0) {
+        currentWord = 0;
+        currentPage -= 1;
+        if (currentPage === -1) {
+          this.noWords = true;
+        } else {
+          Sprint.generateWordsForTourFromBook(currentPage);
+          this.generateWordFromBook();
+        }
+      } else {
+        this.generateWordFromBook();
+      }
+    } else {
+      if (amountWords % AMOUNT_WORDS === 0) {
+        currentPage++;
+        currentWord = 0;
+      }
+      await this.generateWord(group);
     }
-    await this.generateWord(group);
     this.makeButtonActiveOrInactive('inactive');
   };
 

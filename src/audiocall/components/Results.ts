@@ -2,8 +2,8 @@ import { gameCallState } from '../scripts/audiocallState';
 import {
   IGameCallComponent, ICallLevelsComponent, IWordData,
 } from '../scripts/audiocallTypes';
-import { BACKEND_URL } from './Quiz';
 import { wordStatToday } from '../../countNewAndLearnWords/wordsStat';
+import { BASE_URL } from '../../services/constants';
 
 const htmlCodeResult = `
       <h2 class="title">Результаты</h2>
@@ -26,7 +26,7 @@ const htmlCodeResult = `
         </div>
       </div>
 
-      <div class="game-call__close-result">Закрыть</div>
+      <a class="close-link"><div class="game-call__close-result">Закрыть</div>
 `;
 
 class Results implements ICallLevelsComponent {
@@ -127,7 +127,7 @@ class Results implements ICallLevelsComponent {
   playSoundAnswer(wordToPlay: IWordData): void {
     const sound = this.getPlayer();
     const { audio } = wordToPlay;
-    sound.src = `${BACKEND_URL}${audio}`;
+    sound.src = `${BASE_URL}${audio}`;
     sound.play();
   }
 
@@ -163,8 +163,12 @@ class Results implements ICallLevelsComponent {
   }
 
   async closeGame(): Promise<void> {
-    Results.clearStateResults();
-    this.game.chooseLevel();
+    const closeLink = this.getElementBySelector('.close-link');
+    if (this.game.fromBook) {
+      closeLink.setAttribute('href', '#/text-book');
+    } else {
+      this.game.chooseLevel();
+    }
   }
 }
 

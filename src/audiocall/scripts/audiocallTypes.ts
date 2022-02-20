@@ -16,6 +16,7 @@ interface IGameCallComponent extends ICallComponent {
   startGame:() => void;
   showResults:() => void;
   chooseLevel:() => void;
+  fromBook: boolean;
 }
 
 interface ICallLevelsComponent extends ICallComponent {
