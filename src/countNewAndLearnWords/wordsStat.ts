@@ -69,6 +69,7 @@ const wordsStatLongTerm = {
     if (localStorage.getItem('userAuthorized') !== 'true') {
       return false;
     }
+    let progressRight = 0;
     const wordInList = await wordsStatsResource.checkWordIsInUserWordsList(wordId);
     if (wordInList) {
       wordInList.optional.countRightAnswersInRow += 1;
@@ -78,10 +79,12 @@ const wordsStatLongTerm = {
         wordInList.optional.dateLearned = getFormattedTodayDate();
         wordInList.difficulty = 'weak';
       }
+      wordInList.optional.progress.right++;
       wordsStatsResource.updateWordInUsersWordsList(wordInList);
       return false;
     }
-    wordsStatsResource.addWordToUsersList(wordId, 1);
+    progressRight++;
+    wordsStatsResource.addWordToUsersList(wordId, 1, false, 'weak', progressRight);
     return true;
   },
 
@@ -98,15 +101,18 @@ const wordsStatLongTerm = {
     if (localStorage.getItem('userAuthorized') !== 'true') {
       return false;
     }
+    let progressWrong = 0;
     const wordInList = await wordsStatsResource.checkWordIsInUserWordsList(wordId);
     if (wordInList) {
       wordInList.optional.countRightAnswersInRow = 0;
       wordInList.optional.isLearned = false;
       wordInList.optional.dateLearned = undefined;
+      wordInList.optional.progress.wrong++;
       wordsStatsResource.updateWordInUsersWordsList(wordInList);
       return false;
     }
-    wordsStatsResource.addWordToUsersList(wordId, 0);
+    progressWrong++;
+    wordsStatsResource.addWordToUsersList(wordId, 0, false, 'weak', progressWrong);
     return true;
   },
 
