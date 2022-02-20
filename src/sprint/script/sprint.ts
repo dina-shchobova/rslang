@@ -7,6 +7,7 @@ import {
   WordData, ISprint, sound, gameCallState,
 } from './dataTypes';
 import { wordsStatLongTerm } from '../../countNewAndLearnWords/wordsStat';
+import { Spinner } from '../../spinner/spinner';
 
 const AMOUNT_WORDS = 20;
 const AMOUNT_PAGE = 30;
@@ -62,6 +63,8 @@ export class Sprint implements ISprint {
     sprintPage.classList.add('sprint-wrap');
     gameSprint.appendChild(sprintPage);
     chooseLevels?.remove();
+    const word = document.querySelector('.word') as HTMLElement;
+    new Spinner().addSpinner(word);
 
     await this.generateWord(group);
     this.addUserAnswerListeners(group);
