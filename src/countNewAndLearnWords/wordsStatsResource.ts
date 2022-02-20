@@ -95,7 +95,7 @@ const wordsStatsResource = {
 
   async getCountOfTodayLearnedWords(): Promise<number> {
     const user = await getUser();
-    // if (!user) return undefined;
+    if (!user) return 0;
     const url = new URL(`${BASE_URL}users/${user?.userId}/aggregatedWords`);
 
     const params = [['page', '1'],
@@ -126,7 +126,7 @@ const wordsStatsResource = {
 
   async getUserWordsList(): Promise<UserWord[]> {
     const user = await getUser();
-    // if (!user) return;
+    if (!user) return [];
     const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words`, {
       method: 'GET',
       headers: {
