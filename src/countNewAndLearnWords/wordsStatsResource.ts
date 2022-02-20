@@ -1,4 +1,4 @@
-import { getUser } from '../services/requests';
+import { backendRequest, getUser } from '../services/requests';
 import { AggregatedWordsResponse, IUsersStats, UserWord } from '../sprint/script/dataTypes';
 import { BASE_URL, getFormattedTodayDate } from '../services/constants';
 
@@ -7,6 +7,7 @@ const wordsStatsResource = {
   // проверка есть ли слово в списке пользователя
   async checkWordIsInUserWordsList(wordId: string): Promise<UserWord | undefined> {
     const user = await getUser();
+    if (!user) return undefined;
     const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words/${wordId}`, {
       method: 'GET',
       headers: {
@@ -24,60 +25,50 @@ const wordsStatsResource = {
   },
 
   // обновить кол-во правильных ответов на слове в долгосрочной статитстике
-  async updateWordInUsersWordsList(word: UserWord): Promise<UserWord> {
-    const user = await getUser();
-    const wordDataToPost = {
+  async updateWordInUsersWordsList(word: UserWord) {
+    const user = JSON.parse(<string>localStorage.getItem('user'));
+    const getParams = {
+      word,
+    };
+    const postParams = {
       optional: word.optional,
       difficulty: word.difficulty,
     };
-    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words/${word.wordId}`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${user?.token}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(wordDataToPost),
-    });
-    return rawResponse.json();
+    return backendRequest(`users/${user?.userId}/words/${word.wordId}`, 'PUT', getParams, postParams);
   },
 
   // добавляем слов
-  async addWordToUsersList(wordId: string, countRightAnswersInRow = 0): Promise<UserWord | undefined> {
-    const user = await getUser();
-    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words/${wordId}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${user?.token}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+  async addWordToUsersList(
+    wordId: string,
+    countRightAnswersInRow = 0,
+    isLearned = false,
+    difficulty = 'weak',
+  ): Promise<UserWord | undefined> {
+    const user = JSON.parse(<string>localStorage.getItem('user'));
+    const getParams = {
+      wordId,
+      countRightAnswersInRow,
+      isLearned,
+      difficulty,
+    };
+    const postParams = {
+      difficulty,
+      optional: {
+        countRightAnswersInRow,
+        isLearned,
+        dateAdded: getFormattedTodayDate(),
       },
-      body: JSON.stringify({
-        difficulty: 'weak',
-        optional: {
-          countRightAnswersInRow,
-          isLearned: false,
-          dateAdded: getFormattedTodayDate(),
-        },
-      }),
-    });
-    return rawResponse.json();
+    };
+    return backendRequest(`users/${user?.userId}/words/${wordId}`, 'POST', getParams, postParams);
   },
 
-  async createUsersStat(): Promise<void> {
-    const user = await getUser();
-    await fetch(`${BASE_URL}users/${user?.userId}/statistics`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${user?.token}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        learnedWords: 0,
-        optional: {},
-      }),
-    });
+  async createUsersStat() {
+    const user = JSON.parse(<string>localStorage.getItem('user'));
+    const postParams = {
+      learnedWords: 0,
+      optional: {},
+    };
+    return backendRequest(`users/${user?.userId}/statistics`, 'PUT', {}, postParams);
   },
 
   async getOrCreateUsersStat(): Promise<IUsersStats> {
@@ -97,25 +88,15 @@ const wordsStatsResource = {
     return rawResponse.json();
   },
 
-  async setUsersStat(stats: IUsersStats): Promise<void> {
-    const user = await getUser();
-    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/statistics`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${user?.token}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(stats),
-    });
-    return rawResponse.json();
+  async setUsersStat(stats: IUsersStats) {
+    const user = JSON.parse(<string>localStorage.getItem('user'));
+    return backendRequest(`users/${user?.userId}/statistics`, 'PUT', {}, stats);
   },
 
   async getCountOfTodayLearnedWords(): Promise<number> {
-    const token = JSON.parse(<string>localStorage.getItem('user'))?.token;
-    const userId = JSON.parse(<string>localStorage.getItem('user'))?.userId;
-
-    const url = new URL(`${BASE_URL}users/${userId}/aggregatedWords`);
+    const user = await getUser();
+    // if (!user) return undefined;
+    const url = new URL(`${BASE_URL}users/${user?.userId}/aggregatedWords`);
 
     const params = [['page', '1'],
       ['wordsPerPage', '1'],
@@ -131,7 +112,7 @@ const wordsStatsResource = {
     const rawResponse = await fetch(`${url}`, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${user?.token}`,
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
@@ -145,6 +126,7 @@ const wordsStatsResource = {
 
   async getUserWordsList(): Promise<UserWord[]> {
     const user = await getUser();
+    // if (!user) return;
     const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}/words`, {
       method: 'GET',
       headers: {

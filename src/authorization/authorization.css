@@ -57,6 +57,7 @@
   padding: 5px;
   font-size: 20px;
   outline: none;
+  border: 1px black solid;
 }
 .authorization-wrap .form-field .input-wrap .error {
   position: absolute;

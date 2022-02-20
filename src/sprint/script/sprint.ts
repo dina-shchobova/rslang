@@ -34,8 +34,8 @@ const htmlCodeSprint = `
           <div class="word"></div>
           <div class="translate"></div>
           <div class="response-type">
-              <div class="answer-false button" id="false">Неверно</div>
-              <div class="answer-true button" id="true">Верно</div>
+              <button class="answer-false button" id="false">Неверно</button>
+              <button class="answer-true button" id="true">Верно</button>
           </div>
       </div>
     </div>
@@ -116,7 +116,7 @@ export class Sprint implements ISprint {
     await this.generateWordTranslate(group, words[currentWord].wordTranslate)
       .then(() => {
         if (!words[currentWord].word) return;
-        word.innerHTML = words[currentWord]?.word;
+        if (word) word.innerHTML = words[currentWord]?.word;
       });
   }
 
@@ -163,7 +163,25 @@ export class Sprint implements ISprint {
     }
   }
 
+  makeButtonActiveOrInactive = (type: string): void => {
+    const answerFalse = document.querySelector('.answer-false');
+    const answerTrue = document.querySelector('.answer-true');
+
+    const makeButtonActive = () => {
+      answerFalse?.setAttribute('disabled', 'disabled');
+      answerTrue?.setAttribute('disabled', 'disabled');
+    };
+
+    const makeButtonInactive = () => {
+      answerFalse?.removeAttribute('disabled');
+      answerTrue?.removeAttribute('disabled');
+    };
+
+    return type === 'active' ? makeButtonActive() : makeButtonInactive();
+  };
+
   switchWord = async (button: HTMLElement, group: number) => {
+    this.makeButtonActiveOrInactive('active');
     await this.checkAnswer(button.getAttribute('id'));
     currentWord++;
     amountWords++;
