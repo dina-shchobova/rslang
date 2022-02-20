@@ -16,6 +16,7 @@ interface IGameCallComponent extends ICallComponent {
   startGame:() => void;
   showResults:() => void;
   chooseLevel:() => void;
+  fromBook: boolean;
 }
 
 interface ICallLevelsComponent extends ICallComponent {
@@ -48,7 +49,6 @@ interface IAnswerOnPage {
 
 interface IGameCallState {
   level: number;
-  fromBook: boolean;
   correctAnswers: IWordData[];
   wrongAnswers: IWordData[];
   maxSeries: number;

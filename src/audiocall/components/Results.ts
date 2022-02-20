@@ -164,7 +164,7 @@ class Results implements ICallLevelsComponent {
 
   async closeGame(): Promise<void> {
     const closeLink = this.getElementBySelector('.close-link');
-    if (gameCallState.fromBook) {
+    if (this.game.fromBook) {
       closeLink.setAttribute('href', '#/text-book');
     } else {
       this.game.chooseLevel();

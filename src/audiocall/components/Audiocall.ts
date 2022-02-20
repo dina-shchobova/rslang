@@ -26,6 +26,8 @@ class Audiocall implements IGameCallComponent {
 
   childPage?: ICallComponent;
 
+  fromBook: boolean;
+
   constructor() {
     this.subPage = 'levels';
     this.rootElement = undefined;
@@ -36,6 +38,7 @@ class Audiocall implements IGameCallComponent {
       quiz: Quiz,
       result: Results,
     };
+    this.fromBook = false;
   }
 
   createRootElement(): HTMLElement {
@@ -54,7 +57,9 @@ class Audiocall implements IGameCallComponent {
   mounted(): void {
     if (window.location.hash.includes('page=')) {
       this.subPage = 'quiz';
-      gameCallState.fromBook = true;
+      this.fromBook = true;
+    } else {
+      this.fromBook = false;
     }
     this.mountSubPage();
     this.addSoundButtonListener();

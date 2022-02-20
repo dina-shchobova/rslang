@@ -112,16 +112,18 @@ class Quiz {
     Quiz.resetGameCallState();
     this.addAnswerButtonsListeners();
     this.addControlButtonListeners();
-    await this.loadWordsForTour();
-    this.updateAnswersOnPage();
-    this.updateAnswerView();
-    this.addSoundIconsListener();
-    this.addListenersForKeyboardKeys();
+    if (!await this.loadWordsForTour()) {
+      this.updateAnswersOnPage();
+      this.updateAnswerView();
+      this.addSoundIconsListener();
+      this.addListenersForKeyboardKeys();
+    }
   }
 
   getElementBySelector(selector: string): HTMLElement {
     return (this.rootElement as HTMLElement).querySelector(selector) as HTMLElement;
   }
+
   // reset previous gameState to default settings
 
   static resetGameCallState(): void {
@@ -132,8 +134,8 @@ class Quiz {
   }
 
   // load words
-  static getNumberPage(): number {
-    if (gameCallState.fromBook) {
+  getNumberPage(): number {
+    if (this.game.fromBook) {
       const indexSecondEqual = window.location.hash.lastIndexOf('=');
       const page = window.location.hash.slice(indexSecondEqual + 1);
       return +page - 1;
@@ -142,8 +144,8 @@ class Quiz {
     return Math.floor(Math.random() * amountPage);
   }
 
-  static getNumberGroup(): number {
-    if (gameCallState.fromBook) {
+  getNumberGroup(): number {
+    if (this.game.fromBook) {
       const indexAmpersand = window.location.hash.indexOf('&');
       const indexFirstEqual = window.location.hash.indexOf('=');
       const group = window.location.hash.slice(indexFirstEqual + 1, indexAmpersand);
@@ -152,32 +154,35 @@ class Quiz {
     return gameCallState.level;
   }
 
-  async loadWordsForTour(): Promise<void> {
+  async loadWordsForTour(): Promise<boolean> {
+    const getFilteredWordsFromPage = async (level: number, pageNum: number) => {
+      const words: IWordData[] = await getWords(level, pageNum);
+      const learnedWordsResp: AggregatedWordsResponsePaginatedResults[] = await getIsLearnedWordsList(words);
+      const learnedWords: string[] = learnedWordsResp.map((w) => w.word);
+      return words.filter((w) => !learnedWords.includes(w.word));
+    };
     this.wordsForTour = [];
-    let page = Quiz.getNumberPage();
-    const level = Quiz.getNumberGroup();
-    let words = await getWords(level, page);
-    if (localStorage.getItem('userAuthorized') === 'true' && gameCallState.fromBook) {
-      let isLearnedWords = await getIsLearnedWordsList(words);
-      do {
-        const arr: string[] = [];
-        isLearnedWords.forEach((word: AggregatedWordsResponsePaginatedResults) => arr.push(word.word));
-        const filteredWords = words.filter((word) => !arr.includes(word.word));
-        filteredWords.map((word) => {
-          if (this.wordsForTour.length < 20) {
-            this.wordsForTour.push(word);
-          }
-          return true;
-        });
+    let page = this.getNumberPage();
+    const level = this.getNumberGroup();
+    if (localStorage.getItem('userAuthorized') === 'true' && window.location.hash.includes('page=')) {
+      while (this.wordsForTour.length < 20 && page >= 0) {
+        // eslint-disable-next-line no-await-in-loop
+        this.wordsForTour.push(...await getFilteredWordsFromPage(level, page));
         page -= 1;
-        // eslint-disable-next-line no-await-in-loop
-        words = await getWords(level, page);
-        // eslint-disable-next-line no-await-in-loop
-        isLearnedWords = await getIsLearnedWordsList(words);
-      } while (this.wordsForTour.length < 20 && page > 0);
+      }
     } else {
-      this.wordsForTour = words;
+      this.wordsForTour = await getWords(level, page);
     }
+    if (this.wordsForTour.length < 5) {
+      this.showWarning();
+      this.game.fromBook = false;
+      return true;
+    }
+    return false;
+  }
+
+  showWarning() {
+    (this.rootElement as HTMLElement).innerHTML = 'Неизученных слов меньше 5. Слов для игры недостаточно';
   }
 
   static wrapAnswer(answerData: IWordData): IAnswerOnPage {
