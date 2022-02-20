@@ -4,7 +4,8 @@ import { IWordObject } from '../services/types';
 import { UserWords } from '../sprint/script/dataTypes';
 import { createOneWordDiv } from '../views/components/play-word';
 
-const ZERO_PAGE = 1;
+export const ZERO_PAGE = 1;
+export const ZERO_GROUP = 1;
 const MAX_PAGE = 30;
 const MAX_GROUP = 7;
 const PAGINATION_BTNS_QUANITY = 7;
@@ -31,7 +32,7 @@ export class TextBookClass {
 
   isUserLoggedIn = false;
 
-  userWords: Set<string> = new Set();
+  userWords: Set<string> | undefined;
 
   formatHash(group?: number, page?: number) {
     return `/text-book?group=${group || this.group}&page=${page || this.page}`;
@@ -86,7 +87,7 @@ export class TextBookClass {
     <div class="dropdown-groups">
     <button class="dropdown-menu color${this.group}">${this.group}</button>
     <div class="dropdown-child">
-      <a class="group-link color7" href="/#">Сложные слова</a>
+    <a class="group-link color7" href="/#/difficult-words">Сложные слова</a>
       ${[...Array(6).keys()].map((n: number) => `
       <a
         class="group-link color${n + 1} ${this.group === n + 1 ? 'hide-link' : ''}"
@@ -167,27 +168,47 @@ export class TextBookClass {
   `;
   }
 
-  async getUserWords() {
+  async getUserWords(): Promise<any> {
     const storage = localStorage.getItem('user') as string;
     const userObj = JSON.parse(storage);
-    if (!userObj) return;
+    if (!userObj) return Promise.resolve([]);
     const url = `${this.baseUrl}users/${userObj.userId}/words`;
-    const rawResponse = await fetch(url, {
+    return fetch(url, {
       headers: {
         Authorization: `Bearer ${userObj.token}`,
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-    });
-    const words = await rawResponse.json();
-    this.userWords = new Set(words.map(({ wordId }: UserWords) => wordId));
+    }).then((d) => d.json());
 
-    // const content = await rawResponse;
-    // eslint-disable-next-line no-console
+    // const words = await rawResponse.json();
+    // this.userWords = new Set(words.map(({ wordId }: UserWords) => wordId));
+    // console.log(this.userWords);
+  }
+
+  async getCardFromId(wordId: string) {
+    const url = `${this.baseUrl}words/${wordId}`;
+    const response = await axios.get(url).then((d) => d.data);
+    return this.createCard(await response);
   }
 
   async getWords() {
-    const url = `${this.baseUrl}words?group=${this.group - 1}&page=${this.page - 1}`;
+    let url: string;
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    let wordsPromise: Promise<any>;
+    if (!user && this.group === 7) return [];
+    if (this.group === 7 && this.userWords) {
+      const wordIds = Array.from(this.userWords) as Array<string>;
+      const wordPromises: any[] = [];
+      wordIds.forEach(async (wordId) => {
+        url = `${this.baseUrl}words/${wordId}`;
+        wordPromises.push(axios.get(url).then((d) => d.data));
+      });
+      wordsPromise = Promise.all(wordPromises);
+    } else {
+      url = `${this.baseUrl}words?group=${this.group - 1}&page=${this.page - 1}`;
+      wordsPromise = axios.get(url).then((d) => d.data);
+    }
     this.isUserLoggedIn = Boolean(window.localStorage.getItem('userAuthorized'));
     if (this.isUserLoggedIn) {
       // const wordObjectArray = await this.getUserWords('1', '1');
@@ -195,7 +216,20 @@ export class TextBookClass {
       // eslint-disable-next-line no-console
       // console.log(this.userWords);
     }
-    return axios.get(url).then((d) => d.data);
+
+    let userWords;
+    let pageWords;
+    if (this.userWords) {
+      pageWords = await wordsPromise;
+    } else {
+      [userWords, pageWords] = await Promise.all([
+        this.getUserWords(),
+        wordsPromise,
+      ]);
+      this.userWords = new Set(userWords.map((w: any) => w.wordId));
+    }
+    console.log(pageWords);
+    return pageWords;
   }
 
   async getWordsConainer() {
@@ -213,7 +247,20 @@ export class TextBookClass {
   }
 
   private cardDescription(wordObject: IWordObject) {
-    const isExist = this.userWords.has(wordObject.id);
+    const isExist = this.userWords && this.userWords.has(wordObject.id);
+    let cardButton;
+    if (this.isUserLoggedIn) {
+      cardButton = `
+        <div class="card-buttons-container">
+        <button
+          class="difficult-word"
+          data-wordId="${wordObject.id}"
+          data-isExist="${isExist}"
+        >
+          ${isExist ? 'Удалить из списка' : 'Сложное слово'}
+        </button>
+        </div>`;
+    } else cardButton = '';
     return `
     <p class="word-translate">${wordObject.wordTranslate}</p>
     <p class="text-meaning">${wordObject.textMeaning}</p>
@@ -221,15 +268,7 @@ export class TextBookClass {
     <div class="line"></div>
     <p class="text-example">${wordObject.textExample}</p>
     <p class="text-example-translate">${wordObject.textExampleTranslate}</p>
-    <div class="card-buttons-container">
-      <button
-        class="difficult-word"
-        data-wordId="${wordObject.id}"
-        data-isExist="${isExist}"
-      >
-        ${isExist ? 'Удалить из списка' : 'Сложное слово'}
-      </button>
-    </div>
+    ${cardButton}
   `;
   }
 

@@ -1,7 +1,7 @@
 import { wordsStatLongTerm } from '../../countNewAndLearnWords/wordsStat';
 import { BASE_URL } from '../../services/constants';
 import { PageComponentThunk } from '../../services/types';
-import { TextBookClass } from '../../textbook/textbook';
+import { TextBookClass, ZERO_GROUP, ZERO_PAGE } from '../../textbook/textbook';
 import { createHandler as createAudioHandler } from '../components/play-word';
 
 let textbook: TextBookClass | null;
@@ -23,7 +23,7 @@ const difficultWordClickHandler = async (e: MouseEvent): Promise<void> => {
   if (!wordid) return;
   if (isexist === 'false') {
     await wordsStatLongTerm.markWordAsHard(wordid);
-    if (textbook) {
+    if (textbook && textbook.userWords) {
       textbook.userWords.add(wordid as string);
       // eslint-disable-next-line no-console
       // console.log(1, textbook.userWords);
@@ -32,7 +32,7 @@ const difficultWordClickHandler = async (e: MouseEvent): Promise<void> => {
     }
   } else {
     await Promise.resolve('вызвать метод, который убирает wordId из списка пользователя.');
-    if (textbook) {
+    if (textbook && textbook.userWords) {
       textbook.userWords.delete(wordid as string);
       // eslint-disable-next-line no-console
       // console.log(2, textbook.userWords);
@@ -67,7 +67,12 @@ const unmount = () => {
 };
 
 export const TextBook: PageComponentThunk = async (params) => {
-  textbook = new TextBookClass(BASE_URL, document.querySelector('#page_container') || document.body, 1, 1);
+  const pageContainer = document.querySelector('#page_container') as HTMLElement || document.body;
+
+  // pageContainer.innerHTML = 'loading...';
+  textbook = new TextBookClass(
+    BASE_URL, pageContainer, ZERO_GROUP, ZERO_PAGE,
+  );
   const args = params as { group: string, page: string };
   const group = +args.group;
   const page = +args.page;
@@ -79,7 +84,6 @@ export const TextBook: PageComponentThunk = async (params) => {
 
   textbook.setGroup(group);
   textbook.setPage(page);
-  await textbook.getUserWords();
 
   return { html: await textbook.getWordsConainer(), mount, unmount };
 };

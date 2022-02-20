@@ -12,6 +12,7 @@ import { Statistics } from './views/pages/statistics';
 import './audiocall/styles/audiocallStyle.scss';
 import { Audiocall } from './audiocall/components/Audiocall';
 import { PageComponentThunk } from './services/types';
+import { DifficultWords } from './views/pages/difficult-words';
 
 const authorization = new Authorization();
 authorization.createFieldAuthorization();
@@ -44,6 +45,7 @@ const routes = {
   '/audiocall': AudioCallBinder,
   '/sprint': SprintBinder,
   '/statistics': Statistics,
+  '/difficult-words': DifficultWords,
 };
 
 const notFound = async () => ({ html: '<div>Not Found</div>' });
