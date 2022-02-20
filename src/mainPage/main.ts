@@ -17,7 +17,7 @@ const textAdvantages = {
 
 const ourTeam = {
   alexander: ['Alexivkov', 'Alexander Sivkov'],
-  dina: ['dina-shchobova', 'Dzina Shchobava'],
+  dina: ['dina-shchobova', 'Dina Shchobava'],
   tatsiana: ['taleatg', 'Tatsiana Dashuk'],
 };
 
@@ -63,6 +63,7 @@ export class Main {
       teamMember.classList.add('team-member');
       avatar.classList.add('avatar', item[0]);
       title.classList.add('title', 'link');
+      role.classList.add('role');
       linkForGithub.innerHTML = `${item[1][1]}`;
       linkForGithub.setAttribute('href', `https://github.com/${item[1][0]}`);
       linkForGithub.setAttribute('target', '_blank');
@@ -71,5 +72,29 @@ export class Main {
       teamMember.append(avatar, title, role);
       title.appendChild(linkForGithub);
     });
+    this.addContribution();
   };
+
+  addContribution() {
+    const roles = document.querySelectorAll('.role');
+    const roleAlexandr = ['конфигурация проекта', 'роутинг', 'электронный учебник'];
+    const roleDina = ['игра "Аудиовызов"', 'статистика', 'графики статистики', 'мини-игры со страницы учебника'];
+    const roleTatsiana = ['главная страница', 'дизайн', 'авторизация', 'игра "Спринт"', 'статистика', 'изученные слова'];
+    const team = [roleAlexandr, roleDina, roleTatsiana];
+
+    roles.forEach((role, ind) => {
+      const allRoles = document.createElement('ul');
+      allRoles.classList.add('all-roles');
+      const contributions = team[ind];
+
+      contributions.forEach((item) => {
+        const oneRole = document.createElement('li');
+        oneRole.innerHTML = item;
+        oneRole.classList.add('one-role');
+        allRoles.appendChild(oneRole);
+      })
+
+      role.appendChild(allRoles);
+    })
+  }
 }
