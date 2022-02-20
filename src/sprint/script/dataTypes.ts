@@ -75,6 +75,7 @@ export interface AggregatedWordsResponse {
 
 export interface ISprint {
   removeKeyPressListeners: () => void;
+  noWords: boolean;
 }
 
 export enum Answer {

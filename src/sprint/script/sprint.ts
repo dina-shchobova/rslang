@@ -49,9 +49,12 @@ export class Sprint implements ISprint {
 
   private keyPressListener?: (e:KeyboardEvent) => void;
 
+  noWords: boolean;
+
   constructor() {
     this.timer = new Timer(this);
     this.score = new Score();
+    this.noWords = false;
   }
 
   async createPageGameSprint(group: number): Promise<void> {
@@ -81,7 +84,7 @@ export class Sprint implements ISprint {
   static getNumberPageFromBook(): void {
     if (window.location.hash.includes('page=')) {
       const indexNumberPage = window.location.hash.lastIndexOf('=') + 1;
-      currentPage = +window.location.hash[indexNumberPage];
+      currentPage = (+window.location.hash[indexNumberPage]) - 1;
     }
   }
 
@@ -97,7 +100,7 @@ export class Sprint implements ISprint {
 
   async generateWordFromBook(): Promise<void> {
     const word = document.querySelector('.word') as HTMLElement;
-    wordId = words[0]?.id as string;
+    wordId = words[currentWord]?.id as string;
 
     await this.generateWordTranslate(currentGroup, words[currentWord].wordTranslate)
       .then(() => {
@@ -190,8 +193,12 @@ export class Sprint implements ISprint {
       if (amountWords % words.length === 0) {
         currentWord = 0;
         currentPage -= 1;
-        Sprint.generateWordsForTourFromBook(currentPage);
-        this.generateWordFromBook();
+        if (currentPage === -1) {
+          this.noWords = true;
+        } else {
+          Sprint.generateWordsForTourFromBook(currentPage);
+          this.generateWordFromBook();
+        }
       } else {
         this.generateWordFromBook();
       }
@@ -202,6 +209,7 @@ export class Sprint implements ISprint {
       }
       await this.generateWord(group);
     }
+    this.makeButtonActiveOrInactive('inactive');
   };
 
   async checkAnswer(typeAnswer: string | null): Promise<void> {

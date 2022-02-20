@@ -134,8 +134,9 @@ class Quiz {
   // load words
   static getNumberPage(): number {
     if (gameCallState.fromBook) {
-      const indexNumberPage = window.location.hash.lastIndexOf('=') + 1;
-      return +window.location.hash[indexNumberPage];
+      const indexSecondEqual = window.location.hash.lastIndexOf('=');
+      const page = window.location.hash.slice(indexSecondEqual + 1);
+      return +page - 1;
     }
     const amountPage = 30;
     return Math.floor(Math.random() * amountPage);
@@ -143,8 +144,10 @@ class Quiz {
 
   static getNumberGroup(): number {
     if (gameCallState.fromBook) {
-      const indexNumberPage = window.location.hash.indexOf('=') + 1;
-      gameCallState.level = +window.location.hash[indexNumberPage];
+      const indexAmpersand = window.location.hash.indexOf('&');
+      const indexFirstEqual = window.location.hash.indexOf('=');
+      const group = window.location.hash.slice(indexFirstEqual + 1, indexAmpersand);
+      gameCallState.level = +group - 1;
     }
     return gameCallState.level;
   }
@@ -156,8 +159,6 @@ class Quiz {
     let words = await getWords(level, page);
     if (localStorage.getItem('userAuthorized') === 'true' && gameCallState.fromBook) {
       let isLearnedWords = await getIsLearnedWordsList(words);
-      console.log('words', words);
-      console.log('isLearnedWords', isLearnedWords);
       do {
         const arr: string[] = [];
         isLearnedWords.forEach((word: AggregatedWordsResponsePaginatedResults) => arr.push(word.word));
@@ -168,7 +169,6 @@ class Quiz {
           }
           return true;
         });
-        console.log('this.wordsForTour', this.wordsForTour);
         page -= 1;
         // eslint-disable-next-line no-await-in-loop
         words = await getWords(level, page);

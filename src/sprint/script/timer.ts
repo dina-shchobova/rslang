@@ -19,7 +19,7 @@ export class Timer {
       const sprintWrap = document.querySelector('.sprint-wrap');
       if (!sprintWrap) return;
       if (exitGame.isExit) return;
-      if (currentTimer === -1) {
+      if (currentTimer === -1 || this.sprint.noWords) {
         this.sprint.removeKeyPressListeners();
         new SprintResult().showResult(answers);
         return;
