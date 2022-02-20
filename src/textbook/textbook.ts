@@ -3,6 +3,8 @@ import { BASE_URL } from '../services/constants';
 import { IWordObject } from '../services/types';
 import { UserWords } from '../sprint/script/dataTypes';
 import { createOneWordDiv } from '../views/components/play-word';
+import { getUser } from '../services/requests';
+import { LearnedWords } from './learnedWords';
 
 const ZERO_PAGE = 1;
 const MAX_PAGE = 30;
@@ -168,13 +170,12 @@ export class TextBookClass {
   }
 
   async getUserWords() {
-    const storage = localStorage.getItem('user') as string;
-    const userObj = JSON.parse(storage);
-    if (!userObj) return;
-    const url = `${this.baseUrl}users/${userObj.userId}/words`;
+    const user = await getUser();
+    if (!user) return;
+    const url = `${this.baseUrl}users/${user.userId}/words`;
     const rawResponse = await fetch(url, {
       headers: {
-        Authorization: `Bearer ${userObj.token}`,
+        Authorization: `Bearer ${user.token}`,
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
@@ -223,21 +224,22 @@ export class TextBookClass {
     <p class="text-example-translate">${wordObject.textExampleTranslate}</p>
     <div class="card-buttons-container">
       <button
-        class="difficult-word"
+        class="difficult-word button-word"
         data-wordId="${wordObject.id}"
         data-isExist="${isExist}"
       >
         ${isExist ? 'Удалить из списка' : 'Сложное слово'}
       </button>
+      <button class="learned-word button-word" data-learnedId="${wordObject.id}">Изученное слово</button>
     </div>
   `;
   }
 
   private createCard = (wordObject: IWordObject) => `
-  <div class="word-card">
+  <div class="word-card" data-cardId="${wordObject.id}">
     <img class="word-image" src="${BASE_URL + wordObject.image} " alt="${wordObject.word}"/>
     <div class="word-description">
-      ${createOneWordDiv(wordObject)}${this.cardDescription(wordObject)}
+      ${createOneWordDiv(wordObject)}${this.cardDescription(wordObject)}${new LearnedWords().makeWordLearned()}
     </div>
   </div>
   `;

@@ -61,6 +61,8 @@ export const backendRequest = async (url: string, method: string, getParams = {}
     newUrl.search = new URLSearchParams(Object.entries(getParams)).toString();
   }
 
+  if (!newUrl) return undefined;
+
   const response = await fetch(newUrl.toString(), {
     method,
     headers: {

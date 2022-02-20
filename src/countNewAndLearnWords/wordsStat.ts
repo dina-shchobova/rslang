@@ -122,8 +122,9 @@ const wordsStatLongTerm = {
       wordInList.optional.dateLearned = getFormattedTodayDate();
       wordInList.difficulty = 'weak';
       wordsStatsResource.updateWordInUsersWordsList(wordInList);
+    } else {
+      wordsStatsResource.addWordToUsersList(wordId, 0, true, 'weak');
     }
-    wordsStatsResource.addWordToUsersList(wordId, 0, true, 'weak');
   },
 
   async markWordAsHard(wordId: string): Promise<void> {
