@@ -1,7 +1,7 @@
 import { IAnswerOnPage, IGameCallComponent, IWordData } from '../scripts/audiocallTypes';
 import { gameCallState } from '../scripts/audiocallState';
 import { wordsStatLongTerm } from '../../countNewAndLearnWords/wordsStat';
-import {Spinner} from "../../spinner/spinner";
+import { Spinner } from '../../spinner/spinner';
 
 function shuffleAnswers(array: IAnswerOnPage[]): IAnswerOnPage[] {
   let currentIndex = array.length;

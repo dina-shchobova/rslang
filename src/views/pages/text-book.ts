@@ -97,6 +97,7 @@ export const TextBook: PageComponentThunk = async (params) => {
   const page = +args.page;
 
   const main = document.querySelector('main') as HTMLElement;
+  main.classList.add('without-scroll');
   new Spinner().addSpinner(main);
 
   if (Number.isNaN(group) || Number.isNaN(page)) {

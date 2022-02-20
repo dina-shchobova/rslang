@@ -75,11 +75,12 @@ export class Main {
     this.addContribution();
   };
 
-  addContribution() {
+  addContribution = () => {
     const roles = document.querySelectorAll('.role');
     const roleAlexandr = ['конфигурация проекта', 'роутинг', 'электронный учебник'];
     const roleDina = ['игра "Аудиовызов"', 'статистика', 'графики статистики', 'мини-игры со страницы учебника'];
-    const roleTatsiana = ['главная страница', 'дизайн', 'авторизация', 'игра "Спринт"', 'статистика', 'изученные слова'];
+    const roleTatsiana = ['главная страница', 'дизайн', 'авторизация', 'игра "Спринт"', 'статистика',
+      'изученные слова'];
     const team = [roleAlexandr, roleDina, roleTatsiana];
 
     roles.forEach((role, ind) => {
@@ -92,9 +93,9 @@ export class Main {
         oneRole.innerHTML = item;
         oneRole.classList.add('one-role');
         allRoles.appendChild(oneRole);
-      })
+      });
 
       role.appendChild(allRoles);
-    })
-  }
+    });
+  };
 }
