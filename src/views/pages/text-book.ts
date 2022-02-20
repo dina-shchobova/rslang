@@ -7,6 +7,7 @@ import { createHandler as createAudioHandler } from '../components/play-word';
 let textbook: TextBookClass | null;
 let pager: HTMLDivElement | null;
 let difficultWordButton: NodeListOf<HTMLElement> | null;
+let learnedWordButton: NodeListOf<HTMLElement> | null;
 let scroolUp: HTMLButtonElement;
 let tbContainer: HTMLDivElement;
 
@@ -42,11 +43,30 @@ const difficultWordClickHandler = async (e: MouseEvent): Promise<void> => {
   }
 };
 
+const learnedWordClickHandler = async (e: MouseEvent): Promise<void> => {
+  const wordCards = document.querySelectorAll('.word-card') as unknown as HTMLElement[];
+  const target = e.target as HTMLElement;
+  const wordId = { ...target.dataset };
+  if (!wordId) return;
+  await wordsStatLongTerm.markWordAsLearned(wordId.learnedid as string)
+    .then(() => {
+      wordCards.forEach((card, ind) => {
+        const cardId = { ...card.dataset };
+        if (cardId.cardid === wordId.learnedid) {
+          wordCards[ind].classList.add('learned');
+        }
+      });
+      target.classList.add('button-learned-word');
+    });
+};
+
 const mount = () => {
   pager = document.getElementById('pagination-buttons') as HTMLDivElement;
   difficultWordButton = document.querySelectorAll<HTMLElement>('.difficult-word');
+  learnedWordButton = document.querySelectorAll<HTMLElement>('.learned-word');
   pager.addEventListener('click', pagerClickHandler);
   difficultWordButton.forEach((button) => button.addEventListener('click', difficultWordClickHandler));
+  learnedWordButton.forEach((button) => button.addEventListener('click', learnedWordClickHandler));
   scroolUp = document.getElementById('scroll-up') as HTMLButtonElement;
   tbContainer = document.querySelector('.textbook-container') as HTMLDivElement;
   scroolUp.addEventListener('click', () => tbContainer.scrollTo(0, 0));
@@ -58,6 +78,9 @@ const unmount = () => {
   if (pager) pager.removeEventListener('click', pagerClickHandler);
   if (difficultWordButton) {
     difficultWordButton.forEach((button) => button.removeEventListener('click', difficultWordClickHandler));
+  }
+  if (learnedWordButton) {
+    learnedWordButton.forEach((button) => button.removeEventListener('click', learnedWordClickHandler));
   }
   tbContainer = document.querySelector('.textbook-container') as HTMLDivElement;
   if (scroolUp) scroolUp.removeEventListener('click', () => tbContainer.scrollTo(0, 0));
