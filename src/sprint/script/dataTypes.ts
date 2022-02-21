@@ -1,5 +1,3 @@
-import { IWordData } from '../../audiocall/scripts/audiocallTypes';
-
 export interface WordData {
   id: string,
   group: number,
@@ -70,7 +68,7 @@ export interface AggregatedWordsResponseTotalCount {
   count: number
 }
 
-export interface AggregatedWordsResponsePaginatedResults extends IWordData {
+export interface AggregatedWordsResponsePaginatedResults extends WordData {
   _id: string
   userWord: UserWord
 }

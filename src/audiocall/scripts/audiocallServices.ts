@@ -1,12 +1,11 @@
-import { IWordData } from './audiocallTypes';
 import { BASE_URL } from '../../services/constants';
 import {
   AggregatedWordsResponse,
-  AggregatedWordsResponsePaginatedResults,
+  AggregatedWordsResponsePaginatedResults, WordData,
 } from '../../sprint/script/dataTypes';
 import { UserData } from '../../authorization/dataTypes';
 
-export const getWords = async (group: number, page: number): Promise<IWordData[]> => {
+export const getWords = async (group: number, page: number): Promise<WordData[]> => {
   const rawResponse = await fetch(`${BASE_URL}words?group=${group}&page=${page}`, {
     method: 'GET',
     headers: {
@@ -19,7 +18,7 @@ export const getWords = async (group: number, page: number): Promise<IWordData[]
   throw new Error(`Ошибка HTTP: ${rawResponse.status}`);
 };
 
-export const getIsLearnedWordsList = async (words: IWordData[]): Promise<AggregatedWordsResponsePaginatedResults[]> => {
+export const getIsLearnedWordsList = async (words: WordData[]): Promise<AggregatedWordsResponsePaginatedResults[]> => {
   const user: UserData = JSON.parse(<string>localStorage.getItem('user'));
 
   const url = new URL(`${BASE_URL}users/${user?.userId}/aggregatedWords`);

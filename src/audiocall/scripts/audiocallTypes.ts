@@ -1,3 +1,5 @@
+import { WordData } from '../../sprint/script/dataTypes';
+
 type SubPages = {
   [key: string]: new(game: IGameCallComponent) => ICallComponent;
 };
@@ -24,38 +26,21 @@ interface ICallLevelsComponent extends ICallComponent {
   game: IGameCallComponent;
 }
 
-interface IWordData{
-  id: string,
-  group: 0,
-  page: 0,
-  word: string,
-  image: string,
-  audio: string,
-  audioMeaning: string,
-  audioExample: string,
-  textMeaning: string,
-  textExample: string,
-  transcription: string,
-  wordTranslate: string,
-  textMeaningTranslate: string,
-  textExampleTranslate: string
-}
-
 interface IAnswerOnPage {
-  answerData: IWordData;
+  answerData: WordData;
   correct: undefined | boolean;
   inactive: boolean
 }
 
 interface IGameCallState {
   level: number;
-  correctAnswers: IWordData[];
-  wrongAnswers: IWordData[];
+  correctAnswers: WordData[];
+  wrongAnswers: WordData[];
   maxSeries: number;
   newWordsPromises: Promise<boolean>[];
   soundEffectOn: boolean;
 }
 
 export {
-  ICallComponent, IGameCallComponent, ICallLevelsComponent, SubPages, IWordData, IAnswerOnPage, IGameCallState,
+  ICallComponent, IGameCallComponent, ICallLevelsComponent, SubPages, WordData, IAnswerOnPage, IGameCallState,
 };
