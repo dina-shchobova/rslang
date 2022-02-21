@@ -1,8 +1,8 @@
 import wordsStatsResource from '../countNewAndLearnWords/wordsStatsResource';
 
 export class LearnedWords {
-  makeWordLearned = async () => {
-    await wordsStatsResource.getUserWordsList()
+  makeWordLearned = () => {
+    wordsStatsResource.getUserWordsList()
       .then((res) => {
         res.forEach((word) => {
           if (word.optional.isLearned) {
@@ -18,5 +18,6 @@ export class LearnedWords {
           }
         });
       });
+    return '';
   };
 }
