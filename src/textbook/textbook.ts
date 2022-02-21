@@ -156,8 +156,12 @@ export class TextBookClass {
     setTimeout(() => {
       const isAuthorized = localStorage.getItem('userAuthorized');
       const hardWords = document.querySelector('.color7') as HTMLElement;
-      isAuthorized ? hardWords.classList.remove('inactive-hard-words') : hardWords.classList.add('inactive-hard-words');
-    }, 10)
+      if (isAuthorized) {
+        hardWords.classList.remove('inactive-hard-words');
+      } else {
+        hardWords.classList.add('inactive-hard-words');
+      }
+    }, 10);
 
     return `
     <div class="textbook-container">
