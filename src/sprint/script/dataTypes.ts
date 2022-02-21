@@ -36,6 +36,10 @@ export interface UserWord {
   optional: {
     countRightAnswersInRow: number,
     isLearned: boolean,
+    progress: {
+      right: number,
+      wrong: number
+    },
     dateLearned?: string,
     dateAdded?: string,
   },

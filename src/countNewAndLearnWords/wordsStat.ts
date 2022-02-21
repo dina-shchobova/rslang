@@ -78,10 +78,17 @@ const wordsStatLongTerm = {
         wordInList.optional.dateLearned = getFormattedTodayDate();
         wordInList.difficulty = 'weak';
       }
+      if (!wordInList.optional.progress) {
+        wordInList.optional.progress = {
+          right: 0,
+          wrong: 0,
+        };
+      }
+      wordInList.optional.progress.right += 1;
       wordsStatsResource.updateWordInUsersWordsList(wordInList);
       return false;
     }
-    wordsStatsResource.addWordToUsersList(wordId, 1);
+    wordsStatsResource.addWordToUsersList(wordId, 1, false, 'weak', 1);
     return true;
   },
 
@@ -103,10 +110,17 @@ const wordsStatLongTerm = {
       wordInList.optional.countRightAnswersInRow = 0;
       wordInList.optional.isLearned = false;
       wordInList.optional.dateLearned = undefined;
+      if (!wordInList.optional.progress) {
+        wordInList.optional.progress = {
+          right: 0,
+          wrong: 0,
+        };
+      }
+      wordInList.optional.progress.wrong += 1;
       wordsStatsResource.updateWordInUsersWordsList(wordInList);
       return false;
     }
-    wordsStatsResource.addWordToUsersList(wordId, 0);
+    wordsStatsResource.addWordToUsersList(wordId, 0, false, 'weak', 0, 1);
     return true;
   },
 

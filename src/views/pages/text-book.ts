@@ -3,6 +3,7 @@ import { BASE_URL } from '../../services/constants';
 import { PageComponentThunk } from '../../services/types';
 import { TextBookClass } from '../../textbook/textbook';
 import { createHandler as createAudioHandler } from '../components/play-word';
+import { LearnedWords } from '../../textbook/learnedWords';
 import { Spinner } from '../../spinner/spinner';
 
 let textbook: TextBookClass | null;
@@ -59,6 +60,7 @@ const learnedWordClickHandler = async (e: MouseEvent): Promise<void> => {
       });
       target.classList.add('button-learned-word');
     });
+  new LearnedWords().makePageInactive();
 };
 
 const mount = () => {

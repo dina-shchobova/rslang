@@ -43,6 +43,8 @@ const wordsStatsResource = {
     countRightAnswersInRow = 0,
     isLearned = false,
     difficulty = 'weak',
+    right = 0,
+    wrong = 0,
   ): Promise<UserWord | undefined> {
     const user = JSON.parse(<string>localStorage.getItem('user'));
     const getParams = {
@@ -56,6 +58,7 @@ const wordsStatsResource = {
       optional: {
         countRightAnswersInRow,
         isLearned,
+        progress: { right, wrong },
         dateAdded: getFormattedTodayDate(),
       },
     };

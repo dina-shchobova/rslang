@@ -5,6 +5,7 @@ import { UserWords } from '../sprint/script/dataTypes';
 import { createOneWordDiv } from '../views/components/play-word';
 import { getUser } from '../services/requests';
 import { LearnedWords } from './learnedWords';
+import { Progress } from './progress';
 
 const ZERO_PAGE = 1;
 const MAX_PAGE = 30;
@@ -147,8 +148,12 @@ export class TextBookClass {
     <div class="textbook-container">
       <button id="scroll-up" class="scroll-up">&#187;</button>
       <div class="textbook-games">
-        <a class="textbook-games-link" href="#/sprint?level=${this.group}&page=${this.page}">Спринт</a>
-        <a class="textbook-games-link" href="#/audiocall?level=${this.group}&page=${this.page}">Аудиовызов</a>
+        <a class="textbook-games-link" href="#/sprint?level=${this.group}&page=${this.page}">
+            <button class="book-game">Спринт</button>
+        </a>
+        <a class="textbook-games-link" href="#/audiocall?level=${this.group}&page=${this.page}">
+            <button class="book-game">Аудиовызов</button>
+        </a>
       </div>
       <div class="pages-groups-container">
         ${this.getGroupButton()}
@@ -166,6 +171,7 @@ export class TextBookClass {
       ${words.map((wordObject: IWordObject) => this.createCard(wordObject)).join('')}
     </div>
   </div>
+    ${new Progress().showProgress()}
   `;
   }
 
@@ -182,7 +188,7 @@ export class TextBookClass {
     });
     const words = await rawResponse.json();
     this.userWords = new Set(words.map(({ wordId }: UserWords) => wordId));
-
+    new LearnedWords().makeWordLearned();
     // const content = await rawResponse;
     // eslint-disable-next-line no-console
   }
@@ -215,7 +221,9 @@ export class TextBookClass {
 
   private cardDescription(wordObject: IWordObject) {
     const isExist = this.userWords.has(wordObject.id);
-    return `
+    const isAuthorized = localStorage.getItem('userAuthorized');
+
+    const userAuthorized = `
     <p class="word-translate">${wordObject.wordTranslate}</p>
     <p class="text-meaning">${wordObject.textMeaning}</p>
     <p class="text-meaning-translate">${wordObject.textMeaningTranslate}</p>
@@ -232,14 +240,29 @@ export class TextBookClass {
       </button>
       <button class="learned-word button-word" data-learnedId="${wordObject.id}">Изученное слово</button>
     </div>
+    <div class="progress" data-progressId="${wordObject.id}">Ответы:
+        <div class="right">правильные - <div class="amount-right">0</div>,</div>
+        <div class="wrong">ошибки - <div class="amount-wrong">0</div></div>
+    </div>
   `;
+
+    const userNotAuthorized = `
+     <p class="word-translate">${wordObject.wordTranslate}</p>
+     <p class="text-meaning">${wordObject.textMeaning}</p>
+     <p class="text-meaning-translate">${wordObject.textMeaningTranslate}</p>
+     <div class="line"></div>
+     <p class="text-example">${wordObject.textExample}</p>
+     <p class="text-example-translate">${wordObject.textExampleTranslate}</p>
+  `;
+
+    return isAuthorized ? userAuthorized : userNotAuthorized;
   }
 
   private createCard = (wordObject: IWordObject) => `
   <div class="word-card" data-cardId="${wordObject.id}">
     <img class="word-image" src="${BASE_URL + wordObject.image} " alt="${wordObject.word}"/>
     <div class="word-description">
-      ${createOneWordDiv(wordObject)}${this.cardDescription(wordObject)}${new LearnedWords().makeWordLearned()}
+      ${createOneWordDiv(wordObject)}${this.cardDescription(wordObject)}
     </div>
   </div>
   `;
