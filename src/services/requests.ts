@@ -52,7 +52,7 @@ export const getUser = async (): Promise<User | undefined> => {
   return user;
 };
 
-export const backendRequest = async (url: string, method: string, getParams = {},
+export const backendRequest = async (url: string, method: 'POST' | 'GET' | 'PUT' | 'UPDATE' | 'DELETE', getParams = {},
   postParams = {}): Promise<UserWord | undefined> => {
   let user = JSON.parse(<string>localStorage.getItem('user'));
   const newUrl = new URL(BASE_URL + url);
@@ -62,16 +62,18 @@ export const backendRequest = async (url: string, method: string, getParams = {}
   }
 
   if (!newUrl) return undefined;
-
-  const response = await fetch(newUrl.toString(), {
+  const requestParams: RequestInit = {
     method,
     headers: {
       Authorization: `Bearer ${user.token}`,
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(postParams),
-  });
+  };
+  if (method !== 'GET') {
+    requestParams.body = JSON.stringify(postParams);
+  }
+  const response = await fetch(newUrl.toString(), requestParams);
 
   if (response.ok) {
     return response.json();
