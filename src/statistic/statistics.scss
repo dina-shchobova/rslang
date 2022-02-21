@@ -1,0 +1,114 @@
+.no-authorization {
+  height: calc(100vh - 80px);
+  overflow: hidden;
+}
+
+.statistics-wrap {
+  .statistics {
+    margin-top: 80px;
+
+    .subtitle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      margin: 15px 0 35px;
+      padding: 15px;
+      text-shadow: 0 0 20px black;
+      text-align: center;
+    }
+
+    .statistics-container {
+      position: relative;
+      border: 2px solid black;
+      border-radius: 15px;
+      margin: 0 auto;
+      padding: 20px;
+      width: calc(100% - 40vw);
+      min-width: 340px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 600px; //calc(100vh - 315px);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 25px black;
+
+      .statistics-info {
+        position: absolute;
+        top: 30px;
+        font-size: 24px;
+        padding: 15px;
+      }
+
+      .statistics-point {
+        display: flex;
+        margin: 15px 0;
+
+        .title-point {
+          margin-right: 10px;
+        }
+      }
+    }
+
+    .icon-game {
+      display: flex;
+      position: absolute;
+      bottom: 0;
+
+      .game {
+        width: 80px;
+        height: 80px;
+        border: 2px solid black;
+        margin: 15px;
+        border-radius: 15px;
+        box-shadow: 0 0 10px black;
+        transition: 0.3s;
+      }
+
+      .statistics-audiocall {
+        background: url("/public/assets/svg/audioheadset.svg") no-repeat center;
+        background-size: 80%;
+      }
+
+      .statistics-sprint {
+        background: url("/public/assets/svg/timer.svg") no-repeat center;
+        background-size: 80%;
+      }
+
+      .statistics-words {
+        background: url("/public/assets/svg/words.svg") no-repeat center;
+        background-size: 80%;
+      }
+
+      .words {
+        width: 150px;
+        height: 60px;
+        padding: 5px;
+        border: 2px solid black;
+        margin: 15px 10px;
+        border-radius: 15px;
+        box-shadow: 0 0 10px black;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition: 0.3s;
+      }
+
+      .active {
+        border: 2px solid green;
+        box-shadow: 0 0 10px green;
+      }
+    }
+
+    .long-term-statistics {
+      margin-bottom: 50px;
+
+      .title {
+        margin: 100px 0 0;
+      }
+    }
+  }
+}
