@@ -148,8 +148,12 @@ export class TextBookClass {
     <div class="textbook-container">
       <button id="scroll-up" class="scroll-up">&#187;</button>
       <div class="textbook-games">
-        <a class="textbook-games-link" href="#/sprint?level=${this.group}&page=${this.page}">Спринт</a>
-        <a class="textbook-games-link" href="#/audiocall?level=${this.group}&page=${this.page}">Аудиовызов</a>
+        <a class="textbook-games-link" href="#/sprint?level=${this.group}&page=${this.page}">
+            <button class="book-game">Спринт</button>
+        </a>
+        <a class="textbook-games-link" href="#/audiocall?level=${this.group}&page=${this.page}">
+            <button class="book-game">Аудиовызов</button>
+        </a>
       </div>
       <div class="pages-groups-container">
         ${this.getGroupButton()}
@@ -167,7 +171,7 @@ export class TextBookClass {
       ${words.map((wordObject: IWordObject) => this.createCard(wordObject)).join('')}
     </div>
   </div>
-  ${new LearnedWords().makeWordLearned()}${new Progress().showProgress()}
+    ${new Progress().showProgress()}
   `;
   }
 
@@ -184,7 +188,7 @@ export class TextBookClass {
     });
     const words = await rawResponse.json();
     this.userWords = new Set(words.map(({ wordId }: UserWords) => wordId));
-
+    new LearnedWords().makeWordLearned();
     // const content = await rawResponse;
     // eslint-disable-next-line no-console
   }

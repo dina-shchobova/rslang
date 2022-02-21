@@ -32,7 +32,7 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 1em;
-  font-size: 2.5em;
+  font-size: 2em;
 }
 
 
@@ -40,8 +40,6 @@
   background-color: rgba(238, 236, 236, .377);
   border-radius: 10px;
   border: 5px solid rgba(238, 236, 236, 0.377);
-  margin: 0 1em;
-  padding: 5px 5px;
   cursor: pointer;
 }
 
@@ -339,6 +337,31 @@
       margin: 0 5px;
     }
   }
+}
+
+.book-game {
+  width: 150px;
+  height: 50px;
+  padding: 5px;
+  font-size: 22px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px black;
+  transition: 0.3s;
+}
+
+.disabled {
+  pointer-events: none;
+}
+
+.button-learned.btn {
+  background: #d0f0c0;
+  box-shadow: 0 0 10px green;
+  color: green;
+}
+
+.page-learned {
+  pointer-events: none;
+  filter: blur(3px);
 }
 
 
