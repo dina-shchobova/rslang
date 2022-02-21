@@ -7,6 +7,7 @@ import {
   AggregatedWordsResponsePaginatedResults, gameCallState, ISprint, sound, WordData,
 } from './dataTypes';
 import { wordsStatLongTerm } from '../../countNewAndLearnWords/wordsStat';
+import { Spinner } from '../../spinner/spinner';
 import { getIsLearnedWordsList } from '../../audiocall/scripts/audiocallServices';
 import { IWordData } from '../../audiocall/scripts/audiocallTypes';
 
@@ -68,6 +69,8 @@ export class Sprint implements ISprint {
     sprintPage.classList.add('sprint-wrap');
     gameSprint.appendChild(sprintPage);
     chooseLevels?.remove();
+    const word = document.querySelector('.word') as HTMLElement;
+    new Spinner().addSpinner(word);
 
     if (window.location.hash.includes('page=')) {
       Sprint.getNumberPageFromBook();

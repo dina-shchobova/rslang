@@ -1,6 +1,7 @@
 import { IAnswerOnPage, IGameCallComponent, IWordData } from '../scripts/audiocallTypes';
 import { gameCallState } from '../scripts/audiocallState';
 import { wordsStatLongTerm } from '../../countNewAndLearnWords/wordsStat';
+import { Spinner } from '../../spinner/spinner';
 import { getIsLearnedWordsList, getWords } from '../scripts/audiocallServices';
 import { AggregatedWordsResponsePaginatedResults } from '../../sprint/script/dataTypes';
 
@@ -100,6 +101,7 @@ class Quiz {
     rootElement.classList.add('field');
     rootElement.innerHTML = htmlCodeQuiz;
     this.rootElement = rootElement;
+    new Spinner().addSpinner(rootElement);
     return rootElement;
   }
 
@@ -250,6 +252,9 @@ class Quiz {
   }
 
   playSoundAnswer(): void {
+    const spinner = document.querySelector('.container-spinner') as HTMLElement;
+    spinner?.remove();
+
     const sound = this.getPlayer();
     const { audio } = (this.correctAnswerOnPage as IAnswerOnPage).answerData;
     sound.src = `${BACKEND_URL}${audio}`;
