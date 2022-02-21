@@ -11,7 +11,7 @@ const htmlCodeMainPage = `
 const textAdvantages = {
   locate: 'Всегда под рукой',
   play: 'Обучение в играх',
-  hard: 'Отмечай сложные слова',
+  markHard: 'Отмечай сложные слова',
   progress: 'Отслеживай свой прогресс',
 };
 
@@ -78,7 +78,8 @@ export class Main {
   addContribution = () => {
     const roles = document.querySelectorAll('.role');
     const roleAlexandr = ['конфигурация проекта', 'роутинг', 'электронный учебник'];
-    const roleDina = ['игра "Аудиовызов"', 'статистика', 'графики статистики', 'мини-игры со страницы учебника'];
+    const roleDina = ['игра "Аудиовызов"', 'статистика', 'графики статистики', 'мини-игры со страницы учебника',
+      'сложные слова'];
     const roleTatsiana = ['главная страница', 'дизайн', 'авторизация', 'игра "Спринт"', 'статистика',
       'изученные слова'];
     const team = [roleAlexandr, roleDina, roleTatsiana];
