@@ -8,7 +8,6 @@ export class Progress {
         res.forEach((word) => {
           progress.forEach((item) => {
             const progressId = ({ ...item.dataset }).progressid;
-
             if (progressId === word.wordId) {
               const addAmount = (type: string) => {
                 const answer = item.querySelector(`.${type}`) as HTMLElement;

@@ -69,7 +69,6 @@ const wordsStatLongTerm = {
     if (localStorage.getItem('userAuthorized') !== 'true') {
       return false;
     }
-    let progressRight = 0;
     const wordInList = await wordsStatsResource.checkWordIsInUserWordsList(wordId);
     if (wordInList) {
       wordInList.optional.countRightAnswersInRow += 1;
@@ -79,12 +78,17 @@ const wordsStatLongTerm = {
         wordInList.optional.dateLearned = getFormattedTodayDate();
         wordInList.difficulty = 'weak';
       }
-      wordInList.optional.progress.right++;
+      if (!wordInList.optional.progress) {
+        wordInList.optional.progress = {
+          right: 0,
+          wrong: 0,
+        };
+      }
+      wordInList.optional.progress.right += 1;
       wordsStatsResource.updateWordInUsersWordsList(wordInList);
       return false;
     }
-    progressRight++;
-    wordsStatsResource.addWordToUsersList(wordId, 1, false, 'weak', progressRight);
+    wordsStatsResource.addWordToUsersList(wordId, 1, false, 'weak', 1);
     return true;
   },
 
@@ -101,18 +105,22 @@ const wordsStatLongTerm = {
     if (localStorage.getItem('userAuthorized') !== 'true') {
       return false;
     }
-    let progressWrong = 0;
     const wordInList = await wordsStatsResource.checkWordIsInUserWordsList(wordId);
     if (wordInList) {
       wordInList.optional.countRightAnswersInRow = 0;
       wordInList.optional.isLearned = false;
       wordInList.optional.dateLearned = undefined;
-      wordInList.optional.progress.wrong++;
+      if (!wordInList.optional.progress) {
+        wordInList.optional.progress = {
+          right: 0,
+          wrong: 0,
+        };
+      }
+      wordInList.optional.progress.wrong += 1;
       wordsStatsResource.updateWordInUsersWordsList(wordInList);
       return false;
     }
-    progressWrong++;
-    wordsStatsResource.addWordToUsersList(wordId, 0, false, 'weak', progressWrong);
+    wordsStatsResource.addWordToUsersList(wordId, 0, false, 'weak', 0, 1);
     return true;
   },
 
