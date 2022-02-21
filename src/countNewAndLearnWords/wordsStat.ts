@@ -141,6 +141,22 @@ const wordsStatLongTerm = {
     }
   },
 
+  async unmarkWordAsLearned(wordId: string): Promise<void> {
+    // только для явного вызова из словаря.
+    // убираем маркировку выученного. кол-во ответов игнорируем
+    if (localStorage.getItem('userAuthorized') !== 'true') {
+      return;
+    }
+    const wordInList = await wordsStatsResource.checkWordIsInUserWordsList(wordId);
+    if (wordInList) {
+      wordInList.optional.isLearned = false;
+      delete wordInList.optional.dateLearned;
+      wordsStatsResource.updateWordInUsersWordsList(wordInList);
+    } else {
+      wordsStatsResource.addWordToUsersList(wordId);
+    }
+  },
+
   async markWordAsHard(wordId: string): Promise<void> {
     // только для явного вызова из словаря.
     // маркируем как сложное.
@@ -153,11 +169,12 @@ const wordsStatLongTerm = {
       delete wordInList.optional.dateLearned;
       wordInList.difficulty = 'hard';
       wordsStatsResource.updateWordInUsersWordsList(wordInList);
+    } else {
+      wordsStatsResource.addWordToUsersList(wordId, 0, false, 'hard');
     }
-    wordsStatsResource.addWordToUsersList(wordId, 0, false, 'hard');
   },
 
-  async removeMarkWordAsHard(wordId: string): Promise<void> {
+  async unmarkWordAsHard(wordId: string): Promise<void> {
     // только для явного вызова из страницы сложных слов.
     // маркируем как легкое.
     if (localStorage.getItem('userAuthorized') !== 'true') {

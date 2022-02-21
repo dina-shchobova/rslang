@@ -1,10 +1,10 @@
-import axios from 'axios';
 import { BASE_URL } from '../services/constants';
 import { IWordObject } from '../services/types';
-import { UserWords } from '../sprint/script/dataTypes';
+import { AggregatedWordsResponse, AggregatedWordsResponsePaginatedResults, WordData } from '../sprint/script/dataTypes';
 import { createOneWordDiv } from '../views/components/play-word';
 import { LearnedWords } from './learnedWords';
-import { Progress } from './progress';
+import { backendRequest } from '../services/requests';
+import { getUsersWordsOnPage } from './requests';
 import { UserData } from '../authorization/dataTypes';
 
 const ZERO_PAGE = 1;
@@ -20,16 +20,25 @@ export class TextBookClass {
 
   private page: number;
 
+  private hardWordsMode: boolean;
+
   private baseUrl: string;
 
   private container: HTMLElement;
+
+  private wordsOnPage: WordData[];
+
+  private usersWordsOnPage: AggregatedWordsResponsePaginatedResults[];
 
   constructor(baseUrl: string, container: HTMLElement,
     initGroup = 1, initPage = ZERO_PAGE) {
     this.group = initGroup;
     this.page = initPage;
+    this.hardWordsMode = false;
     this.baseUrl = baseUrl;
     this.container = container;
+    this.wordsOnPage = [];
+    this.usersWordsOnPage = [];
   }
 
   isUserLoggedIn = false;
@@ -89,7 +98,7 @@ export class TextBookClass {
     <div class="dropdown-groups">
     <button class="dropdown-menu color${this.group}">${this.group}</button>
     <div class="dropdown-child">
-      <a class="group-link color7" href="/#">Сложные слова</a>
+      <a class="group-link color7" href="#/text-book?group=7&page=1">Сложные слова</a>
       ${[...Array(6).keys()].map((n: number) => `
       <a
         class="group-link color${n + 1} ${this.group === n + 1 ? 'hide-link' : ''}"
@@ -143,7 +152,6 @@ export class TextBookClass {
     const disabledIfMaxPage = this.page === MAX_PAGE ? ' disabled' : '';
     const disableLowThan7 = this.page <= PAGINATION_BTNS_QUANITY ? ' disabled' : '';
     const disableMoreThan23 = this.page > MAX_PAGE - PAGINATION_BTNS_QUANITY ? ' disabled' : '';
-
     return `
     <div class="textbook-container">
       <button id="scroll-up" class="scroll-up">&#187;</button>
@@ -157,7 +165,7 @@ export class TextBookClass {
       </div>
       <div class="pages-groups-container">
         ${this.getGroupButton()}
-        <div id="pagination-buttons" class="pagination-buttons">
+        <div id="pagination-buttons" class="pagination-buttons" ${this.hardWordsMode ? 'style="display: none"' : ''}>
         ${this.createPagerButton(BTN_PREV_ROLE, previousPage, '&#9664', disabledIfZero, '', 'prev-button')}
         ${this.createPagerButton('', ZERO_PAGE, ZERO_PAGE, '', `num ${isZeroPageCurrent}`)}
         ${this.createPagerButton('', pageMinusSeven, '...', disableLowThan7, 'num', '', disableLowThanZero)}
@@ -171,42 +179,40 @@ export class TextBookClass {
       ${words.map((wordObject: IWordObject) => this.createCard(wordObject)).join('')}
     </div>
   </div>
-    ${new Progress().showProgress()}
   `;
   }
 
-  async getUserWords() {
-    const user: UserData = JSON.parse(<string>localStorage.getItem('user'));
-    if (!user) return;
-    const url = `${this.baseUrl}users/${user.userId}/words`;
-    const rawResponse = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${user.token}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    });
-    const words = await rawResponse.json();
-    this.userWords = new Set(words.map(({ wordId }: UserWords) => wordId));
-    new LearnedWords().makeWordLearned();
-    // const content = await rawResponse;
-    // eslint-disable-next-line no-console
-  }
-
   async getWords() {
-    const url = `${this.baseUrl}words?group=${this.group - 1}&page=${this.page - 1}`;
-    this.isUserLoggedIn = Boolean(window.localStorage.getItem('userAuthorized'));
-    if (this.isUserLoggedIn) {
-      // const wordObjectArray = await this.getUserWords('1', '1');
-      // this.userWords = new Set((wordObjectArray.map((x:IWordObject) => x.wordId)));
-      // eslint-disable-next-line no-console
-      // console.log(this.userWords);
+    if (this.group === 7) {
+      this.hardWordsMode = true;
+      const user: UserData = JSON.parse(<string>localStorage.getItem('user'));
+      const filter = JSON.stringify({
+        'userWord.difficulty': 'hard',
+      });
+      const resp = await backendRequest(
+        `users/${user?.userId}/aggregatedWords`,
+        'GET',
+        {
+          page: 0,
+          wordsPerPage: 200,
+          filter,
+        },
+      ) as AggregatedWordsResponse[];
+      // eslint-disable-next-line no-underscore-dangle
+      return resp[0].paginatedResults.map((w) => { w.id = w._id; return w; });
     }
-    return axios.get(url).then((d) => d.data);
+    return backendRequest(`words?group=${this.group - 1}&page=${this.page - 1}`);
   }
 
-  async getWordsConainer() {
-    return this.getView(await this.getWords());
+  async getRenderedPage() {
+    this.wordsOnPage = await this.getWords();
+    if (this.wordsOnPage.length) {
+      this.usersWordsOnPage = await getUsersWordsOnPage(this.wordsOnPage.map((w) => w.word));
+    }
+    setTimeout(() => {
+      new LearnedWords().makePageInactive();
+    }, 10);
+    return this.getView(this.wordsOnPage);
   }
 
   setPage(page: number) {
@@ -220,9 +226,26 @@ export class TextBookClass {
   }
 
   private cardDescription(wordObject: IWordObject) {
-    const isExist = this.userWords.has(wordObject.id);
     const isAuthorized = localStorage.getItem('userAuthorized');
-
+    let wrongCount = 0;
+    let rightCount = 0;
+    let wordIsLearned = false;
+    let wordIsHard = false;
+    this.usersWordsOnPage.forEach((userWord) => {
+      if (wordObject.word === userWord.word) {
+        if (userWord.userWord?.optional?.progress?.right) {
+          rightCount = userWord.userWord.optional.progress.right;
+        }
+        if (userWord.userWord?.optional?.progress?.wrong) {
+          wrongCount = userWord.userWord.optional.progress.wrong;
+        }
+        if (userWord.userWord?.optional?.dateLearned) {
+          wordIsLearned = true;
+        } else if (userWord.userWord?.difficulty === 'hard') {
+          wordIsHard = true;
+        }
+      }
+    });
     const userAuthorized = `
     <p class="word-translate">${wordObject.wordTranslate}</p>
     <p class="text-meaning">${wordObject.textMeaning}</p>
@@ -232,17 +255,20 @@ export class TextBookClass {
     <p class="text-example-translate">${wordObject.textExampleTranslate}</p>
     <div class="card-buttons-container">
       <button
-        class="difficult-word button-word"
-        data-wordId="${wordObject.id}"
-        data-isExist="${isExist}"
-      >
-        ${isExist ? 'Удалить из списка' : 'Сложное слово'}
+        class="difficult-word button-word ${wordIsHard ? 'button-hard-word' : ''}"
+        data-word-id="${wordObject.id}"
+        data-is-hard="${wordIsHard}"
+      >Сложное слово
       </button>
-      <button class="learned-word button-word" data-learnedId="${wordObject.id}">Изученное слово</button>
+      <button
+        class="learned-word button-word ${wordIsLearned ? 'button-learned-word' : ''}"
+        data-word-id="${wordObject.id}"
+        data-is-learned="${wordIsLearned}"
+      >Изученное слово</button>
     </div>
     <div class="progress" data-progressId="${wordObject.id}">Ответы:
-        <div class="right">правильные - <div class="amount-right">0</div>,</div>
-        <div class="wrong">ошибки - <div class="amount-wrong">0</div></div>
+        <div class="right">правильные - <div class="amount-right">${rightCount}</div>,</div>
+        <div class="wrong">ошибки - <div class="amount-wrong">${wrongCount}</div></div>
     </div>
   `;
 
@@ -258,12 +284,31 @@ export class TextBookClass {
     return isAuthorized ? userAuthorized : userNotAuthorized;
   }
 
-  private createCard = (wordObject: IWordObject) => `
-  <div class="word-card" data-cardId="${wordObject.id}">
+  private createCard = (wordObject: IWordObject) => {
+    let wordIsLearned = false;
+    let wordIsHard = false;
+    this.usersWordsOnPage.forEach((userWord) => {
+      if (wordObject.word === userWord.word) {
+        if (userWord.userWord?.optional?.dateLearned) {
+          wordIsLearned = true;
+        } else if (userWord.userWord?.difficulty === 'hard') {
+          wordIsHard = true;
+        }
+      }
+    });
+    let cardAdditionalClass = '';
+    if (wordIsLearned) {
+      cardAdditionalClass = 'learned';
+    } else if (wordIsHard) {
+      cardAdditionalClass = 'hard';
+    }
+    return `
+  <div class="word-card ${cardAdditionalClass}" data-cardId="${wordObject.id}">
     <img class="word-image" src="${BASE_URL + wordObject.image} " alt="${wordObject.word}"/>
     <div class="word-description">
       ${createOneWordDiv(wordObject)}${this.cardDescription(wordObject)}
     </div>
   </div>
   `;
+  };
 }

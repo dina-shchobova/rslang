@@ -22,44 +22,60 @@ const pagerClickHandler = async (e: MouseEvent): Promise<void> => {
 
 const difficultWordClickHandler = async (e: MouseEvent): Promise<void> => {
   const target = e.target as HTMLElement;
-  const { isexist, wordid } = target.dataset;
-  if (!wordid) return;
-  if (isexist === 'false') {
-    await wordsStatLongTerm.markWordAsHard(wordid);
-    if (textbook) {
-      textbook.userWords.add(wordid as string);
-      // eslint-disable-next-line no-console
-      // console.log(1, textbook.userWords);
-      target.dataset.isexist = 'true';
-      target.textContent = 'Удалить из списка';
-    }
+  const { wordId, isHard } = target.dataset;
+  if (!wordId) return;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  if (textbook.hardWordsMode) {
+    (target.closest('.word-card') as HTMLElement).remove();
+  }
+  if (isHard === 'true') {
+    target.dataset.isHard = String(false);
+    target.classList.remove('button-hard-word');
+    (target.closest('.word-card') as HTMLElement).classList.remove('hard');
+    await wordsStatLongTerm.unmarkWordAsHard(wordId);
   } else {
-    await Promise.resolve('вызвать метод, который убирает wordId из списка пользователя.');
-    if (textbook) {
-      textbook.userWords.delete(wordid as string);
-      // eslint-disable-next-line no-console
-      // console.log(2, textbook.userWords);
-      target.dataset.isexist = 'false';
-      target.textContent = 'Сложное слово';
-    }
+    target.dataset.isHard = String(true);
+    target.classList.add('button-hard-word');
+    (target.closest('.word-card') as HTMLElement).classList.add('hard');
+    (target.closest('.word-card') as HTMLElement).classList.remove('learned');
+    ((target.closest('.word-card') as HTMLElement)
+      .querySelector('.learned-word.button-word') as HTMLElement)
+      .classList.remove('button-learned-word');
+    ((target.closest('.word-card') as HTMLElement)
+      .querySelector('.learned-word.button-word') as HTMLElement)
+      .dataset.isLearned = String(false);
+    await wordsStatLongTerm.markWordAsHard(wordId);
   }
 };
 
 const learnedWordClickHandler = async (e: MouseEvent): Promise<void> => {
-  const wordCards = document.querySelectorAll('.word-card') as unknown as HTMLElement[];
   const target = e.target as HTMLElement;
-  const wordId = { ...target.dataset };
+  const { wordId, isLearned } = target.dataset;
   if (!wordId) return;
-  await wordsStatLongTerm.markWordAsLearned(wordId.learnedid as string)
-    .then(() => {
-      wordCards.forEach((card, ind) => {
-        const cardId = { ...card.dataset };
-        if (cardId.cardid === wordId.learnedid) {
-          wordCards[ind].classList.add('learned');
-        }
-      });
-      target.classList.add('button-learned-word');
-    });
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  if (textbook.hardWordsMode) {
+    (target.closest('.word-card') as HTMLElement).remove();
+  }
+  if (isLearned === 'true') {
+    target.dataset.isLearned = String(false);
+    target.classList.remove('button-learned-word');
+    (target.closest('.word-card') as HTMLElement).classList.remove('learned');
+    await wordsStatLongTerm.unmarkWordAsLearned(wordId);
+  } else {
+    target.dataset.isLearned = String(true);
+    target.classList.add('button-learned-word');
+    (target.closest('.word-card') as HTMLElement).classList.add('learned');
+    (target.closest('.word-card') as HTMLElement).classList.remove('hard');
+    ((target.closest('.word-card') as HTMLElement)
+      .querySelector('.difficult-word.button-word') as HTMLElement)
+      .classList.remove('button-hard-word');
+    ((target.closest('.word-card') as HTMLElement)
+      .querySelector('.difficult-word.button-word') as HTMLElement)
+      .dataset.isHard = String(false);
+    await wordsStatLongTerm.markWordAsLearned(wordId);
+  }
   new LearnedWords().makePageInactive();
 };
 
@@ -109,7 +125,6 @@ export const TextBook: PageComponentThunk = async (params) => {
 
   textbook.setGroup(group);
   textbook.setPage(page);
-  await textbook.getUserWords();
 
-  return { html: await textbook.getWordsConainer(), mount, unmount };
+  return { html: await textbook.getRenderedPage(), mount, unmount };
 };

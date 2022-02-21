@@ -88,6 +88,8 @@
   background-color: rgba(241,241,241,0.7);
   box-shadow: 0 0 0.5em #000;
   border-radius: 0.5em;
+
+  transition: background 0.2s ease;
 }
 
 
@@ -324,6 +326,16 @@
 
 .button-learned-word {
   background: #24a319;
+}
+
+.hard {
+  color: #a31939;
+  box-shadow: 0 0 0.5em #ffc5ab;
+  background: #ffc5ab;
+}
+
+.button-hard-word {
+  background: #a31925;
 }
 
 .blur {

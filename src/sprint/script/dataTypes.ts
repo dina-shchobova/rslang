@@ -70,7 +70,10 @@ export interface AggregatedWordsResponseTotalCount {
   count: number
 }
 
-export type AggregatedWordsResponsePaginatedResults = IWordData & UserWord;
+export interface AggregatedWordsResponsePaginatedResults extends IWordData {
+  _id: string
+  userWord: UserWord
+}
 
 export interface AggregatedWordsResponse {
   paginatedResults: AggregatedWordsResponsePaginatedResults[];

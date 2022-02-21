@@ -20,7 +20,6 @@ const wordsStatsResource = {
   async updateWordInUsersWordsList(word: UserWord) {
     const user: UserData = JSON.parse(<string>localStorage.getItem('user'));
     const getParams = {
-      word,
     };
     const postParams = {
       optional: word.optional,
