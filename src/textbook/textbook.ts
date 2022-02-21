@@ -88,7 +88,7 @@ export class TextBookClass {
     <div class="dropdown-groups">
     <button class="dropdown-menu color${this.group}">${this.group}</button>
     <div class="dropdown-child">
-      <a class="group-link color7" href="/#">Сложные слова</a>
+      <a class="group-link color7" href="#/text-book?group=7&page=1">Сложные слова</a>
       ${[...Array(6).keys()].map((n: number) => `
       <a
         class="group-link color${n + 1} ${this.group === n + 1 ? 'hide-link' : ''}"
@@ -102,6 +102,9 @@ export class TextBookClass {
   `;
 
   getView(words: IWordObject[]) {
+    console.log('array =', words);
+    console.log('array length = ', words.length);
+    console.log('typeof array = ', typeof words);
     let pager;
     let isZeroPageCurrent = '';
     let isLastPageCurrent = '';
@@ -163,7 +166,11 @@ export class TextBookClass {
       </div>
     </div>
     <div class="word-cards-container color${this.group}" id="words-container">
-      ${words.map((wordObject: IWordObject) => this.createCard(wordObject)).join('')}
+      ${words.map((wordObject: IWordObject) => {
+      // console.log(wordObject);
+      return this.createCard(wordObject);
+    }).join('')
+      }
     </div>
   </div>
   `;
@@ -182,21 +189,37 @@ export class TextBookClass {
     });
     const words = await rawResponse.json();
     this.userWords = new Set(words.map(({ wordId }: UserWords) => wordId));
-
-    // const content = await rawResponse;
-    // eslint-disable-next-line no-console
   }
 
   async getWords() {
-    const url = `${this.baseUrl}words?group=${this.group - 1}&page=${this.page - 1}`;
-    this.isUserLoggedIn = Boolean(window.localStorage.getItem('userAuthorized'));
-    if (this.isUserLoggedIn) {
-      // const wordObjectArray = await this.getUserWords('1', '1');
-      // this.userWords = new Set((wordObjectArray.map((x:IWordObject) => x.wordId)));
-      // eslint-disable-next-line no-console
-      // console.log(this.userWords);
+    let url;
+    const user = await getUser();
+    if (!user) return;
+    if (this.group !== MAX_GROUP) {
+      url = `${this.baseUrl}words?group=${this.group - 1}&page=${this.page - 1}`;
+      this.isUserLoggedIn = Boolean(window.localStorage.getItem('userAuthorized'));
+      // console.log('1', axios.get(url));
+      // console.log(2, axios.get(url).then((d) => d.data));
+      return axios.get(url).then((d) => d.data);
     }
-    return axios.get(url).then((d) => d.data);
+    console.log('difficult words page');
+    const b: Array<IWordObject> = [];
+    // console.log(idArray);
+    Array.from(this.userWords).forEach(async (wordId) => {
+      url = `${this.baseUrl}words/${wordId}`;
+      const rawResponse = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      const wordObj = await rawResponse.json();
+      // console.log(wordObj);
+      b.push(wordObj);
+    });
+    // console.log(b[]);
+    return b;
   }
 
   async getWordsConainer() {
@@ -215,14 +238,10 @@ export class TextBookClass {
 
   private cardDescription(wordObject: IWordObject) {
     const isExist = this.userWords.has(wordObject.id);
-    return `
-    <p class="word-translate">${wordObject.wordTranslate}</p>
-    <p class="text-meaning">${wordObject.textMeaning}</p>
-    <p class="text-meaning-translate">${wordObject.textMeaningTranslate}</p>
-    <div class="line"></div>
-    <p class="text-example">${wordObject.textExample}</p>
-    <p class="text-example-translate">${wordObject.textExampleTranslate}</p>
-    <div class="card-buttons-container">
+    let cardButtons = '';
+    if (this.isUserLoggedIn) {
+      cardButtons = `
+      <div class="card-buttons-container">
       <button
         class="difficult-word button-word"
         data-wordId="${wordObject.id}"
@@ -232,6 +251,16 @@ export class TextBookClass {
       </button>
       <button class="learned-word button-word" data-learnedId="${wordObject.id}">Изученное слово</button>
     </div>
+    `;
+    }
+    return `
+    <p class="word-translate">${wordObject.wordTranslate}</p>
+    <p class="text-meaning">${wordObject.textMeaning}</p>
+    <p class="text-meaning-translate">${wordObject.textMeaningTranslate}</p>
+    <div class="line"></div>
+    <p class="text-example">${wordObject.textExample}</p>
+    <p class="text-example-translate">${wordObject.textExampleTranslate}</p>
+    ${cardButtons}
   `;
   }
 
