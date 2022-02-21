@@ -1,6 +1,6 @@
 import { BASE_URL } from '../services/constants';
 import { IWordObject } from '../services/types';
-import { AggregatedWordsResponsePaginatedResults, UserWords, WordData } from '../sprint/script/dataTypes';
+import { AggregatedWordsResponsePaginatedResults, WordData } from '../sprint/script/dataTypes';
 import { createOneWordDiv } from '../views/components/play-word';
 import { LearnedWords } from './learnedWords';
 import { backendRequest } from '../services/requests';
@@ -202,14 +202,13 @@ export class TextBookClass {
   }
 
   private cardDescription(wordObject: IWordObject) {
-    let isExist = false;
     const isAuthorized = localStorage.getItem('userAuthorized');
     let wrongCount = 0;
     let rightCount = 0;
     let wordIsLearned = false;
+    let wordIsHard = false;
     this.usersWordsOnPage.forEach((userWord) => {
       if (wordObject.word === userWord.word) {
-        isExist = true;
         if (userWord.userWord?.optional?.progress?.right) {
           rightCount = userWord.userWord.optional.progress.right;
         }
@@ -218,6 +217,8 @@ export class TextBookClass {
         }
         if (userWord.userWord?.optional?.dateLearned) {
           wordIsLearned = true;
+        } else if (userWord.userWord?.difficulty === 'hard') {
+          wordIsHard = true;
         }
       }
     });
@@ -230,15 +231,15 @@ export class TextBookClass {
     <p class="text-example-translate">${wordObject.textExampleTranslate}</p>
     <div class="card-buttons-container">
       <button
-        class="difficult-word button-word"
-        data-wordId="${wordObject.id}"
-        data-isExist="${isExist}"
-      >
-        ${isExist ? 'Удалить из списка' : 'Сложное слово'}
+        class="difficult-word button-word ${wordIsHard ? 'button-hard-word' : ''}"
+        data-word-id="${wordObject.id}"
+        data-is-hard="${wordIsHard}"
+      >Сложное слово
       </button>
       <button
         class="learned-word button-word ${wordIsLearned ? 'button-learned-word' : ''}"
-        data-learnedId="${wordObject.id}"
+        data-word-id="${wordObject.id}"
+        data-is-learned="${wordIsLearned}"
       >Изученное слово</button>
     </div>
     <div class="progress" data-progressId="${wordObject.id}">Ответы:
@@ -261,15 +262,24 @@ export class TextBookClass {
 
   private createCard = (wordObject: IWordObject) => {
     let wordIsLearned = false;
+    let wordIsHard = false;
     this.usersWordsOnPage.forEach((userWord) => {
       if (wordObject.word === userWord.word) {
         if (userWord.userWord?.optional?.dateLearned) {
           wordIsLearned = true;
+        } else if (userWord.userWord?.difficulty === 'hard') {
+          wordIsHard = true;
         }
       }
     });
+    let cardAdditionalClass = '';
+    if (wordIsLearned) {
+      cardAdditionalClass = 'learned';
+    } else if (wordIsHard) {
+      cardAdditionalClass = 'hard';
+    }
     return `
-  <div class="word-card ${wordIsLearned ? 'learned' : ''}" data-cardId="${wordObject.id}">
+  <div class="word-card ${cardAdditionalClass}" data-cardId="${wordObject.id}">
     <img class="word-image" src="${BASE_URL + wordObject.image} " alt="${wordObject.word}"/>
     <div class="word-description">
       ${createOneWordDiv(wordObject)}${this.cardDescription(wordObject)}
