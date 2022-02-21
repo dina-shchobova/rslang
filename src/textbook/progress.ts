@@ -13,7 +13,7 @@ export class Progress {
                 const answer = item.querySelector(`.${type}`) as HTMLElement;
                 const amountAnswer = answer.querySelector(`.amount-${type}`) as HTMLElement;
                 amountAnswer.innerHTML = String(type === 'right'
-                  ? word.optional.progress.right : word.optional.progress.wrong);
+                  ? (word.optional?.progress?.right || 0) : (word.optional?.progress?.wrong || 0));
               };
               addAmount('right');
               addAmount('wrong');
