@@ -218,7 +218,7 @@ export class Sprint implements ISprint {
 
   async checkAnswer(typeAnswer: string | null): Promise<void> {
     const sprintGame = document.querySelector('.sprint-game') as HTMLElement;
-    sound.src = String(trueAnswer) === typeAnswer ? '/call_correct.mp3' : '/call_wrong.wav';
+    sound.src = String(trueAnswer) === typeAnswer ? './call_correct.mp3' : './call_wrong.wav';
     sound.volume = VOLUME;
     sound.play();
 

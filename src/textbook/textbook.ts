@@ -3,9 +3,9 @@ import { BASE_URL } from '../services/constants';
 import { IWordObject } from '../services/types';
 import { UserWords } from '../sprint/script/dataTypes';
 import { createOneWordDiv } from '../views/components/play-word';
-import { getUser } from '../services/requests';
 import { LearnedWords } from './learnedWords';
 import { Progress } from './progress';
+import { UserData } from '../authorization/dataTypes';
 
 const ZERO_PAGE = 1;
 const MAX_PAGE = 30;
@@ -176,7 +176,7 @@ export class TextBookClass {
   }
 
   async getUserWords() {
-    const user = await getUser();
+    const user: UserData = JSON.parse(<string>localStorage.getItem('user'));
     if (!user) return;
     const url = `${this.baseUrl}users/${user.userId}/words`;
     const rawResponse = await fetch(url, {

@@ -367,13 +367,13 @@ class Quiz {
 
   playYahoo(): void {
     const sound = this.getPlayer();
-    sound.src = '/call_correct.mp3';
+    sound.src = './call_correct.mp3';
     sound.play();
   }
 
   playOops(): void {
     const sound = this.getPlayer();
-    sound.src = ('/call_wrong.wav');
+    sound.src = ('./call_wrong.wav');
     sound.play();
   }
 

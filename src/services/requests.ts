@@ -1,7 +1,6 @@
 import { BASE_URL } from './constants';
 import { Authorization } from '../authorization/authorization';
 import { User } from '../authorization/dataTypes';
-import { UserWord } from '../sprint/script/dataTypes';
 
 export const updateToken = async (): Promise<User | undefined> => {
   const user = JSON.parse(<string>localStorage.getItem('user'));
@@ -33,27 +32,8 @@ export const updateToken = async (): Promise<User | undefined> => {
   return user;
 };
 
-export const getUser = async (): Promise<User | undefined> => {
-  let user = JSON.parse(<string>localStorage.getItem('user'));
-  if (user) {
-    const rawResponse = await fetch(`${BASE_URL}users/${user?.userId}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${user.token}`,
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (rawResponse.status === 401) {
-      user = await updateToken();
-    }
-  }
-  return user;
-};
-
-export const backendRequest = async (url: string, method: 'POST' | 'GET' | 'PUT' | 'UPDATE' | 'DELETE', getParams = {},
-  postParams = {}): Promise<UserWord | undefined> => {
+export const backendRequest = async (url: RequestInfo, method: 'POST' | 'GET' | 'PUT' | 'UPDATE' | 'DELETE' = 'GET', getParams = {},
+  postParams = {}): Promise<any | undefined> => {
   let user = JSON.parse(<string>localStorage.getItem('user'));
   const newUrl = new URL(BASE_URL + url);
 
@@ -77,9 +57,7 @@ export const backendRequest = async (url: string, method: 'POST' | 'GET' | 'PUT'
 
   if (response.ok) {
     return response.json();
-  }
-
-  if (response.status === 401) {
+  } if (response.status === 401) {
     const oldToken = user.token;
     user = await updateToken();
 
@@ -87,6 +65,8 @@ export const backendRequest = async (url: string, method: 'POST' | 'GET' | 'PUT'
       return backendRequest(url, method, getParams, postParams);
     }
     document.location.href = '#/authorization';
+  } else {
+    throw new Error(`${response.status}`);
   }
   return undefined;
 };
