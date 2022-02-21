@@ -152,6 +152,13 @@ export class TextBookClass {
     const disabledIfMaxPage = this.page === MAX_PAGE ? ' disabled' : '';
     const disableLowThan7 = this.page <= PAGINATION_BTNS_QUANITY ? ' disabled' : '';
     const disableMoreThan23 = this.page > MAX_PAGE - PAGINATION_BTNS_QUANITY ? ' disabled' : '';
+
+    setTimeout(() => {
+      const isAuthorized = localStorage.getItem('userAuthorized');
+      const hardWords = document.querySelector('.color7') as HTMLElement;
+      isAuthorized ? hardWords.classList.remove('inactive-hard-words') : hardWords.classList.add('inactive-hard-words');
+    }, 10)
+
     return `
     <div class="textbook-container">
       <button id="scroll-up" class="scroll-up">&#187;</button>
