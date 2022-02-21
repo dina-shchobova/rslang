@@ -23,6 +23,7 @@
   cursor: pointer;
   transform: rotate(270deg);
   z-index: 10;
+  transition: 0.3s;
 }
 
 
@@ -71,7 +72,7 @@
   flex-direction: column;
   gap: 1em;
   margin-top: 2em;
-  padding: 0 2em;
+  padding: 2em;
 }
 
 
@@ -318,7 +319,6 @@
 
 .learned {
   color: #24a319;
-  box-shadow: 0 0 0.5em #d0f0c0;
   background: #d0f0c0;
 }
 
@@ -373,8 +373,17 @@
 }
 
 .page-learned {
-  pointer-events: none;
-  filter: blur(3px);
+  background: #efffe9;
+  padding: 2em;
+  border-radius: 10px;
+}
+
+.difficult {
+  background: #ffc5ab;
+
+  .difficult-word {
+    background: red;
+  }
 }
 
 

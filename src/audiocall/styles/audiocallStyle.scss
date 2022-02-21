@@ -175,13 +175,9 @@ $colorWrongAnswer: #ff1e00;
   &__answer-buttons {
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
     flex-direction: row;
-    justify-content: space-around;
-    @media (max-width: 1024px) {
-      flex-direction: column;
-      height: 17rem;
-      align-items: center;
-    }
+    justify-content: center;
   }
 
   &__answer-button,
@@ -189,15 +185,19 @@ $colorWrongAnswer: #ff1e00;
   &__close-result,
   &__start {
     cursor: pointer;
-    width: 12rem;
-    height: 3rem;
+    width: 10.5rem;
+    height: 3.5rem;
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: white;
     border-radius: 0.5rem;
-    border: 3px solid $firstAccent;
+    border: 3px solid #2a7799;
     transition: 0.3s;
+    margin: 5px;
+    padding: 10px;
+    text-align: center;
+    word-break: break-all;
 
     &.game-call__answer-button_active {
       border-color: $colorWrongAnswer;
