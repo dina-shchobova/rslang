@@ -9,7 +9,11 @@ const wordsStatsResource = {
   async checkWordIsInUserWordsList(wordId: string): Promise<UserWord | undefined> {
     const user: UserData = JSON.parse(<string>localStorage.getItem('user'));
     if (!user) return undefined;
-    return backendRequest(`users/${user?.userId}/words/${wordId}`);
+    try {
+      return await backendRequest(`users/${user?.userId}/words/${wordId}`);
+    } catch (e) {
+      return undefined;
+    }
   },
 
   // обновить кол-во правильных ответов на слове в долгосрочной статитстике
@@ -100,7 +104,11 @@ const wordsStatsResource = {
     const resp = await backendRequest(
       `users/${user?.userId}/aggregatedWords`,
       'GET',
-      { page: 1, wordsPerPage: 1, filter },
+      {
+        page: 1,
+        wordsPerPage: 1,
+        filter,
+      },
     ) as AggregatedWordsResponse[];
     return (resp[0].totalCount[0]?.count || 0) as number;
   },
