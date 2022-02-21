@@ -9,7 +9,7 @@ import {
 import { wordsStatLongTerm } from '../../countNewAndLearnWords/wordsStat';
 import { Spinner } from '../../spinner/spinner';
 import { getIsLearnedWordsList } from '../../audiocall/scripts/audiocallServices';
-import { IWordData } from '../../audiocall/scripts/audiocallTypes';
+import { getHardWords } from '../../textbook/requests';
 
 const AMOUNT_WORDS = 20;
 const AMOUNT_PAGE = 30;
@@ -20,7 +20,7 @@ let currentWord = 0;
 let trueAnswer = false;
 let answers: (string | boolean)[][] = [];
 const VOLUME = 0.4;
-let words: [WordData] | [];
+let words: WordData[];
 let wordId = '';
 let currentSeriesLength = 0;
 let currentGroup: number;
@@ -93,12 +93,18 @@ export class Sprint implements ISprint {
   }
 
   static async generateWordsForTourFromBook(page: number) {
-    words = await getWord(currentGroup, page);
     if (localStorage.getItem('userAuthorized') === 'true' && window.location.hash.includes('page=')) {
-      const isLearnedWords = await getIsLearnedWordsList(words as IWordData[]);
-      const arr: string[] = [];
-      isLearnedWords.forEach((learnedWord: AggregatedWordsResponsePaginatedResults) => arr.push(learnedWord.word));
-      words = words.filter((wordForTour) => !arr.includes(wordForTour.word)) as [WordData] | [];
+      if (currentGroup === 6) {
+        words = await getHardWords();
+      } else {
+        words = await getWord(currentGroup, page);
+        const isLearnedWords = await getIsLearnedWordsList(words as WordData[]);
+        const arr: string[] = [];
+        isLearnedWords.forEach((learnedWord: AggregatedWordsResponsePaginatedResults) => arr.push(learnedWord.word));
+        words = words.filter((wordForTour) => !arr.includes(wordForTour.word)) as [WordData] | [];
+      }
+    } else {
+      words = await getWord(currentGroup, page);
     }
   }
 

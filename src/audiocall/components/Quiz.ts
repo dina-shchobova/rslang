@@ -1,9 +1,10 @@
-import { IAnswerOnPage, IGameCallComponent, IWordData } from '../scripts/audiocallTypes';
+import { IAnswerOnPage, IGameCallComponent } from '../scripts/audiocallTypes';
 import { gameCallState } from '../scripts/audiocallState';
 import { wordsStatLongTerm } from '../../countNewAndLearnWords/wordsStat';
 import { Spinner } from '../../spinner/spinner';
 import { getIsLearnedWordsList, getWords } from '../scripts/audiocallServices';
-import { AggregatedWordsResponsePaginatedResults } from '../../sprint/script/dataTypes';
+import { AggregatedWordsResponsePaginatedResults, WordData } from '../../sprint/script/dataTypes';
+import { getHardWords } from '../../textbook/requests';
 
 function shuffleAnswers(array: IAnswerOnPage[]): IAnswerOnPage[] {
   let currentIndex = array.length;
@@ -60,7 +61,7 @@ class Quiz {
 
   answerImgContainer?: HTMLElement;
 
-  wordsForTour: IWordData[];
+  wordsForTour: WordData[];
 
   answersOnPage: IAnswerOnPage[];
 
@@ -158,7 +159,7 @@ class Quiz {
 
   async loadWordsForTour(): Promise<boolean> {
     const getFilteredWordsFromPage = async (level: number, pageNum: number) => {
-      const words: IWordData[] = await getWords(level, pageNum);
+      const words: WordData[] = await getWords(level, pageNum);
       const learnedWordsResp: AggregatedWordsResponsePaginatedResults[] = await getIsLearnedWordsList(words);
       const learnedWords: string[] = learnedWordsResp.map((w) => w.word);
       return words.filter((w) => !learnedWords.includes(w.word));
@@ -167,10 +168,14 @@ class Quiz {
     let page = this.getNumberPage();
     const level = this.getNumberGroup();
     if (localStorage.getItem('userAuthorized') === 'true' && window.location.hash.includes('page=')) {
-      while (this.wordsForTour.length < 20 && page >= 0) {
-        // eslint-disable-next-line no-await-in-loop
-        this.wordsForTour.push(...await getFilteredWordsFromPage(level, page));
-        page -= 1;
+      if (level === 6) {
+        this.wordsForTour = await getHardWords();
+      } else {
+        while (this.wordsForTour.length < 20 && page >= 0) {
+          // eslint-disable-next-line no-await-in-loop
+          this.wordsForTour.push(...await getFilteredWordsFromPage(level, page));
+          page -= 1;
+        }
       }
     } else {
       this.wordsForTour = await getWords(level, page);
@@ -187,7 +192,7 @@ class Quiz {
     (this.rootElement as HTMLElement).innerHTML = 'Неизученных слов меньше 5. Слов для игры недостаточно';
   }
 
-  static wrapAnswer(answerData: IWordData): IAnswerOnPage {
+  static wrapAnswer(answerData: WordData): IAnswerOnPage {
     return {
       answerData,
       correct: undefined,
@@ -216,7 +221,7 @@ class Quiz {
     };
   }
 
-  getRandomIncorrectWord(): IWordData {
+  getRandomIncorrectWord(): WordData {
     const allWordsAmount = this.wordsForTour.length;
     const randomNumber = Math.floor(Math.random() * allWordsAmount);
     const potentialWord = this.wordsForTour[randomNumber];

@@ -1,9 +1,10 @@
 import { gameCallState } from '../scripts/audiocallState';
 import {
-  IGameCallComponent, ICallLevelsComponent, IWordData,
+  IGameCallComponent, ICallLevelsComponent,
 } from '../scripts/audiocallTypes';
 import { wordStatToday } from '../../countNewAndLearnWords/wordsStat';
 import { BASE_URL } from '../../services/constants';
+import { WordData } from '../../sprint/script/dataTypes';
 
 const htmlCodeResult = `
       <h2 class="title">Результаты</h2>
@@ -36,7 +37,7 @@ class Results implements ICallLevelsComponent {
 
   sound?: HTMLAudioElement;
 
-  currentWord?: IWordData;
+  currentWord?: WordData;
 
   constructor(game: IGameCallComponent) {
     this.game = game;
@@ -89,7 +90,7 @@ class Results implements ICallLevelsComponent {
     return (this.rootElement as HTMLElement).querySelector(selector) as HTMLElement;
   }
 
-  insertAnswer(selector: string, arrayAnswers: IWordData[], answerClass: 'correct-answer' | 'wrong-answer'): void {
+  insertAnswer(selector: string, arrayAnswers: WordData[], answerClass: 'correct-answer' | 'wrong-answer'): void {
     const box = this.getElementBySelector(selector);
     arrayAnswers.forEach((answer) => {
       const wordBox = document.createElement('div');
@@ -119,12 +120,12 @@ class Results implements ICallLevelsComponent {
     return this.sound;
   }
 
-  static getClickedWord(id: string): IWordData {
+  static getClickedWord(id: string): WordData {
     const allAnswer = [...gameCallState.correctAnswers, ...gameCallState.wrongAnswers];
-    return allAnswer.find((item) => item.id === id) as IWordData;
+    return allAnswer.find((item) => item.id === id) as WordData;
   }
 
-  playSoundAnswer(wordToPlay: IWordData): void {
+  playSoundAnswer(wordToPlay: WordData): void {
     const sound = this.getPlayer();
     const { audio } = wordToPlay;
     sound.src = `${BASE_URL}${audio}`;

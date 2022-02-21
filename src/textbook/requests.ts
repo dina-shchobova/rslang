@@ -1,4 +1,4 @@
-import { AggregatedWordsResponse, AggregatedWordsResponsePaginatedResults } from '../sprint/script/dataTypes';
+import { AggregatedWordsResponse, AggregatedWordsResponsePaginatedResults, WordData } from '../sprint/script/dataTypes';
 import { backendRequest } from '../services/requests';
 import { UserData } from '../authorization/dataTypes';
 
@@ -28,4 +28,22 @@ const getUsersWordsOnPage = async (words:string[]): Promise<AggregatedWordsRespo
   return resp[0].paginatedResults;
 };
 
-export { getUsersWordsOnPage };
+const getHardWords = async (): Promise<WordData[]> => {
+  const user: UserData = JSON.parse(<string>localStorage.getItem('user'));
+  const filter = JSON.stringify({
+    'userWord.difficulty': 'hard',
+  });
+  const resp = await backendRequest(
+    `users/${user?.userId}/aggregatedWords`,
+    'GET',
+    {
+      page: 0,
+      wordsPerPage: 200,
+      filter,
+    },
+  ) as AggregatedWordsResponse[];
+  // eslint-disable-next-line no-underscore-dangle
+  return resp[0].paginatedResults.map((w) => { w.id = w._id; return w; });
+};
+
+export { getUsersWordsOnPage, getHardWords };
