@@ -344,8 +344,8 @@ footer {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 10px;
-  font-size: 24px;
+  padding: 10px 10px 0;
+  font-size: 22px;
   text-shadow: 0 0 10px black;
 
   .year {
@@ -369,8 +369,8 @@ footer {
   }
 
   .rs-school {
-    width: 100px;
-    height: 60px;
+    width: 90px;
+    height: 50px;
     background: url("/public/assets/svg/rs_school_js.svg") no-repeat center;
     background-size: contain;
     transition: 0.3s;
