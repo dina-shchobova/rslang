@@ -4,6 +4,7 @@ import { PageComponentThunk } from '../../services/types';
 import { TextBookClass } from '../../textbook/textbook';
 import { createHandler as createAudioHandler } from '../components/play-word';
 import { LearnedWords } from '../../textbook/learnedWords';
+import { Spinner } from '../../spinner/spinner';
 
 let textbook: TextBookClass | null;
 let pager: HTMLDivElement | null;
@@ -96,6 +97,10 @@ export const TextBook: PageComponentThunk = async (params) => {
   const args = params as { group: string, page: string };
   const group = +args.group;
   const page = +args.page;
+
+  const main = document.querySelector('main') as HTMLElement;
+  main.classList.add('without-scroll');
+  new Spinner().addSpinner(main);
 
   if (Number.isNaN(group) || Number.isNaN(page)) {
     window.location.hash = textbook.formatHash();
