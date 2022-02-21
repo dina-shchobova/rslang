@@ -109,7 +109,6 @@ export const TextBook: PageComponentThunk = async (params) => {
 
   textbook.setGroup(group);
   textbook.setPage(page);
-  await textbook.getUserWords();
 
-  return { html: await textbook.getWordsConainer(), mount, unmount };
+  return { html: await textbook.getRenderedPage(), mount, unmount };
 };

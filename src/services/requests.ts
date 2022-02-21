@@ -42,13 +42,17 @@ export const backendRequest = async (url: RequestInfo, method: 'POST' | 'GET' | 
   }
 
   if (!newUrl) return undefined;
+
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json',
+  };
+  if (user) {
+    headers.Authorization = `Bearer ${user.token}`;
+  }
   const requestParams: RequestInit = {
     method,
-    headers: {
-      Authorization: `Bearer ${user.token}`,
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
+    headers,
   };
   if (method !== 'GET') {
     requestParams.body = JSON.stringify(postParams);
