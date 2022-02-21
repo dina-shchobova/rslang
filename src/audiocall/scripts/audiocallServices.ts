@@ -1,10 +1,10 @@
 import { IWordData } from './audiocallTypes';
 import { BASE_URL } from '../../services/constants';
-import { getUser } from '../../services/requests';
 import {
   AggregatedWordsResponse,
   AggregatedWordsResponsePaginatedResults,
 } from '../../sprint/script/dataTypes';
+import { UserData } from '../../authorization/dataTypes';
 
 export const getWords = async (group: number, page: number): Promise<IWordData[]> => {
   const rawResponse = await fetch(`${BASE_URL}words?group=${group}&page=${page}`, {
@@ -20,7 +20,7 @@ export const getWords = async (group: number, page: number): Promise<IWordData[]
 };
 
 export const getIsLearnedWordsList = async (words: IWordData[]): Promise<AggregatedWordsResponsePaginatedResults[]> => {
-  const user = await getUser();
+  const user: UserData = JSON.parse(<string>localStorage.getItem('user'));
 
   const url = new URL(`${BASE_URL}users/${user?.userId}/aggregatedWords`);
 
