@@ -24,6 +24,11 @@ const difficultWordClickHandler = async (e: MouseEvent): Promise<void> => {
   const target = e.target as HTMLElement;
   const { wordId, isHard } = target.dataset;
   if (!wordId) return;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  if (textbook.hardWordsMode) {
+    (target.closest('.word-card') as HTMLElement).remove();
+  }
   if (isHard === 'true') {
     target.dataset.isHard = String(false);
     target.classList.remove('button-hard-word');
@@ -48,6 +53,11 @@ const learnedWordClickHandler = async (e: MouseEvent): Promise<void> => {
   const target = e.target as HTMLElement;
   const { wordId, isLearned } = target.dataset;
   if (!wordId) return;
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  if (textbook.hardWordsMode) {
+    (target.closest('.word-card') as HTMLElement).remove();
+  }
   if (isLearned === 'true') {
     target.dataset.isLearned = String(false);
     target.classList.remove('button-learned-word');

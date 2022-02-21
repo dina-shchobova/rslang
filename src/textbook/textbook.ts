@@ -1,10 +1,11 @@
 import { BASE_URL } from '../services/constants';
 import { IWordObject } from '../services/types';
-import { AggregatedWordsResponsePaginatedResults, WordData } from '../sprint/script/dataTypes';
+import { AggregatedWordsResponse, AggregatedWordsResponsePaginatedResults, WordData } from '../sprint/script/dataTypes';
 import { createOneWordDiv } from '../views/components/play-word';
 import { LearnedWords } from './learnedWords';
 import { backendRequest } from '../services/requests';
 import { getUsersWordsOnPage } from './requests';
+import { UserData } from '../authorization/dataTypes';
 
 const ZERO_PAGE = 1;
 const MAX_PAGE = 30;
@@ -19,6 +20,8 @@ export class TextBookClass {
 
   private page: number;
 
+  private hardWordsMode: boolean;
+
   private baseUrl: string;
 
   private container: HTMLElement;
@@ -31,6 +34,7 @@ export class TextBookClass {
     initGroup = 1, initPage = ZERO_PAGE) {
     this.group = initGroup;
     this.page = initPage;
+    this.hardWordsMode = false;
     this.baseUrl = baseUrl;
     this.container = container;
     this.wordsOnPage = [];
@@ -94,7 +98,7 @@ export class TextBookClass {
     <div class="dropdown-groups">
     <button class="dropdown-menu color${this.group}">${this.group}</button>
     <div class="dropdown-child">
-      <a class="group-link color7" href="/#">Сложные слова</a>
+      <a class="group-link color7" href="#/text-book?group=7&page=1">Сложные слова</a>
       ${[...Array(6).keys()].map((n: number) => `
       <a
         class="group-link color${n + 1} ${this.group === n + 1 ? 'hide-link' : ''}"
@@ -161,7 +165,7 @@ export class TextBookClass {
       </div>
       <div class="pages-groups-container">
         ${this.getGroupButton()}
-        <div id="pagination-buttons" class="pagination-buttons">
+        <div id="pagination-buttons" class="pagination-buttons" ${this.hardWordsMode ? 'style="display: none"' : ''}>
         ${this.createPagerButton(BTN_PREV_ROLE, previousPage, '&#9664', disabledIfZero, '', 'prev-button')}
         ${this.createPagerButton('', ZERO_PAGE, ZERO_PAGE, '', `num ${isZeroPageCurrent}`)}
         ${this.createPagerButton('', pageMinusSeven, '...', disableLowThan7, 'num', '', disableLowThanZero)}
@@ -179,12 +183,32 @@ export class TextBookClass {
   }
 
   async getWords() {
+    if (this.group === 7) {
+      this.hardWordsMode = true;
+      const user: UserData = JSON.parse(<string>localStorage.getItem('user'));
+      const filter = JSON.stringify({
+        'userWord.difficulty': 'hard',
+      });
+      const resp = await backendRequest(
+        `users/${user?.userId}/aggregatedWords`,
+        'GET',
+        {
+          page: 0,
+          wordsPerPage: 200,
+          filter,
+        },
+      ) as AggregatedWordsResponse[];
+      // eslint-disable-next-line no-underscore-dangle
+      return resp[0].paginatedResults.map((w) => { w.id = w._id; return w; });
+    }
     return backendRequest(`words?group=${this.group - 1}&page=${this.page - 1}`);
   }
 
   async getRenderedPage() {
     this.wordsOnPage = await this.getWords();
-    this.usersWordsOnPage = await getUsersWordsOnPage(this.wordsOnPage.map((w) => w.word));
+    if (this.wordsOnPage.length) {
+      this.usersWordsOnPage = await getUsersWordsOnPage(this.wordsOnPage.map((w) => w.word));
+    }
     setTimeout(() => {
       new LearnedWords().makePageInactive();
     }, 10);

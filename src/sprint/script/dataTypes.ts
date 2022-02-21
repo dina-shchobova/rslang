@@ -71,6 +71,7 @@ export interface AggregatedWordsResponseTotalCount {
 }
 
 export interface AggregatedWordsResponsePaginatedResults extends IWordData {
+  _id: string
   userWord: UserWord
 }
 
